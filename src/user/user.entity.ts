@@ -16,4 +16,13 @@ export class User extends BaseEntity {
 
   @Column()
   address: string;
+
+  @Column()
+  profession: string;
+
+  @Column()
+  country: string;
+
+  @Column()
+  state: string;
 }
