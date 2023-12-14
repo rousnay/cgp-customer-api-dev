@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-// import { ServeStaticModule } from '@nestjs/serve-static';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -23,10 +22,6 @@ import { UserModule } from './user/user.module';
         rejectUnauthorized: true,
       },
     }),
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '..', 'swagger-static'),
-    //   serveRoot: process.env.NODE_ENV === 'development' ? '/' : '/swagger',
-    // }),
     UserModule,
   ],
   controllers: [AppController],
