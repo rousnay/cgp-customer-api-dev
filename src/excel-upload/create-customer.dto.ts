@@ -19,4 +19,16 @@ export class CreateCustomerDto {
 
   @IsString()
   streetName: string;
+
+  @IsString()
+  streetNumber: string;
+
+  @IsString()
+  streetType: string;
+
+  @IsString()
+  city: string;
+
+  @IsString()
+  zipCode: string;
 }

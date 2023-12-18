@@ -10,7 +10,6 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ExcelUploadService } from './excel-upload.service';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import * as excel from 'exceljs';
 
 @Controller('upload')
 @ApiTags('upload')

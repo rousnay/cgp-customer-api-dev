@@ -22,4 +22,16 @@ export class CustomerEntity extends BaseEntity {
 
   @Column()
   streetName: string;
+
+  @Column()
+  streetNumber: string;
+
+  @Column()
+  streetType: string;
+
+  @Column()
+  city: string;
+
+  @Column()
+  zipCode: string;
 }

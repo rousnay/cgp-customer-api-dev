@@ -30,7 +30,7 @@ export class ExcelUploadService {
   //   }
   // }
 
-  async uploadToDatabase(filePath: string) {
+  async uploadToDatabase(filePath: string): Promise<string> {
     const workbook = new excel.Workbook();
     await workbook.xlsx.readFile(filePath);
 
@@ -50,6 +50,10 @@ export class ExcelUploadService {
       entity.sex = row[27] ?? ' ';
       entity.birthDate = row[28] ?? ' ';
       entity.streetName = row[12] ?? ' ';
+      entity.streetNumber = row[9] ?? ' ';
+      entity.streetType = row[13] ?? ' ';
+      entity.city = row[17] ?? ' ';
+      entity.zipCode = row[18] ?? ' ';
       // ... Assign other properties
 
       await this.customerRepository.save(entity); // Save the entity to the database
