@@ -10,6 +10,9 @@ async function bootstrap() {
     .setDescription(process.env.APP_DESCRIPTION)
     .setVersion(process.env.APP_VERSION)
     // .addTag('The Documentation')
+    // .addServer('http://localhost:3000/', 'Local environment')
+    // .addServer('https://staging.yourapi.com/', 'Staging')
+    // .addServer('https://production.yourapi.com/', 'Production')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {
