@@ -9,7 +9,7 @@ export class Customer extends BaseEntity {
   sosVoterId: string;
 
   @Column()
-  idNumber: string;
+  idNumber: number;
 
   @Column()
   voterStatus: string;

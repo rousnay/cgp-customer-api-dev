@@ -10,38 +10,43 @@ import {
 import { CustomerService } from '../services/customer.service';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { Customer } from '../entities/customer.entity';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
-@Controller('user')
-export class UserController {
-  constructor(private userService: CustomerService) {}
+@Controller('customer')
+@ApiTags('Customer')
+export class CustomerController {
+  constructor(private customerService: CustomerService) {}
 
   @Post('create')
-  public async createUser(
-    @Body() createUserDto: CreateCustomerDto,
+  public async createCustomer(
+    @Body() createCustomerDto: CreateCustomerDto,
   ): Promise<Customer> {
-    return await this.userService.createUser(createUserDto);
+    return await this.customerService.createCustomer(createCustomerDto);
   }
 
   @Get('all')
-  public async getUsers(): Promise<Customer[]> {
-    return await this.userService.getUsers();
+  public async getCustomers(): Promise<Customer[]> {
+    return await this.customerService.getCustomers();
   }
 
-  @Get('/:userId')
-  public async getUser(@Param('userId') userId: number) {
-    return await this.userService.getUser(userId);
+  @Get('/:customerId')
+  public async getCustomer(@Param('customerId') customerId: number) {
+    return await this.customerService.getCustomer(customerId);
   }
 
-  @Patch('/edit/:userId')
-  public async editUser(
-    @Body() createUserDto: CreateCustomerDto,
-    @Param('userId') userId: number,
+  @Patch('/edit/:customerId')
+  public async editCustomer(
+    @Body() createCustomerDto: CreateCustomerDto,
+    @Param('customerId') customerId: number,
   ): Promise<Customer> {
-    return await this.userService.editUser(userId, createUserDto);
+    return await this.customerService.editCustomer(
+      customerId,
+      createCustomerDto,
+    );
   }
 
-  @Delete('/delete/:userId')
-  public async deleteUser(@Param('userId') userId: number) {
-    return await this.userService.deleteUser(userId);
+  @Delete('/delete/:customerId')
+  public async deleteCustomer(@Param('customerId') customerId: number) {
+    return await this.customerService.deleteCustomer(customerId);
   }
 }

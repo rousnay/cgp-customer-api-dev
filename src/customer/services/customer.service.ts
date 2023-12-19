@@ -8,43 +8,45 @@ import { Repository } from 'typeorm';
 export class CustomerService {
   constructor(
     @InjectRepository(Customer)
-    private userRepository: Repository<Customer>,
+    private customerRepository: Repository<Customer>,
   ) {}
 
-  public async createUser(createUserDto: CreateCustomerDto): Promise<Customer> {
-    return await this.userRepository.save(createUserDto);
-  }
-
-  public async getUsers(): Promise<Customer[]> {
-    return await this.userRepository.find();
-  }
-
-  public async getUser(userId: number): Promise<Customer> {
-    return await this.userRepository.findOne({
-      where: { id: userId },
-    });
-  }
-
-  public async editUser(
-    userId: number,
-    createUserDto: CreateCustomerDto,
+  public async createCustomer(
+    createCustomerDto: CreateCustomerDto,
   ): Promise<Customer> {
-    const editedUser = await this.userRepository.findOne({
-      where: { id: userId },
+    return await this.customerRepository.save(createCustomerDto);
+  }
+
+  public async getCustomers(): Promise<Customer[]> {
+    return await this.customerRepository.find();
+  }
+
+  public async getCustomer(customerId: number): Promise<Customer> {
+    return await this.customerRepository.findOne({
+      where: { idNumber: customerId },
+    });
+  }
+
+  public async editCustomer(
+    customerId: number,
+    createCustomerDto: CreateCustomerDto,
+  ): Promise<Customer> {
+    const editedCustomer = await this.customerRepository.findOne({
+      where: { idNumber: customerId },
     });
 
-    if (!editedUser) {
-      throw new NotFoundException('User not found');
+    if (!editedCustomer) {
+      throw new NotFoundException('Customer not found');
     }
-    const result = await this.userRepository.update(
-      { id: userId },
-      createUserDto,
+    const result = await this.customerRepository.update(
+      { idNumber: customerId },
+      createCustomerDto,
     );
     console.log(result);
-    return editedUser;
+    return editedCustomer;
   }
 
-  public async deleteUser(userId: number): Promise<void> {
-    await this.userRepository.delete(userId);
+  public async deleteCustomer(customerId: number): Promise<void> {
+    await this.customerRepository.delete(customerId);
   }
 }

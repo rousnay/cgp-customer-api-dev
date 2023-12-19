@@ -1,10 +1,12 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, MaxLength } from 'class-validator';
 export class CreateCustomerDto {
   @IsString()
   sosVoterId: string;
 
-  @IsString()
-  idNumber: string;
+  @IsNumber()
+  @IsNotEmpty()
+  @MaxLength(25)
+  idNumber: number;
 
   @IsString()
   voterStatus: string;
@@ -13,8 +15,6 @@ export class CreateCustomerDto {
   partyCode: string;
 
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(25)
   firstName: string;
 
   @IsString()
