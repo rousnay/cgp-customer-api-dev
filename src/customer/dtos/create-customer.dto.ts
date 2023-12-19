@@ -1,6 +1,18 @@
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 export class CreateCustomerDto {
   @IsString()
+  sosVoterId: string;
+
+  @IsString()
+  idNumber: string;
+
+  @IsString()
+  voterStatus: string;
+
+  @IsString()
+  partyCode: string;
+
+  @IsString()
   @IsNotEmpty()
   @MaxLength(25)
   firstName: string;

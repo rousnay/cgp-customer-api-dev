@@ -1,9 +1,21 @@
 import { Entity, Column, BaseEntity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class CustomerEntity extends BaseEntity {
+export class Customer extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  sosVoterId: string;
+
+  @Column()
+  idNumber: string;
+
+  @Column()
+  voterStatus: string;
+
+  @Column()
+  partyCode: string;
 
   @Column()
   firstName: string;

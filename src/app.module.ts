@@ -5,7 +5,7 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
-import { ExcelUploadModule } from './excel-upload/excel-upload.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { ExcelUploadModule } from './excel-upload/excel-upload.module';
       },
     }),
     UserModule,
-    ExcelUploadModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

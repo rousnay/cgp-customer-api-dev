@@ -1,4 +1,3 @@
-// upload.controller.ts
 import {
   Controller,
   Post,
@@ -8,11 +7,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ExcelUploadService } from './excel-upload.service';
+import { ExcelUploadService } from '../services/excel-upload.service';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @Controller('upload')
-@ApiTags('upload')
+@ApiTags('Excel Upload')
 export class ExcelUploadController {
   constructor(private readonly excelUploadService: ExcelUploadService) {}
 
@@ -22,11 +21,24 @@ export class ExcelUploadController {
       storage: diskStorage({
         destination: './uploads', // Destination folder for uploaded files
         filename: (req, file, callback) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          return callback(null, `${randomName}${extname(file.originalname)}`);
+          const originalName = file.originalname;
+          const date = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
+          const time = new Date().toLocaleTimeString('en-US', {
+            hour12: false,
+          }); // Current time in HH:MM:SS format
+          const formattedTime = time.replace(/:/g, '-'); // Replacing colons with underscores for HH_MM_SS
+          const randomNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
+
+          const fileNameParts = [
+            originalName.replace(/\.[^/.]+$/, ''), // File name without extension
+            date,
+            formattedTime,
+            randomNumber.toString(),
+          ];
+
+          const finalFileName =
+            fileNameParts.join('_') + extname(file.originalname); // Join parts with underscores
+          return callback(null, finalFileName);
         },
       }),
     }),
@@ -39,7 +51,6 @@ export class ExcelUploadController {
         // comment: { type: 'string' },
         // outletId: { type: 'integer' },
         file: {
-          // 👈 this property
           type: 'string',
           format: 'binary',
         },
@@ -52,13 +63,4 @@ export class ExcelUploadController {
     console.log(filePath);
     return this.excelUploadService.uploadToDatabase(filePath);
   }
-  // async uploadXlsxFile(@UploadedFile() file: Express.Multer.File) {
-  //   const workbook = new excel.Workbook();
-  //   await workbook.xlsx.readFile(file.path);
-  //   const sheet = workbook.getWorksheet(1); // Get the first sheet
-  //   const data = sheet.getSheetValues(); // Fetch all data from the sheet
-
-  //   // Pass the data to the service for further processing
-  //   return this.excelUploadService.processExcelData(data);
-  // }
 }
