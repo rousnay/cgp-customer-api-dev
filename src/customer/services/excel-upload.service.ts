@@ -22,6 +22,23 @@ export class ExcelUploadService {
     // Process rows and save to database
     for (const row of rows.slice(2)) {
       //slice(2) to skip the header
+
+      const sosVoterId = row[1]; // Assuming row[1] contains the sosVoterId
+
+      if (!sosVoterId) {
+        continue; // Skip if sosVoterId is not present
+      }
+
+      // Check if sosVoterId exists in the database
+      const existingCustomer = await this.customerRepository.findOne({
+        where: { sosVoterId },
+      });
+
+      if (existingCustomer) {
+        // Skip if sosVoterId already exists
+        continue;
+      }
+
       const dto = new CreateCustomerDto();
 
       dto.sosVoterId = row[1] ?? ' ';
