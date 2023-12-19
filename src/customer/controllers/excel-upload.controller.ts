@@ -19,7 +19,7 @@ export class ExcelUploadController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './tmp/uploads', // Destination folder for uploaded files
+        destination: './tmp', // Destination folder for uploaded files
         filename: (req, file, callback) => {
           const originalName = file.originalname;
           const date = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
