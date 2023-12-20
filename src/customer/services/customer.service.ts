@@ -17,8 +17,13 @@ export class CustomerService {
     return await this.customerRepository.save(createCustomerDto);
   }
 
-  public async getCustomers(): Promise<Customer[]> {
-    return await this.customerRepository.find();
+  public async getCustomers({ page = 1, limit = 10 }): Promise<Customer[]> {
+    const offset = (page - 1) * limit;
+
+    return await this.customerRepository.find({
+      skip: offset,
+      take: limit,
+    });
   }
 
   public async getCustomer(customerId: number): Promise<Customer> {

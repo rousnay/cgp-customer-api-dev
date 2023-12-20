@@ -6,11 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CustomerService } from '../services/customer.service';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { Customer } from '../entities/customer.entity';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags, ApiQuery } from '@nestjs/swagger';
 
 @Controller('customer')
 @ApiTags('Customer')
@@ -25,8 +26,21 @@ export class CustomerController {
   }
 
   @Get('all')
-  public async getCustomers(): Promise<Customer[]> {
-    return await this.customerService.getCustomers();
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  public async getCustomers(
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+  ): Promise<Customer[]> {
+    const parsedPage = parseInt(page, 10);
+    const parsedLimit = parseInt(limit, 10);
+
+    const customers = await this.customerService.getCustomers({
+      page: parsedPage,
+      limit: parsedLimit,
+    });
+
+    return customers;
   }
 
   @Get('/:customerId')
