@@ -23,9 +23,14 @@ export class CustomerService {
       take: limit,
     });
 
+    const totalCount = await this.customerRepository.count(); // Method to get total count from your service
+
     return {
       message: 'Customers fetched successfully',
       status: 'success',
+      totalCount,
+      currentPage: page,
+      currentLimit: limit,
       data: customers,
     };
   }
@@ -64,4 +69,8 @@ export class CustomerService {
   public async deleteCustomer(customerId: number): Promise<void> {
     await this.customerRepository.delete(customerId);
   }
+
+  // public async getTotalCustomerCount(): Promise<number> {
+  //   return await this.customerRepository.count();
+  // }
 }
