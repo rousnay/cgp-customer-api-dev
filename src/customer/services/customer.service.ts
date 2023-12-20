@@ -11,12 +11,6 @@ export class CustomerService {
     private customerRepository: Repository<Customer>,
   ) {}
 
-  public async createCustomer(
-    createCustomerDto: CreateCustomerDto,
-  ): Promise<Customer> {
-    return await this.customerRepository.save(createCustomerDto);
-  }
-
   public async getCustomers({ page = 1, limit = 10 }): Promise<Customer[]> {
     const offset = (page - 1) * limit;
 
@@ -30,6 +24,12 @@ export class CustomerService {
     return await this.customerRepository.findOne({
       where: { idNumber: customerId },
     });
+  }
+
+  public async createCustomer(
+    createCustomerDto: CreateCustomerDto,
+  ): Promise<Customer> {
+    return await this.customerRepository.save(createCustomerDto);
   }
 
   public async editCustomer(

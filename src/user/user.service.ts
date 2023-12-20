@@ -11,10 +11,6 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  public async createUser(createUserDto: CreateUserDTO): Promise<User> {
-    return await this.userRepository.save(createUserDto);
-  }
-
   public async getUsers(): Promise<User[]> {
     return await this.userRepository.find();
   }
@@ -23,6 +19,10 @@ export class UserService {
     return await this.userRepository.findOne({
       where: { id: userId },
     });
+  }
+
+  public async createUser(createUserDto: CreateUserDTO): Promise<User> {
+    return await this.userRepository.save(createUserDto);
   }
 
   public async editUser(

@@ -10,15 +10,12 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { User } from './user.entity';
+import { ApiBody, ApiConsumes, ApiTags, ApiQuery } from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('User')
 export class UserController {
   constructor(private userService: UserService) {}
-
-  @Post('create')
-  public async createUser(@Body() createUserDto: CreateUserDTO): Promise<User> {
-    return await this.userService.createUser(createUserDto);
-  }
 
   @Get('all')
   public async getUsers(): Promise<User[]> {
@@ -28,6 +25,11 @@ export class UserController {
   @Get('/:userId')
   public async getUser(@Param('userId') userId: number) {
     return await this.userService.getUser(userId);
+  }
+
+  @Post('create')
+  public async createUser(@Body() createUserDto: CreateUserDTO): Promise<User> {
+    return await this.userService.createUser(createUserDto);
   }
 
   @Patch('/edit/:userId')

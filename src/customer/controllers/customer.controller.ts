@@ -18,13 +18,6 @@ import { ApiBody, ApiConsumes, ApiTags, ApiQuery } from '@nestjs/swagger';
 export class CustomerController {
   constructor(private customerService: CustomerService) {}
 
-  @Post('create')
-  public async createCustomer(
-    @Body() createCustomerDto: CreateCustomerDto,
-  ): Promise<Customer> {
-    return await this.customerService.createCustomer(createCustomerDto);
-  }
-
   @Get('all')
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -46,6 +39,13 @@ export class CustomerController {
   @Get('/:customerId')
   public async getCustomer(@Param('customerId') customerId: number) {
     return await this.customerService.getCustomer(customerId);
+  }
+
+  @Post('create')
+  public async createCustomer(
+    @Body() createCustomerDto: CreateCustomerDto,
+  ): Promise<Customer> {
+    return await this.customerService.createCustomer(createCustomerDto);
   }
 
   @Patch('/edit/:customerId')
