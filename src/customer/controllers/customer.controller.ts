@@ -22,6 +22,7 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger';
+import { ApiResponseDto } from '../dtos/api-response.dto';
 
 // @ApiHeader({
 //   name: 'X-MyHeader',
@@ -41,22 +42,25 @@ export class CustomerController {
   @ApiResponse({
     status: 200,
     description: 'List of customers',
+    // type: ApiResponseDto,
     content: {
       'application/json': {
-        schema: {
-          type: 'object',
-          properties: {
-            message: { type: 'string', example: 'This is an example message' },
-            data: {
-              type: 'object',
-              properties: {
-                id: { type: 'number', example: 1 },
-                name: { type: 'string', example: 'John Doe' },
-              },
-            },
-          },
-        },
+        // schema: {
+        //   type: 'object',
+        //   properties: {
+        //     message: { type: 'string', example: 'This is an example message' },
+        //     data: {
+        //       type: 'object',
+        //       properties: {
+        //         id: { type: 'number', example: 1 },
+        //         name: { type: 'string', example: 'John Doe' },
+        //       },
+        //     },
+        //   },
+        // },
         example: {
+          message: 'Customers fetched successfully',
+          status: 'success',
           data: [
             {
               id: 1,
@@ -86,7 +90,7 @@ export class CustomerController {
   public async getCustomers(
     @Query('page') page = '1',
     @Query('limit') limit = '10',
-  ): Promise<Customer[]> {
+  ): Promise<ApiResponseDto<Customer[]>> {
     const parsedPage = parseInt(page, 10);
     const parsedLimit = parseInt(limit, 10);
 

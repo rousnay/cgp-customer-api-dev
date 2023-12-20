@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Customer } from '../entities/customer.entity';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { Repository } from 'typeorm';
+import { ApiResponseDto } from '../dtos/api-response.dto';
 
 @Injectable()
 export class CustomerService {
@@ -11,13 +12,22 @@ export class CustomerService {
     private customerRepository: Repository<Customer>,
   ) {}
 
-  public async getCustomers({ page = 1, limit = 10 }): Promise<Customer[]> {
+  public async getCustomers({
+    page = 1,
+    limit = 10,
+  }): Promise<ApiResponseDto<Customer[]>> {
     const offset = (page - 1) * limit;
 
-    return await this.customerRepository.find({
+    const customers = await this.customerRepository.find({
       skip: offset,
       take: limit,
     });
+
+    return {
+      message: 'Customers fetched successfully',
+      status: 'success',
+      data: customers,
+    };
   }
 
   public async getCustomer(customerId: number): Promise<Customer> {
