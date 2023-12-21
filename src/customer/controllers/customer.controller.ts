@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { CustomerService } from '../services/customer.service';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
@@ -23,6 +24,8 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { ApiResponseDto } from '../dtos/api-response.dto';
+import { CustomerQueryParamsPipe } from '../customer-query-params.pipe';
+import { CustomerQueryParamsDto } from '../dtos/customer-query-params.dto';
 
 // @ApiHeader({
 //   name: 'X-MyHeader',
@@ -85,18 +88,12 @@ export class CustomerController {
     },
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @UsePipes(new CustomerQueryParamsPipe())
   public async getCustomers(
-    @Query('page') page = '1',
-    @Query('limit') limit = '10',
+    @Query() queryParams: CustomerQueryParamsDto,
   ): Promise<ApiResponseDto<Customer[]>> {
-    const parsedPage = parseInt(page, 10);
-    const parsedLimit = parseInt(limit, 10);
-
     const customers = await this.customerService.getCustomers({
-      page: parsedPage,
-      limit: parsedLimit,
+      ...queryParams,
     });
 
     return customers;

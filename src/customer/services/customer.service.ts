@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Customer } from '../entities/customer.entity';
+import { Repository, Like } from 'typeorm';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
-import { Repository } from 'typeorm';
 import { ApiResponseDto } from '../dtos/api-response.dto';
 
 @Injectable()
@@ -15,15 +15,17 @@ export class CustomerService {
   public async getCustomers({
     page = 1,
     limit = 10,
+    ...filters
   }): Promise<ApiResponseDto<Customer[]>> {
     const offset = (page - 1) * limit;
 
     const customers = await this.customerRepository.find({
+      where: filters,
       skip: offset,
       take: limit,
     });
 
-    const totalCount = await this.customerRepository.count(); // Method to get total count from your service
+    const totalCount = await this.customerRepository.count();
 
     return {
       message: 'Customers fetched successfully',
