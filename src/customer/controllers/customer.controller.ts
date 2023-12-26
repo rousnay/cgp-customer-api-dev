@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UsePipes,
+  UseGuards,
 } from '@nestjs/common';
 import { CustomerService } from '../services/customer.service';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
@@ -22,10 +23,12 @@ import {
   ApiOkResponse,
   ApiTags,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ApiResponseDto } from '../dtos/api-response.dto';
 import { CustomerQueryParamsPipe } from '../customer-query-params.pipe';
 import { CustomerQueryParamsDto } from '../dtos/customer-query-params.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 // @ApiHeader({
 //   name: 'X-MyHeader',
@@ -166,6 +169,8 @@ export class CustomerController {
 
   // Edit a customer by ID ++++++++++++++++++++++++++++++++
   @Patch('/edit/:customerId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
   @ApiBody({ type: CreateCustomerDto })
@@ -183,6 +188,8 @@ export class CustomerController {
 
   // Delete a customer by ID +++++++++++++++++++++++++++++
   @Delete('/delete/:customerId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
   @ApiResponse({ status: 200 })
