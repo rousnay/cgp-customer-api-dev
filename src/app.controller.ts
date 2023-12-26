@@ -59,7 +59,9 @@ export class AppController {
             },
           },
         },
-        example: { userId: 1, username: 'john' },
+        example: {
+          access_token: 'eyJhbG....',
+        },
       },
     },
   })
