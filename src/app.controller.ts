@@ -9,6 +9,7 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 
 @Controller()
 @ApiTags('Login')
@@ -20,7 +21,8 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @UseGuards(AuthGuard('local'))
+  // @UseGuards(AuthGuard('local'))
+  @UseGuards(LocalAuthGuard)
   @Post('auth/login')
   @ApiOperation({ summary: 'User Login' })
   @ApiBody({
