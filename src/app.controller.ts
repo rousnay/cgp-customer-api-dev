@@ -1,6 +1,8 @@
 import { Controller, Get, Request, Post, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from './auth/auth.service';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 import {
   ApiBody,
   ApiOperation,
@@ -9,17 +11,17 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger';
-import { LocalAuthGuard } from './auth/local-auth.guard';
 
 @Controller()
 @ApiTags('Login')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  // constructor(private readonly appService: AppService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
+  // @Get()
+  // getHello(): string {
+  //   return this.appService.getHello();
+  // }
 
   // @UseGuards(AuthGuard('local'))
   @UseGuards(LocalAuthGuard)
@@ -62,6 +64,7 @@ export class AppController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async login(@Request() req) {
-    return req.user;
+    // return req.user;
+    return this.authService.login(req.user);
   }
 }
