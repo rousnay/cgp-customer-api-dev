@@ -19,10 +19,11 @@ import { UsersModule } from './users/users.module';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-      synchronize: false,
-      ssl: {
-        rejectUnauthorized: true,
-      },
+      synchronize: true,
+      ssl: false,
+      // ssl: {
+      //   rejectUnauthorized: true,
+      // },
     }),
     CustomerModule,
     UsersModule,
