@@ -27,7 +27,7 @@ export class UsersController {
 
   @Get('all')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access_token')
   public async getUsers(): Promise<Users[]> {
     return await this.userService.getUsers();
   }

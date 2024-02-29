@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { CustomerModule } from './customer/customer.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [
@@ -25,12 +26,11 @@ import { UsersModule } from './users/users.module';
       //   rejectUnauthorized: true,
       // },
     }),
-    CustomerModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
+    CustomerModule,
   ],
-
-  controllers: [AppController],
   providers: [AppService],
+  controllers: [AppController],
 })
 export class AppModule {}

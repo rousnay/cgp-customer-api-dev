@@ -10,8 +10,8 @@ import { Customer } from './entities/customer.entity'; // Import your CustomerEn
 
 @Module({
   imports: [TypeOrmModule.forFeature([Customer])], // Import the entities
-  providers: [CustomerService, ExcelUploadService], // Import your service
   exports: [CustomerService, ExcelUploadService],
+  providers: [CustomerService, ExcelUploadService], // Import your service
   controllers: [CustomerController, ExcelUploadController], // Optionally export service if needed in other modules
 })
 export class CustomerModule {}
