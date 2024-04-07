@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
+  const port = process.env.POST || 3000;
   const app = await NestFactory.create(AppModule);
   // app.enableCors();
   app.enableCors({
@@ -16,6 +17,6 @@ async function bootstrap() {
   });
 
   setupSwagger(app);
-  await app.listen(3000);
+  await app.listen(port);
 }
 bootstrap();
