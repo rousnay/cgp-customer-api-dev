@@ -1,1 +1,1 @@
-# User management API with Nest.js and MySQL for Revinr
+# Customer API with Nest.js and MySQL for CGP

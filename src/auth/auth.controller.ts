@@ -1,4 +1,11 @@
-import { Controller, Get, Request, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import {
@@ -9,13 +16,48 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger';
-
-@Controller('Auth')
-@ApiTags('Auth')
+import { AuthGuard } from '@nestjs/passport';
+@Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  // @UseGuards(AuthGuard('local'))
-  @UseGuards(LocalAuthGuard)
+
+  @Post('registration')
+  @ApiOperation({ summary: 'User Registration' })
+  @ApiBody({
+    description: 'User Registration data',
+    examples: {
+      credentials: {
+        summary: 'Example of valid registration data',
+        value: {
+          name: 'Mozahidur Rahman',
+          email: 'rousnay@revinr.com',
+          password: '12345678',
+          password_confirmation: '12345678',
+          user_type: 'customer',
+        },
+      },
+    },
+  })
+  async registration(
+    @Body()
+    data: {
+      name: string;
+      email: string;
+      password: string;
+      password_confirmation: string;
+      user_type: string;
+    },
+  ) {
+    return this.authService.registration(
+      data.name,
+      data.email,
+      data.password,
+      data.password_confirmation,
+      data.user_type,
+    );
+  }
+
   @Post('login')
   @ApiOperation({ summary: 'User Login' })
   @ApiBody({
@@ -24,40 +66,43 @@ export class AuthController {
       credentials: {
         summary: 'Example of valid login credentials',
         value: {
-          username: 'rousnay',
-          password: '123456',
+          identity: 'rousnay@revinr.com',
+          password: '12345678',
+          user_type: 'customer',
         },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    // type: Customer,
-    description: 'Logged in successfully',
-    content: {
-      'application/json': {
-        schema: {
-          type: 'object',
-          properties: {
-            message: { type: 'string', example: 'This is an example message' },
-            data: {
-              type: 'object',
-              properties: {
-                userId: { type: 'number', example: 1 },
-                username: { type: 'string', example: 'john_doe' },
-              },
-            },
-          },
-        },
-        example: {
-          access_token: 'eyJhbG....',
+  async login(
+    @Body()
+    credentials: {
+      identity: string;
+      password: string;
+      user_type: string;
+    },
+  ) {
+    return this.authService.login(
+      credentials.identity,
+      credentials.password,
+      credentials.user_type,
+    );
+  }
+
+  @Post('otp')
+  @ApiOperation({ summary: 'OTP' })
+  @ApiBody({
+    description: 'Verify OTP',
+    examples: {
+      credentials: {
+        summary: 'Example of valid data',
+        value: {
+          session_id: 'r4m17y4p1vpaens2zj86lscguxqhxynvf',
+          otp: '567809',
         },
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async login(@Request() req) {
-    // return req.user;
-    return this.authService.login(req.user);
+  async getOTP(@Body() data: { session_id: string; otp: string }) {
+    return this.authService.getOTP(data.session_id, data.otp);
   }
 }

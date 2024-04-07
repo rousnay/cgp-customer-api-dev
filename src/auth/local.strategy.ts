@@ -9,11 +9,14 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
-  async validate(username: string, password: string): Promise<any> {
-    const user = await this.authService.validateUser(username, password);
-    if (!user) {
-      throw new UnauthorizedException();
-    }
+  async validate(
+    identity: string,
+    password: string,
+    user_type: string,
+  ): Promise<any> {
+    // Call your Laravel API endpoint to authenticate user
+    const user = await this.authService.login(identity, password, user_type);
+    // You need to implement this method in AuthService
     return user;
   }
 }
