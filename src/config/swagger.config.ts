@@ -10,6 +10,7 @@ export function setupSwagger(app: INestApplication): void {
     // .addServer('http://localhost:3000/', 'Local environment')
     // .addServer('https://demography-api.vercel.app/', 'Staging')
     // .addBearerAuth()
+    //
     .addBearerAuth(
       {
         type: 'http',
