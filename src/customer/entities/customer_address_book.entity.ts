@@ -10,7 +10,7 @@ import {
 @Entity()
 export class CustomerAddressBook extends BaseEntity {
   @PrimaryGeneratedColumn()
-  address_id: number;
+  id: number;
 
   // @ManyToOne(() => User, (user) => user.addresses)
   // customer: c;
