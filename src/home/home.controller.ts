@@ -1,8 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
-import { WarehousesDto } from '../warehouse/warehouses.dto';
-import { WarehousesService } from '../warehouse/warehouses.service';
-import { ProductsDto } from '../products/products.dto';
-import { ProductsService } from '../products/products.service';
+import { WarehousesDto } from '../warehouse/dtos/warehouses.dto';
+import { WarehousesService } from '../warehouse/services/warehouses.service';
+import { ProductsDto } from '../products/dtos/products.dto';
+import { ProductsService } from '../products/services/products.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('home')

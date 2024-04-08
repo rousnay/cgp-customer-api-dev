@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { WarehousesDto } from './warehouses.dto';
+import { WarehousesDto } from '../dtos/warehouses.dto';
 
 @Injectable()
 export class WarehousesService {

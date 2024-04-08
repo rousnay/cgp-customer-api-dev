@@ -1,6 +1,6 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
-import { WarehousesService } from './warehouses.service';
-import { WarehousesDto } from './warehouses.dto';
+import { WarehousesService } from '../services/warehouses.service';
+import { WarehousesDto } from '../dtos/warehouses.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('warehouses')
