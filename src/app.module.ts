@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { WarehouseModule } from './warehouse/warehouses.module';
+import { HomeModule } from './home/home.module';
 // import { CustomersModule } from './customers/customers.module';
 // import { UsersModule } from './users/users.module';
 // import { AuthController } from './auth/auth.controller';
@@ -29,10 +30,11 @@ import { WarehouseModule } from './warehouse/warehouses.module';
       // },
     }),
     AuthModule,
-    ProductsModule,
-    WarehouseModule,
     // UsersModule,
     // CustomersModule,
+    HomeModule,
+    WarehouseModule,
+    ProductsModule,
   ],
   providers: [AppService],
   controllers: [AppController],
