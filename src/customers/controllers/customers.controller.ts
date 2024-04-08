@@ -41,6 +41,8 @@ export class CustomerController {
 
   // Get all customers ++++++++++++++++++++++++++++++++++++
   @Get('all')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
   @ApiOperation({
     summary: 'Get all customers',
     // description: 'Returns an example response',
@@ -104,6 +106,8 @@ export class CustomerController {
 
   // Get a customer by ID ++++++++++++++++++++++++++++++++++
   @Get('/:customerId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get a customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
   @ApiResponse({ status: 200, type: Customers })
@@ -114,6 +118,8 @@ export class CustomerController {
 
   // Create a new customer ++++++++++++++++++++++++++++++++
   @Post('create')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
   @ApiOperation({
     summary: 'Create a new customer',
     // description: 'Returns an example response',
@@ -170,7 +176,7 @@ export class CustomerController {
   // Edit a customer by ID ++++++++++++++++++++++++++++++++
   @Patch('/edit/:customerId')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Update customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
   @ApiBody({ type: CreateCustomerDto })
@@ -189,7 +195,7 @@ export class CustomerController {
   // Delete a customer by ID +++++++++++++++++++++++++++++
   @Delete('/delete/:customerId')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Delete customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
   @ApiResponse({ status: 200 })
