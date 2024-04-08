@@ -23,9 +23,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('registration')
-  @ApiOperation({ summary: 'User Registration' })
+  @ApiOperation({ summary: 'User registration' })
   @ApiBody({
-    description: 'User Registration data',
+    description: 'User registration data',
     examples: {
       credentials: {
         summary: 'Example of valid registration data',
@@ -59,7 +59,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOperation({ summary: 'User Login' })
+  @ApiOperation({ summary: 'User login' })
   @ApiBody({
     description: 'User login credentials',
     examples: {
