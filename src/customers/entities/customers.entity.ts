@@ -10,7 +10,7 @@ import {
   OneToOne,
 } from 'typeorm';
 
-// import { Users } from 'src/users/users.entity';
+import { Users } from 'src/users/users.entity';
 
 export enum Gender {
   MALE = 'male',
@@ -22,9 +22,9 @@ export class Customers extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @OneToOne(() => Users, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'user_id' })
-  // user: Users;
+  @OneToOne(() => Users, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: Users;
 
   @Column({ length: 50 })
   first_name: string;
@@ -58,9 +58,19 @@ export class Customers extends BaseEntity {
   @Column({ default: true })
   is_active: boolean;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({
+    type: 'timestamp',
+    // precision: 6,
+    nullable: true,
+    // default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   created_at: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    // precision: 6,
+    nullable: true,
+    // default: () => 'CURRENT_TIMESTAMP(6)',
+  })
   updated_at: Date;
 }
