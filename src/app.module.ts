@@ -4,8 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CustomersModule } from './customers/customers.module';
 import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
+import { WarehouseModule } from './warehouse/warehouses.module';
+// import { CustomersModule } from './customers/customers.module';
 // import { UsersModule } from './users/users.module';
 // import { AuthController } from './auth/auth.controller';
 
@@ -27,8 +29,10 @@ import { AuthModule } from './auth/auth.module';
       // },
     }),
     AuthModule,
+    ProductsModule,
+    WarehouseModule,
     // UsersModule,
-    CustomersModule,
+    // CustomersModule,
   ],
   providers: [AppService],
   controllers: [AppController],
