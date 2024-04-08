@@ -16,7 +16,7 @@ export enum UserType {
 
 @Entity({ name: 'users' })
 export class Users {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true }) // Specify the existing id column type
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
   @Column({ length: 255, nullable: false, collation: 'utf8mb4_general_ci' })

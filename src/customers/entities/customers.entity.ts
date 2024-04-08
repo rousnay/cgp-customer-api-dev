@@ -10,7 +10,7 @@ import {
   OneToOne,
 } from 'typeorm';
 
-import { Users } from 'src/users/users.entity';
+// import { Users } from 'src/users/users.entity';
 
 export enum Gender {
   MALE = 'male',
@@ -22,9 +22,9 @@ export class Customers extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Users, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
-  user: Users;
+  // @OneToOne(() => Users, { onDelete: 'CASCADE' })
+  // @JoinColumn({ name: 'user_id' })
+  // user: Users;
 
   @Column({ length: 50 })
   first_name: string;
