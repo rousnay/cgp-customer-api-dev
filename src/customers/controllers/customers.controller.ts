@@ -28,7 +28,7 @@ import {
 import { ApiResponseDto } from '../dtos/api-response.dto';
 import { CustomerQueryParamsPipe } from '../customers-query-params.pipe';
 import { CustomersQueryParamsDto } from '../dtos/customers-query-params.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 // @ApiHeader({
 //   name: 'X-MyHeader',
