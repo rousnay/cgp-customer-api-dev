@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Customer } from '../entities/customer.entity';
+import { Customers } from '../entities/customers.entity';
 
 export class CustomerPagedResponseDto {
   @ApiProperty({ description: 'Total number of customers' })
@@ -12,5 +12,5 @@ export class CustomerPagedResponseDto {
   currentLimit: number;
 
   @ApiProperty({ description: 'List of customers' })
-  data: Customer[];
+  data: Customers[];
 }

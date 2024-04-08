@@ -10,9 +10,9 @@ import {
   UsePipes,
   UseGuards,
 } from '@nestjs/common';
-import { CustomerService } from '../services/customer.service';
+import { CustomersService } from '../services/customers.service';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
-import { Customer } from '../entities/customer.entity';
+import { Customers } from '../entities/customers.entity';
 import {
   ApiHeader,
   ApiOperation,
@@ -26,8 +26,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ApiResponseDto } from '../dtos/api-response.dto';
-import { CustomerQueryParamsPipe } from '../customer-query-params.pipe';
-import { CustomerQueryParamsDto } from '../dtos/customer-query-params.dto';
+import { CustomerQueryParamsPipe } from '../customers-query-params.pipe';
+import { CustomersQueryParamsDto } from '../dtos/customers-query-params.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 // @ApiHeader({
@@ -37,7 +37,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @Controller('customer')
 @ApiTags('Customer')
 export class CustomerController {
-  constructor(private customerService: CustomerService) {}
+  constructor(private customerService: CustomersService) {}
 
   // Get all customers ++++++++++++++++++++++++++++++++++++
   @Get('all')
@@ -93,8 +93,8 @@ export class CustomerController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UsePipes(new CustomerQueryParamsPipe())
   public async getCustomers(
-    @Query() queryParams: CustomerQueryParamsDto,
-  ): Promise<ApiResponseDto<Customer[]>> {
+    @Query() queryParams: CustomersQueryParamsDto,
+  ): Promise<ApiResponseDto<Customers[]>> {
     const customers = await this.customerService.getCustomers({
       ...queryParams,
     });
@@ -106,7 +106,7 @@ export class CustomerController {
   @Get('/:customerId')
   @ApiOperation({ summary: 'Get a customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
-  @ApiResponse({ status: 200, type: Customer })
+  @ApiResponse({ status: 200, type: Customers })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   public async getCustomer(@Param('customerId') customerId: number) {
     return await this.customerService.getCustomer(customerId);
@@ -121,7 +121,7 @@ export class CustomerController {
   @ApiBody({ type: CreateCustomerDto })
   @ApiResponse({
     status: 201,
-    type: Customer,
+    type: Customers,
     description: 'The created customer',
     content: {
       'application/json': {
@@ -163,7 +163,7 @@ export class CustomerController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   public async createCustomer(
     @Body() createCustomerDto: CreateCustomerDto,
-  ): Promise<Customer> {
+  ): Promise<Customers> {
     return await this.customerService.createCustomer(createCustomerDto);
   }
 
@@ -174,12 +174,12 @@ export class CustomerController {
   @ApiOperation({ summary: 'Update customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
   @ApiBody({ type: CreateCustomerDto })
-  @ApiResponse({ status: 200, type: Customer })
+  @ApiResponse({ status: 200, type: Customers })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   public async editCustomer(
     @Body() createCustomerDto: CreateCustomerDto,
     @Param('customerId') customerId: number,
-  ): Promise<Customer> {
+  ): Promise<Customers> {
     return await this.customerService.editCustomer(
       customerId,
       createCustomerDto,

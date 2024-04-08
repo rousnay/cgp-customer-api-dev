@@ -2,12 +2,12 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PipeTransform, ArgumentMetadata } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
-import { CustomerQueryParamsDto } from './dtos/customer-query-params.dto';
+import { CustomersQueryParamsDto } from './dtos/customers-query-params.dto';
 
 @Injectable()
 export class CustomerQueryParamsPipe implements PipeTransform {
   async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
-    const queryDto = plainToClass(CustomerQueryParamsDto, value);
+    const queryDto = plainToClass(CustomersQueryParamsDto, value);
 
     const errors = await validate(queryDto, { whitelist: true }); // Using whitelist to strip non-whitelisted properties
 

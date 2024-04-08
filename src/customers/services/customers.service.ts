@@ -1,22 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Customer } from '../entities/customer.entity';
+import { Customers } from '../entities/customers.entity';
 import { Repository, Like } from 'typeorm';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { ApiResponseDto } from '../dtos/api-response.dto';
 
 @Injectable()
-export class CustomerService {
+export class CustomersService {
   constructor(
-    @InjectRepository(Customer)
-    private customerRepository: Repository<Customer>,
+    @InjectRepository(Customers)
+    private customerRepository: Repository<Customers>,
   ) {}
 
   public async getCustomers({
     page = 1,
     limit = 10,
     ...filters
-  }): Promise<ApiResponseDto<Customer[]>> {
+  }): Promise<ApiResponseDto<Customers[]>> {
     const offset = (page - 1) * limit;
 
     const customers = await this.customerRepository.find({
@@ -37,31 +37,31 @@ export class CustomerService {
     };
   }
 
-  public async getCustomer(customerId: number): Promise<Customer> {
+  public async getCustomer(customerId: number): Promise<Customers> {
     return await this.customerRepository.findOne({
-      where: { idNumber: customerId },
+      where: { id: customerId },
     });
   }
 
   public async createCustomer(
     createCustomerDto: CreateCustomerDto,
-  ): Promise<Customer> {
+  ): Promise<Customers> {
     return await this.customerRepository.save(createCustomerDto);
   }
 
   public async editCustomer(
     customerId: number,
     createCustomerDto: CreateCustomerDto,
-  ): Promise<Customer> {
+  ): Promise<Customers> {
     const editedCustomer = await this.customerRepository.findOne({
-      where: { idNumber: customerId },
+      where: { id: customerId },
     });
 
     if (!editedCustomer) {
       throw new NotFoundException('Customer not found');
     }
     const result = await this.customerRepository.update(
-      { idNumber: customerId },
+      { id: customerId },
       createCustomerDto,
     );
     console.log(result);
