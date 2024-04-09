@@ -37,4 +37,14 @@ export class WarehouseBranchService {
     const branches = await this.entityManager.query(query, [warehouseId]);
     return branches;
   }
+
+  async findWarehouseBranchById(branchId: number): Promise<WarehouseBranchDto> {
+    const query = `
+      SELECT *
+      FROM warehouse_branches
+      WHERE id = ?`;
+
+    const branch = await this.entityManager.query(query, [branchId]);
+    return branch[0]; // Assuming branchId is unique and returns only one record
+  }
 }

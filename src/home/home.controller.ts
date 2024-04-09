@@ -1,9 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { WarehousesDto } from '../warehouse/dtos/warehouses.dto';
 import { WarehousesService } from '../warehouse/services/warehouses.service';
 import { ProductsDto } from '../products/dtos/products.dto';
 import { ProductsService } from '../products/services/products.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CategoriesDto } from '../categories/categories.dto';
+import { CategoriesService } from '../categories/categories.service';
 
 @Controller('home')
 @ApiTags('App')
@@ -11,6 +13,7 @@ export class HomeController {
   constructor(
     private readonly warehouseService: WarehousesService,
     private readonly productService: ProductsService,
+    private readonly categoryService: CategoriesService,
   ) {}
 
   @Get()
@@ -23,6 +26,30 @@ export class HomeController {
         example: {
           message: 'Data for home page fetched successfully',
           status: 'success',
+          categories: [
+            {
+              id: '1',
+              name: 'Structural Materials',
+              slug: 'structural-materials',
+              parent_id: null,
+              grand_parent_id: null,
+              serial: null,
+              active: 1,
+              created_at: null,
+              updated_at: null,
+            },
+            {
+              id: '2',
+              name: 'Electrical',
+              slug: 'electrical',
+              parent_id: null,
+              grand_parent_id: null,
+              serial: null,
+              active: 1,
+              created_at: null,
+              updated_at: null,
+            },
+          ],
           warehouses: [
             {
               id: '1',
@@ -107,14 +134,17 @@ export class HomeController {
   async getHomePageData(): Promise<{
     message: string;
     status: string;
+    categories: CategoriesDto[];
     warehouses: WarehousesDto[];
     products: ProductsDto[];
   }> {
+    const categories = await this.categoryService.findAll();
     const warehouses = await this.warehouseService.findAll();
     const products = await this.productService.findAll();
     return {
       message: 'Home data fetched successfully',
       status: 'success',
+      categories,
       warehouses,
       products,
     };
