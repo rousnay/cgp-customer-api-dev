@@ -57,7 +57,7 @@ export class Customers extends BaseEntity {
   profile_image_url: string;
 
   // Define the relationship with preferences
-  @ManyToMany(() => Preferences)
+  @ManyToMany(() => Preferences, { onDelete: 'CASCADE' })
   @JoinTable()
   preferences: Preferences[];
 
