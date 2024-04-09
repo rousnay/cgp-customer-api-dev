@@ -9,9 +9,8 @@ import { ProductsModule } from './products/products.module';
 import { WarehouseModule } from './warehouse/warehouses.module';
 import { HomeModule } from './home/home.module';
 import { CategoriesModule } from './categories/categories.module';
-// import { CustomersModule } from './customers/customers.module';
 // import { UsersModule } from './users/users.module';
-// import { AuthController } from './auth/auth.controller';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [
@@ -32,7 +31,7 @@ import { CategoriesModule } from './categories/categories.module';
     }),
     AuthModule,
     // UsersModule,
-    // CustomersModule,
+    CustomersModule,
     HomeModule,
     WarehouseModule,
     ProductsModule,
