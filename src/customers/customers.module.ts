@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customers } from './entities/customers.entity'; // Import your CustomerEntity
 import { CustomersService } from './services/customers.service';
