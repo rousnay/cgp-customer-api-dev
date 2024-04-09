@@ -8,7 +8,11 @@ import {
   ManyToOne,
   JoinColumn,
   OneToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+
+import { Preferences } from 'src/application/entities/preferences.entity';
 
 // import { Users } from 'src/users/users.entity';
 
@@ -51,6 +55,11 @@ export class Customers extends BaseEntity {
 
   @Column({ nullable: true })
   profile_image_url: string;
+
+  // Define the relationship with preferences
+  @ManyToMany(() => Preferences)
+  @JoinTable()
+  preferences: Preferences[];
 
   @CreateDateColumn({ type: 'timestamp' })
   registration_date: Date;

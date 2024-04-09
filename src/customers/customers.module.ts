@@ -1,14 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customers } from './entities/customers.entity'; // Import your CustomerEntity
 import { CustomersService } from './services/customers.service';
 import { CustomerAddressBook } from './entities/customer_address_book.entity';
 import { CustomerController } from './controllers/customers.controller';
+import { Preferences } from 'src/application/entities/preferences.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Customers, CustomerAddressBook])], // Import the entities
+  imports: [
+    TypeOrmModule.forFeature([Customers, CustomerAddressBook, Preferences]),
+  ],
   exports: [CustomersService],
-  providers: [CustomersService], // Import your service
-  controllers: [CustomerController], // Optionally export service if needed in other modules
+  providers: [CustomersService],
+  controllers: [CustomerController],
 })
 export class CustomersModule {}

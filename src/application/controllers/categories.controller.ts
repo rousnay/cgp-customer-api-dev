@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
-import { CategoriesService } from './categories.service';
-import { CategoriesDto } from './categories.dto';
+import { CategoriesService } from '../services/categories.service';
+import { CategoriesDto } from '../dtos/categories.dto';
 
 @Controller('categories')
-@ApiTags('Categories')
+@ApiTags('Application')
 export class CategoriesController {
   constructor(private readonly categoryService: CategoriesService) {}
 

@@ -7,8 +7,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { WarehouseModule } from './warehouse/warehouses.module';
-import { HomeModule } from './home/home.module';
-import { CategoriesModule } from './categories/categories.module';
+import { ApplicationModule } from './application/application.module';
+// import { CategoriesModule } from './application/categories.module';
 // import { UsersModule } from './users/users.module';
 import { CustomersModule } from './customers/customers.module';
 
@@ -29,13 +29,13 @@ import { CustomersModule } from './customers/customers.module';
       //   rejectUnauthorized: true,
       // },
     }),
+    ApplicationModule,
     AuthModule,
     // UsersModule,
     CustomersModule,
-    HomeModule,
     WarehouseModule,
     ProductsModule,
-    CategoriesModule,
+    // CategoriesModule,
   ],
   providers: [AppService],
   controllers: [AppController],
