@@ -1,11 +1,11 @@
 [build]
-command = "npm run build"
-functions = "functions"
+  command = "npm run build"  # Adjust this to match your build command
+  functions = "functions"    # Directory where Netlify functions are located
 
 [dev]
 command = "npm run start:dev"
 
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/.netlify/functions/main"
+  status = 200
