@@ -20,12 +20,12 @@ export class CustomerAddressBook extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  customer_id: number;
+  // @Column()
+  // customer_id: number;
 
-  // @ManyToOne(() => Customers, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'customer_id' })
-  // customer: Customers;
+  @ManyToOne(() => Customers, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'customer_id' })
+  customer: Customers;
 
   @Column({ length: 50 })
   first_name: string;
