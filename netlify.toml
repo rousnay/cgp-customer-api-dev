@@ -7,5 +7,5 @@ command = "npm run start:dev"
 
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/main"
+  to = "/.netlify/functions/api.js"
   status = 200
