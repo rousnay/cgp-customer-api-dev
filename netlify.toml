@@ -1,0 +1,11 @@
+[build]
+command = "npm run build"
+functions = "functions"
+
+[dev]
+command = "npm run start:dev"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
