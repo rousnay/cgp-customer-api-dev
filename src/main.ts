@@ -21,6 +21,6 @@ async function bootstrap() {
   setupSwagger(app);
   await app.listen(port);
 }
-// bootstrap();
-export { bootstrap };
+bootstrap();
+// export { bootstrap };
 // export default bootstrap;
