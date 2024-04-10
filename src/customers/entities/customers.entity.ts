@@ -58,7 +58,7 @@ export class Customers extends BaseEntity {
 
   // Define the relationship with preferences
   @ManyToMany(() => Preferences, { onDelete: 'CASCADE' })
-  @JoinTable()
+  @JoinTable({ name: 'customers_preferences' })
   preferences: Preferences[];
 
   @CreateDateColumn({ type: 'timestamp' })

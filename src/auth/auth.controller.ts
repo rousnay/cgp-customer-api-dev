@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBody,
   ApiOperation,
@@ -16,7 +17,6 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
@@ -46,7 +46,7 @@ export class AuthController {
       email: string;
       password: string;
       password_confirmation: string;
-      user_type: string;
+      // user_type: string;
     },
   ) {
     return this.authService.registration(
@@ -54,7 +54,7 @@ export class AuthController {
       data.email,
       data.password,
       data.password_confirmation,
-      data.user_type,
+      // data.user_type,
     );
   }
 
@@ -68,7 +68,7 @@ export class AuthController {
         value: {
           identity: 'rousnay@revinr.com',
           password: '12345678',
-          user_type: 'customer',
+          // user_type: 'customer',
         },
       },
     },
@@ -78,13 +78,13 @@ export class AuthController {
     credentials: {
       identity: string;
       password: string;
-      user_type: string;
+      // user_type: string;
     },
   ) {
     return this.authService.login(
       credentials.identity,
       credentials.password,
-      credentials.user_type,
+      // credentials.user_type,
     );
   }
 
