@@ -36,40 +36,11 @@ export class GeoLocationService {
     }
   }
 
-  async getDistanceByAddresses(
+  async getDistance(
     origin: string,
     destination: string,
   ): Promise<DistanceMatrixResponse> {
     try {
-      const response: DistanceMatrixResponse =
-        await this.googleMapsClient.distancematrix({
-          params: {
-            origins: [origin],
-            destinations: [destination],
-            key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c', // Replace with your Google Maps API key
-          },
-        });
-
-      if (response.status === 200) {
-        return response;
-      } else {
-        throw new Error('Failed to retrieve distance');
-      }
-    } catch (error) {
-      throw new Error('Error getting distance: ' + error.message);
-    }
-  }
-
-  async getDistanceByCoordinates(
-    originLat: number,
-    originLng: number,
-    destinationLat: number,
-    destinationLng: number,
-  ): Promise<DistanceMatrixResponse> {
-    try {
-      const origin = `${originLat},${originLng}`;
-      const destination = `${destinationLat},${destinationLng}`;
-
       const response: DistanceMatrixResponse =
         await this.googleMapsClient.distancematrix({
           params: {

@@ -19,7 +19,7 @@ export class GeoLocationController {
   geolocationService: any;
   constructor(private readonly GeoLocationService: GeoLocationService) {}
 
-  @Get('coordinatesByAddress')
+  @Get('coordinates')
   @ApiOperation({
     summary: 'Get Coordinates (latitude, longitude) by address',
   })
@@ -33,54 +33,24 @@ export class GeoLocationController {
     }
   }
 
-  @Get('distanceByAddresses')
+  @Get('distance')
   @ApiOperation({
-    summary: 'Get Distance and Duration between two addresses',
+    summary: 'Get Distance and Duration between two addresses or coordinates',
   })
-  async getDistanceByAddresses(
+  async getDistance(
     @Query('origin') origin: string,
     @Query('destination') destination: string,
   ) {
     try {
-      const response = await this.GeoLocationService.getDistanceByAddresses(
+      const response = await this.GeoLocationService.getDistance(
         origin,
         destination,
       );
       const distance = response.data.rows[0].elements[0].distance;
       const duration = response.data.rows[0].elements[0].duration;
-      //   const origin_addresses = response.data.origin_addresses[0];
-      //   const destination_addresses = response.data.destination_addresses[0];
-      return { distance, duration };
-    } catch (error) {
-      return { error: error.message };
-    }
-  }
-
-  @Post('distanceByCoordinates')
-  @ApiOperation({
-    summary: 'Get Distance and Duration between two coordinates',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Distance and duration retrieved successfully',
-  })
-  @ApiResponse({ status: 400, description: 'Bad request' })
-  async getDistanceByCoordinates(
-    @Query('originLat') originLat: number,
-    @Query('originLng') originLng: number,
-    @Query('destinationLat') destinationLat: number,
-    @Query('destinationLng') destinationLng: number,
-  ) {
-    try {
-      const response = await this.GeoLocationService.getDistanceByCoordinates(
-        originLat,
-        originLng,
-        destinationLat,
-        destinationLng,
-      );
-      const distance = response.data.rows[0].elements[0].distance;
-      const duration = response.data.rows[0].elements[0].duration;
-      return { distance, duration };
+      const origin_addresses = response.data.origin_addresses[0];
+      const destination_addresses = response.data.destination_addresses[0];
+      return { origin_addresses, destination_addresses, distance, duration };
     } catch (error) {
       return { error: error.message };
     }
