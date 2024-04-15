@@ -11,6 +11,7 @@ import { ApplicationModule } from './application/application.module';
 // import { CategoriesModule } from './application/categories.module';
 // import { UsersModule } from './users/users.module';
 import { CustomersModule } from './customers/customers.module';
+import { GeoLocationModule } from './geolocation/geolocation.module';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { CustomersModule } from './customers/customers.module';
     CustomersModule,
     WarehouseModule,
     ProductsModule,
-    // CategoriesModule,
+    GeoLocationModule,
   ],
   providers: [AppService],
   controllers: [AppController],

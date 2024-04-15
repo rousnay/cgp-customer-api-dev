@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { JwtService } from '@nestjs/jwt';
+import { CreateCustomerDto } from 'src/customers/dtos/create-customer.dto';
+import { Customers } from 'src/customers/entities/customers.entity';
 
 @Injectable()
 export class AuthService {
@@ -34,8 +36,39 @@ export class AuthService {
       );
 
       if (response.status === 200 || response.status === 201) {
-        // Success response
-        return response.data;
+        // Registration successful
+        const userData = response.data;
+
+        // Create a new Customer entity based on the registration data
+        const createCustomerDto: CreateCustomerDto = {
+          user_id: userData.user_id,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          // Populate other fields as needed
+        };
+
+        // Create a new Customers entity
+        const newCustomer = Customers.create({
+          user_id: createCustomerDto.user_id,
+          first_name: createCustomerDto.first_name,
+          last_name: createCustomerDto.last_name,
+          phone_number: createCustomerDto.phone_number,
+          date_of_birth: createCustomerDto.date_of_birth,
+          gender: createCustomerDto.gender,
+          profile_image_url: createCustomerDto.profile_image_url,
+          registration_date: createCustomerDto.registration_date,
+          last_login: createCustomerDto.last_login,
+          is_active: createCustomerDto.is_active,
+        });
+
+        // Save the new Customer entity to the database
+        const savedCustomer = await newCustomer.save();
+
+        // Return the registration data along with the newly created Customer entity
+        return {
+          registrationData: userData,
+          newCustomer: savedCustomer,
+        };
       } else {
         // Unexpected response format
         throw new Error('Unexpected response format');
