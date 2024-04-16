@@ -11,7 +11,9 @@ export class WarehouseCategoryController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all products from a category' })
+  @ApiOperation({
+    summary: 'Get all warehouses that offers products for a given category',
+  })
   async findWarehousesByCategoryId(
     @Param('categoryId') categoryId: number,
   ): Promise<{ message: string; status: string; data: WarehousesDto[] }> {
