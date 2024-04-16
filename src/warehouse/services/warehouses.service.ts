@@ -5,6 +5,9 @@ import { WarehousesDto } from '../dtos/warehouses.dto';
 
 @Injectable()
 export class WarehousesService {
+  findWarehousesByCategoryId(categoryId: number) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectEntityManager()
     private readonly entityManager: EntityManager,

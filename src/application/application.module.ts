@@ -10,6 +10,8 @@ import { CategoriesController } from './controllers/categories.controller';
 import { Preferences } from './entities/preferences.entity';
 import { PreferencesService } from './services/preferences.service';
 import { PreferencesController } from './controllers/preferences.controller';
+import { WarehouseCategoryService } from 'src/warehouse/services/warehouse-category.services';
+import { ProductCategoryService } from 'src/products/services/product-category.service';
 
 @Module({
   imports: [
@@ -22,12 +24,16 @@ import { PreferencesController } from './controllers/preferences.controller';
     CategoriesService,
     WarehousesService,
     ProductsService,
+    WarehouseCategoryService,
+    ProductCategoryService,
   ],
   providers: [
     CategoriesService,
     PreferencesService,
     WarehousesService,
     ProductsService,
+    WarehouseCategoryService,
+    ProductCategoryService,
   ],
   controllers: [HomeController, CategoriesController, PreferencesController],
 })

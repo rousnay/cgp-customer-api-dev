@@ -1,11 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { WarehousesDto } from '../../warehouse/dtos/warehouses.dto';
 import { WarehousesService } from '../../warehouse/services/warehouses.service';
 import { ProductsDto } from '../../products/dtos/products.dto';
 import { ProductsService } from '../../products/services/products.service';
 import { CategoriesDto } from '../dtos/categories.dto';
 import { CategoriesService } from '../services/categories.service';
+import { WarehouseCategoryService } from 'src/warehouse/services/warehouse-category.services';
+import { ProductCategoryService } from 'src/products/services/product-category.service';
 
 @Controller('home')
 @ApiTags('Application')
@@ -14,6 +16,8 @@ export class HomeController {
     private readonly warehouseService: WarehousesService,
     private readonly productService: ProductsService,
     private readonly categoryService: CategoriesService,
+    private readonly warehouseCategoryService: WarehouseCategoryService,
+    private readonly productCategoryService: ProductCategoryService,
   ) {}
 
   @Get()
@@ -147,6 +151,33 @@ export class HomeController {
       categories,
       warehouses,
       products,
+    };
+  }
+
+  @Get('filter')
+  @ApiOperation({ summary: 'Get data for home page from a category' })
+  async getHomePageDataByCategoryId(
+    @Query('categoryId') categoryId: number,
+  ): Promise<{
+    message: string;
+    status: string;
+    category: CategoriesDto[];
+    warehouses: any;
+    products: any;
+  }> {
+    const warehouses =
+      await this.warehouseCategoryService.findWarehousesByCategoryId(
+        categoryId,
+      );
+    const products = await this.productCategoryService.findProductsByCategoryId(
+      categoryId,
+    );
+    return {
+      message: 'Home data fetched successfully',
+      status: 'success',
+      category: warehouses.category,
+      warehouses: warehouses.warehouses,
+      products: products.products,
     };
   }
 }
