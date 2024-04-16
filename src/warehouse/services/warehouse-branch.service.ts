@@ -15,20 +15,7 @@ export class WarehouseBranchService {
   ): Promise<WarehouseBranchDto[]> {
     const query = `
       SELECT
-        id,
-        warehouse_id,
-        branch_type,
-        email,
-        website,
-        phone,
-        address,
-        contact_person_id,
-        contact_person_name,
-        contact_person_email,
-        contact_person_phone,
-        active,
-        created_at,
-        updated_at
+        *
       FROM
         warehouse_branches
       WHERE
