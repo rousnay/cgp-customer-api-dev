@@ -25,13 +25,77 @@ export class WarehouseBranchService {
     return branches;
   }
 
-  async findWarehouseBranchById(branchId: number): Promise<WarehouseBranchDto> {
+  async findAllBranchesByWarehouseId(warehouseId: number): Promise<any> {
+    const warehouseQuery = `
+      SELECT w.*
+      FROM warehouses w
+      WHERE w.id = ?`;
+
+    const warehouseResult = await this.entityManager.query(warehouseQuery, [
+      warehouseId,
+    ]);
+    if (!warehouseResult[0]) {
+      throw new NotFoundException(`Warehouse with id ${warehouseId} not found`);
+    }
+
+    const mainBranchQuery = `
+      SELECT b.*
+      FROM warehouse_branches b
+      WHERE b.warehouse_id = ? AND b.branch_type = 'head office'`;
+
+    const mainBranchResult = await this.entityManager.query(mainBranchQuery, [
+      warehouseId,
+    ]);
+
+    const branchesQuery = `
+      SELECT b.*
+      FROM warehouse_branches b
+      WHERE b.warehouse_id = ? `;
+
+    const otherBranchesResult = await this.entityManager.query(branchesQuery, [
+      warehouseId,
+    ]);
+
+    return {
+      warehouse: { ...warehouseResult[0], main_branch: mainBranchResult[0] },
+      branches: otherBranchesResult,
+    };
+  }
+
+  async findWarehouseBranchById(branchId: number): Promise<any> {
     const query = `
       SELECT *
       FROM warehouse_branches
       WHERE id = ?`;
 
     const branch = await this.entityManager.query(query, [branchId]);
-    return branch[0]; // Assuming branchId is unique and returns only one record
+
+    const warehouseQuery = `
+      SELECT w.*
+      FROM warehouses w
+      WHERE w.id = ?`;
+
+    const warehouseResult = await this.entityManager.query(warehouseQuery, [
+      branch[0].warehouse_id,
+    ]);
+    if (!warehouseResult[0]) {
+      throw new NotFoundException(
+        `Warehouse with id ${branch[0].warehouse_id} not found`,
+      );
+    }
+
+    const mainBranchQuery = `
+      SELECT b.*
+      FROM warehouse_branches b
+      WHERE b.warehouse_id = ? AND b.branch_type = 'head office'`;
+
+    const mainBranchResult = await this.entityManager.query(mainBranchQuery, [
+      branch[0].warehouse_id,
+    ]);
+
+    return {
+      ...branch[0],
+      warehouse: { ...warehouseResult[0], main_branch: mainBranchResult[0] },
+    };
   }
 }

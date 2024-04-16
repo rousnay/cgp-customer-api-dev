@@ -18,7 +18,7 @@ export class ProductCategoryController {
     const products = await this.categoryProductService.findProductsByCategoryId(
       categoryId,
     );
-    if (!products) {
+    if (!products || products.length === 0) {
       throw new NotFoundException(
         `No products found for category with id ${categoryId}`,
       );

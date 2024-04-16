@@ -63,12 +63,13 @@ export class WarehouseBranchController {
     },
   })
   @ApiResponse({ status: 404, description: 'No branches found for warehouse' })
-  async findAllByWarehouseId(
+  async findAllBranchesByWarehouseId(
     @Param('warehouseId') warehouseId: number,
   ): Promise<{ message: string; status: string; data: WarehouseBranchDto[] }> {
-    const branches = await this.warehouseBranchService.findAllByWarehouseId(
-      warehouseId,
-    );
+    const branches =
+      await this.warehouseBranchService.findAllBranchesByWarehouseId(
+        warehouseId,
+      );
     if (!branches) {
       throw new NotFoundException(
         `No branches found for warehouse with id ${warehouseId}`,

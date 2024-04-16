@@ -11,79 +11,70 @@ export class ProductsService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  async findAll(): Promise<ProductsDto[]> {
-    const query = `
+  async findAll(): Promise<any[]> {
+    const productsQuery = `
       SELECT
-        id,
-        name,
-        slug,
-        barcode,
-        product_type_id,
-        category_id,
-        primary_category_id,
-        brand_id,
-        unit_type_id,
-        unit,
-        size_id,
-        colour_id,
-        group_id,
-        weight,
-        short_desc,
-        long_desc,
-        details_overview,
-        details_specifications,
-        details_size_and_materials,
-        status_id,
-        active,
-        creator_id,
-        editor_id,
-        created_at,
-        updated_at,
-        deleted_at
+        *
       FROM
         products`;
 
-    const results = await this.entityManager.query(query);
-    return results;
+    const productResults = await this.entityManager.query(productsQuery);
+
+    const productsWithBrandData = [];
+    for (const product of productResults) {
+      const { brand_id, ...productData } = product; // Destructure the brand_id property
+      const brandQuery = `
+            SELECT
+                *
+            FROM
+                brands
+            WHERE
+                id = ?`;
+      const brandResult = await this.entityManager.query(brandQuery, [
+        brand_id,
+      ]);
+      const brandData = brandResult[0]; // Assuming there's only one brand with the given id
+      productsWithBrandData.push({
+        ...productData, // Include all other properties from the product
+        brand_name: brandData.name, // Add the brand data as a separate object
+      });
+    }
+    return productsWithBrandData;
   }
 
-  async findOne(id: number): Promise<ProductsDto | undefined> {
-    const query = `
+  async findOne(id: number): Promise<any | undefined> {
+    const productQuery = `
       SELECT
-        id,
-        name,
-        slug,
-        barcode,
-        product_type_id,
-        category_id,
-        primary_category_id,
-        brand_id,
-        unit_type_id,
-        unit,
-        size_id,
-        colour_id,
-        group_id,
-        weight,
-        short_desc,
-        long_desc,
-        details_overview,
-        details_specifications,
-        details_size_and_materials,
-        status_id,
-        active,
-        creator_id,
-        editor_id,
-        created_at,
-        updated_at,
-        deleted_at
+        *
       FROM
         products
       WHERE
         id = ?`;
 
-    // const result = await this.entityManager.query(query, { id });
-    const result = await this.entityManager.query(query, [id]);
+    const productResult = await this.entityManager.query(productQuery, [id]);
+    if (productResult.length === 0) {
+      return undefined; // Return undefined if no product is found
+    }
 
-    return result[0];
+    const productData = productResult[0];
+    const brandId = productData.brand_id;
+
+    // Fetch brand data based on brandId
+    const brandQuery = `
+      SELECT
+        *
+      FROM
+        brands
+      WHERE
+        id = ?`;
+
+    const brandResult = await this.entityManager.query(brandQuery, [brandId]);
+    const brandData = brandResult.length > 0 ? brandResult[0] : {};
+
+    // Return product data with brand data as a separate object
+    return {
+      ...productData,
+      brand: brandData,
+    };
   }
 }
