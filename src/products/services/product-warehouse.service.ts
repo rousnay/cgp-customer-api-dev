@@ -63,7 +63,7 @@ export class ProductWarehouseService {
     }
 
     return {
-      warehouse: { warehouseData, main_branch: mainBranch },
+      warehouse: { ...warehouseData, main_branch: mainBranch },
       products: productsWithBrandData,
     };
   }
