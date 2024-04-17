@@ -56,9 +56,27 @@ export class ProductWarehouseService {
         brand_id,
       ]);
       const brandData = brandResult[0]; // Assuming there's only one brand with the given id
+
+      // Fetching warehouse data
+      const warehousesQuery = `
+            SELECT
+                pw.warehouse_id,
+                w.name AS warehouse_name
+            FROM
+                product_warehouse_branch pw
+            INNER JOIN
+                warehouses w ON pw.warehouse_id = w.id
+            WHERE
+                pw.product_id = ?`;
+
+      const warehouseResults = await this.entityManager.query(warehousesQuery, [
+        product.id,
+      ]);
+
       productsWithBrandData.push({
         ...productData, // Include all other properties from the product
         brand_name: brandData.name, // Add the brand data as a separate object
+        warehouses: warehouseResults,
       });
     }
 
@@ -123,9 +141,27 @@ export class ProductWarehouseService {
         brand_id,
       ]);
       const brandData = brandResult[0]; // Assuming there's only one brand with the given id
+
+      // Fetching warehouse data
+      const warehousesQuery = `
+            SELECT
+                pw.warehouse_id,
+                w.name AS warehouse_name
+            FROM
+                product_warehouse_branch pw
+            INNER JOIN
+                warehouses w ON pw.warehouse_id = w.id
+            WHERE
+                pw.product_id = ?`;
+
+      const warehouseResults = await this.entityManager.query(warehousesQuery, [
+        product.id,
+      ]);
+
       productsWithBrandData.push({
         ...productData, // Include all other properties from the product
         brand_name: brandData.name, // Add the brand data as a separate object
+        warehouses: warehouseResults,
       });
     }
 

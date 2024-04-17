@@ -37,9 +37,26 @@ export class ProductsService {
         brand_id,
       ]);
       const brandData = brandResult[0]; // Assuming there's only one brand with the given id
+
+      // Fetching warehouse data
+      const warehousesQuery = `
+            SELECT
+                pw.warehouse_id,
+                w.name AS warehouse_name
+            FROM
+                product_warehouse_branch pw
+            INNER JOIN
+                warehouses w ON pw.warehouse_id = w.id
+            WHERE
+                pw.product_id = ?`;
+
+      const warehouseResults = await this.entityManager.query(warehousesQuery, [
+        product.id,
+      ]);
       productsWithBrandData.push({
         ...productData, // Include all other properties from the product
         brand_name: brandData.name, // Add the brand data as a separate object
+        warehouses: warehouseResults,
       });
     }
     return productsWithBrandData;
@@ -74,10 +91,43 @@ export class ProductsService {
     const brandResult = await this.entityManager.query(brandQuery, [brandId]);
     const brandData = brandResult.length > 0 ? brandResult[0] : {};
 
+    // Fetching warehouse data
+    const warehousesQuery = `
+            SELECT
+                *
+            FROM
+                product_warehouse_branch pw
+            INNER JOIN
+                warehouses w ON pw.warehouse_id = w.id
+            WHERE
+                pw.product_id = ?`;
+
+    const warehousesResults = await this.entityManager.query(warehousesQuery, [
+      id,
+    ]);
+
+    const warehousesWithDetails = [];
+    for (const warehouse of warehousesResults) {
+      const branchesQuery = `SELECT * FROM warehouse_branches WHERE warehouse_id = ?`;
+      const branchesResults = await this.entityManager.query(branchesQuery, [
+        warehouse.id,
+      ]);
+      const mainBranch =
+        branchesResults.find(
+          (branch) => branch.branch_type === 'head office',
+        ) || {};
+
+      warehousesWithDetails.push({
+        ...warehouse,
+        main_branch: mainBranch,
+      });
+    }
+
     // Return product data with brand data as a separate object
     return {
       ...productData,
       brand: brandData,
+      warehouses: warehousesWithDetails,
     };
   }
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
-import { ProductsDto } from '../dtos/products.dto';
 
 @Injectable()
 export class ProductCategoryService {

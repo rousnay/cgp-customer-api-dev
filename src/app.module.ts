@@ -12,6 +12,7 @@ import { ApplicationModule } from './application/application.module';
 // import { UsersModule } from './users/users.module';
 import { CustomersModule } from './customers/customers.module';
 import { GeoLocationModule } from './geolocation/geolocation.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { GeoLocationModule } from './geolocation/geolocation.module';
       // },
     }),
     ApplicationModule,
+    // SearchModule,
     AuthModule,
     // UsersModule,
     CustomersModule,
