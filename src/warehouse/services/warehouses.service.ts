@@ -91,6 +91,9 @@ export class WarehousesService {
       id,
     ]);
 
+    const branchesQuery = `SELECT * FROM warehouse_branches WHERE warehouse_id = ?`;
+    const branchesResults = await this.entityManager.query(branchesQuery, [id]);
+
     const categoriesQuery = `
       SELECT c.*
       FROM category_product cp
@@ -122,6 +125,7 @@ export class WarehousesService {
     return {
       ...warehouseResult[0],
       main_branch: mainBranchResult[0],
+      branches: branchesResults,
       categories: categoriesResult,
       brands: brandsResult,
     };
