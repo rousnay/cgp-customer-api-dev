@@ -125,9 +125,11 @@ export class ProductsService {
 
     // Return product data with brand data as a separate object
     return {
-      ...productData,
-      brand: brandData,
-      warehouses: warehousesWithDetails,
+      data: {
+        ...productData,
+        brand: brandData,
+        warehouses: warehousesWithDetails,
+      },
     };
   }
 }

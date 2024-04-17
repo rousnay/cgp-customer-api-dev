@@ -27,10 +27,10 @@ export class WarehouseCategoryController {
       );
     }
     return {
+      status: 'success',
       message:
         'All warehouses that offers products for the category fetched successfully',
-      status: 'success',
-      data: warehouses,
+      ...warehouses,
     };
   }
 }

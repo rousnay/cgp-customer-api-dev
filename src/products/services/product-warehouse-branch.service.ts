@@ -73,8 +73,10 @@ export class ProductWarehouseBranchService {
     }
 
     return {
-      branch: branchData,
-      products: productsWithBrandData,
+      data: {
+        branch: branchData,
+        products: productsWithBrandData,
+      },
     };
   }
 }

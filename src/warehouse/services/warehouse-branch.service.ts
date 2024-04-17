@@ -57,8 +57,10 @@ export class WarehouseBranchService {
     ]);
 
     return {
-      warehouse: { ...warehouseResult[0], main_branch: mainBranchResult[0] },
-      branches: otherBranchesResult,
+      data: {
+        warehouse: { ...warehouseResult[0], main_branch: mainBranchResult[0] },
+        branches: otherBranchesResult,
+      },
     };
   }
 
@@ -94,8 +96,10 @@ export class WarehouseBranchService {
     ]);
 
     return {
-      ...branch[0],
-      warehouse: { ...warehouseResult[0], main_branch: mainBranchResult[0] },
+      data: {
+        ...branch[0],
+        warehouse: { ...warehouseResult[0], main_branch: mainBranchResult[0] },
+      },
     };
   }
 }

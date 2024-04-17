@@ -1,4 +1,10 @@
-import { Controller, Get, Query, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { SearchProductsService } from '../services/search-products.service';
 
@@ -40,7 +46,7 @@ export class SearchController {
     @Query('currentPage') currentPage: number,
     @Query('limit') limit: number,
   ) {
-    return this.searchProductsService.searchProducts(
+    const products = await this.searchProductsService.searchProducts(
       query,
       brand,
       category,
@@ -54,5 +60,16 @@ export class SearchController {
       currentPage,
       limit,
     );
+
+    if (!products || products.length === 0) {
+      throw new NotFoundException(
+        `No products found for your search query: ${query}`,
+      );
+    }
+    return {
+      message: 'All products based on your search query fetched successfully',
+      status: 'success',
+      ...products,
+    };
   }
 }

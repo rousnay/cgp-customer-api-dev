@@ -1,7 +1,8 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { SimilarProductsService } from '../services/product-similar.service';
-import { ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Products')
 @Controller('products')
 export class SimilarProductsController {
   constructor(
@@ -11,8 +12,19 @@ export class SimilarProductsController {
   @Get('similar/:productId')
   @ApiParam({ name: 'productId', type: Number, required: false })
   async getSimilarProducts(@Param('productId') productId: number) {
-    const similarProducts =
-      await this.similarProductsService.getSimilarProducts(productId);
-    return similarProducts;
+    const results = await this.similarProductsService.getSimilarProducts(
+      productId,
+    );
+
+    if (!results || results.length === 0) {
+      throw new NotFoundException(
+        `No similar products found for product with id ${productId}`,
+      );
+    }
+    return {
+      message: 'All similar products fetched successfully',
+      status: 'success',
+      ...results,
+    };
   }
 }

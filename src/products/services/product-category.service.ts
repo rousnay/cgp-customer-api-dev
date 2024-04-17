@@ -70,8 +70,10 @@ export class ProductCategoryService {
     }
 
     return {
-      category: categoryResult[0],
-      products: productsWithCategoryAndWarehouses,
+      data: {
+        category: categoryResult[0],
+        products: productsWithCategoryAndWarehouses,
+      },
     };
   }
 }

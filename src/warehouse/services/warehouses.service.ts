@@ -13,7 +13,7 @@ export class WarehousesService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<any> {
     const warehousesQuery = `SELECT * FROM warehouses`;
     const warehousesResults = await this.entityManager.query(warehousesQuery);
 
@@ -66,7 +66,9 @@ export class WarehousesService {
       });
     }
 
-    return warehousesWithDetails;
+    return {
+      data: warehousesWithDetails,
+    };
   }
 
   async findOne(id: number): Promise<any> {
@@ -123,11 +125,13 @@ export class WarehousesService {
     const brandsResult = await this.entityManager.query(brandsQuery, [id]);
 
     return {
-      ...warehouseResult[0],
-      main_branch: mainBranchResult[0],
-      branches: branchesResults,
-      categories: categoriesResult,
-      brands: brandsResult,
+      data: {
+        ...warehouseResult[0],
+        main_branch: mainBranchResult[0],
+        branches: branchesResults,
+        categories: categoriesResult,
+        brands: brandsResult,
+      },
     };
   }
 }

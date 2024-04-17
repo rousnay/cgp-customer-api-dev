@@ -102,15 +102,60 @@ export class SearchProductsService {
     // Execute the query
     const productResults = await this.entityManager.query(sqlQuery, parameters);
 
+    const productsWithBrandAndWarehouses = [];
+    for (const product of productResults) {
+      const { brand_id, ...productData } = product; // Destructure the brand_id property
+      const brandQuery = `
+            SELECT
+                *
+            FROM
+                brands
+            WHERE
+                id = ?`;
+      const brandResult = await this.entityManager.query(brandQuery, [
+        brand_id,
+      ]);
+      const brandData = brandResult[0]; // Assuming there's only one brand with the given id
+
+      // Fetching warehouse data
+      const warehousesQuery = `
+            SELECT
+                pw.warehouse_id,
+                w.name AS warehouse_name
+            FROM
+                product_warehouse_branch pw
+            INNER JOIN
+                warehouses w ON pw.warehouse_id = w.id
+            WHERE
+                pw.product_id = ?`;
+
+      const warehouseResults = await this.entityManager.query(warehousesQuery, [
+        product.id,
+      ]);
+
+      productsWithBrandAndWarehouses.push({
+        ...productData, // Entire product object
+        brand_name: brandData.name, // Add the brand data as a separate object
+        warehouses: warehouseResults,
+      });
+    }
+
+    console.log('products found', productResults.length);
+
     // Apply pagination
     currentPage = currentPage || 1;
     limit = limit || 10;
     const startIndex = (currentPage - 1) * limit;
     const endIndex = currentPage * limit;
-    const paginatedResults = productResults.slice(startIndex, endIndex);
+    const paginatedResults = productsWithBrandAndWarehouses.slice(
+      startIndex,
+      endIndex,
+    );
+
+    console.log('paginatedResults products found', paginatedResults.length);
 
     // Calculate pagination metadata
-    const totalCount = productResults.length;
+    const totalCount = productsWithBrandAndWarehouses.length;
     const totalPages = Math.ceil(totalCount / limit);
     const firstPageUrl = `/search/products/?page=1&limit=${limit}`;
     const previousPageUrl =
@@ -124,20 +169,22 @@ export class SearchProductsService {
     const lastPageUrl = `/search/products/?page=${totalPages}&limit=${limit}`;
 
     return {
-      meta: {
-        totalItems: totalCount,
-        itemsPerPage: Number(limit),
-        itemsInCurrentPage: paginatedResults.length,
-        totalPages,
-        currentPage: Number(currentPage),
+      pagination: {
+        meta: {
+          totalItems: totalCount,
+          itemsPerPage: Number(limit),
+          itemsInCurrentPage: paginatedResults.length,
+          totalPages,
+          currentPage: Number(currentPage),
+        },
+        links: {
+          firstPage: firstPageUrl,
+          previousPage: previousPageUrl,
+          nextPage: nextPageUrl,
+          lastPage: lastPageUrl,
+        },
       },
-      links: {
-        firstPage: firstPageUrl,
-        previousPage: previousPageUrl,
-        nextPage: nextPageUrl,
-        lastPage: lastPageUrl,
-      },
-      products: paginatedResults,
+      data: paginatedResults,
     };
   }
 }

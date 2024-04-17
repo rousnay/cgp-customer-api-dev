@@ -110,8 +110,10 @@ export class WarehouseCategoryService {
     ]);
 
     return {
-      category: categoryResult[0],
-      warehouses: warehouseResults,
+      data: {
+        category: categoryResult[0],
+        warehouses: warehouseResults,
+      },
     };
   }
 }

@@ -81,8 +81,10 @@ export class ProductWarehouseService {
     }
 
     return {
-      warehouse: { ...warehouseData, main_branch: mainBranch },
-      products: productsWithBrandData,
+      data: {
+        warehouse: { ...warehouseData, main_branch: mainBranch },
+        products: productsWithBrandData,
+      },
     };
   }
 
@@ -166,8 +168,10 @@ export class ProductWarehouseService {
     }
 
     return {
-      ...warehouseResults[0],
-      products: productsWithBrandData,
+      data: {
+        ...warehouseResults[0],
+        products: productsWithBrandData,
+      },
     };
   }
 }

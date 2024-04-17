@@ -41,12 +41,15 @@ export class WarehousesController {
   async findAll(): Promise<{
     message: string;
     status: string;
-    data: WarehousesDto[];
   }> {
+    const warehouses = await this.warehouseService.findAll();
+    if (warehouses === undefined || warehouses === null) {
+      throw new NotFoundException(`No warehouses were found`);
+    }
     return {
-      message: 'Warehouse list fetched successfully',
       status: 'success',
-      data: await this.warehouseService.findAll(),
+      message: 'Warehouse with specified id fetched successfully',
+      ...warehouses,
     };
   }
 
@@ -75,7 +78,6 @@ export class WarehousesController {
   async findOne(@Param('id') id: number): Promise<{
     message: string;
     status: string;
-    data: WarehousesDto;
   }> {
     const warehouse = await this.warehouseService.findOne(id);
     if (warehouse === undefined || warehouse === null) {
@@ -84,7 +86,7 @@ export class WarehousesController {
     return {
       message: 'Warehouse with specified id fetched successfully',
       status: 'success',
-      data: warehouse,
+      ...warehouse,
     };
   }
 }

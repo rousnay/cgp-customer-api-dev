@@ -66,19 +66,19 @@ export class WarehouseBranchController {
   async findAllBranchesByWarehouseId(
     @Param('warehouseId') warehouseId: number,
   ): Promise<{ message: string; status: string; data: WarehouseBranchDto[] }> {
-    const branches =
+    const results =
       await this.warehouseBranchService.findAllBranchesByWarehouseId(
         warehouseId,
       );
-    if (!branches) {
+    if (!results) {
       throw new NotFoundException(
         `No branches found for warehouse with id ${warehouseId}`,
       );
     }
     return {
-      message: 'All branches for the warehouse fetched successfully',
       status: 'success',
-      data: branches,
+      message: 'All branches for the warehouse fetched successfully',
+      ...results,
     };
   }
 
@@ -87,18 +87,18 @@ export class WarehouseBranchController {
   async findWarehouseBranchById(
     @Param('branchId') branchId: number,
   ): Promise<{ message: string; status: string; data: WarehouseBranchDto }> {
-    const branch = await this.warehouseBranchService.findWarehouseBranchById(
+    const results = await this.warehouseBranchService.findWarehouseBranchById(
       branchId,
     );
-    if (!branch) {
+    if (!results) {
       throw new NotFoundException(
         `Warehouse branch with id ${branchId} not found`,
       );
     }
     return {
-      message: 'Warehouse branch with specified id fetched successfully',
       status: 'success',
-      data: branch,
+      message: 'Warehouse branch with specified id fetched successfully',
+      ...results,
     };
   }
 }

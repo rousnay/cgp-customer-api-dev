@@ -15,10 +15,10 @@ export class ProductCategoryController {
   async findProductsByCategoryId(
     @Param('categoryId') categoryId: number,
   ): Promise<{ message: string; status: string; data: ProductsDto[] }> {
-    const products = await this.categoryProductService.findProductsByCategoryId(
+    const results = await this.categoryProductService.findProductsByCategoryId(
       categoryId,
     );
-    if (!products || products.length === 0) {
+    if (!results || results.length === 0) {
       throw new NotFoundException(
         `No products found for category with id ${categoryId}`,
       );
@@ -26,7 +26,7 @@ export class ProductCategoryController {
     return {
       message: 'All products for the category fetched successfully',
       status: 'success',
-      data: products,
+      ...results,
     };
   }
 }

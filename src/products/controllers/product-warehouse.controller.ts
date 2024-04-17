@@ -15,17 +15,17 @@ export class ProductWarehouseController {
   async findProductsByWarehouseId(
     @Param('warehouseId') warehouseId: number,
   ): Promise<{ message: string; status: string; data: ProductsDto[] }> {
-    const products =
+    const results =
       await this.productWarehouseService.findProductsByWarehouseId(warehouseId);
-    if (!products) {
+    if (!results) {
       throw new NotFoundException(
         `No products found for warehouse with id ${warehouseId}`,
       );
     }
     return {
-      message: 'All products for the warehouse fetched successfully',
       status: 'success',
-      data: products,
+      message: 'All products for the warehouse fetched successfully',
+      ...results,
     };
   }
 
@@ -37,15 +37,15 @@ export class ProductWarehouseController {
     @Param('warehouseId') warehouseId: number,
     @Param('categoryId') categoryId: number,
   ): Promise<{ message: string; status: string; data: any[] }> {
-    const products =
+    const results =
       await this.productWarehouseService.findProductsByWarehouseAndCategory(
         warehouseId,
         categoryId,
       );
     return {
-      message: 'Products fetched successfully',
       status: 'success',
-      data: products,
+      message: 'Products fetched successfully',
+      ...results,
     };
   }
 }

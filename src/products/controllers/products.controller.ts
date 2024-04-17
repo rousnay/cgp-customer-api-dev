@@ -144,15 +144,15 @@ export class ProductsController {
   async findOne(
     @Param('id') id: number,
   ): Promise<{ message: string; status: string; data: ProductsDto }> {
-    const product = await this.productService.findOne(id);
-    if (product === undefined || product === null) {
+    const results = await this.productService.findOne(id);
+    if (results === undefined || results === null) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
 
     return {
-      message: 'Product with specified id fetched successfully',
       status: 'success',
-      data: product,
+      message: 'Product with specified id fetched successfully',
+      ...results,
     };
   }
 }

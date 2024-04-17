@@ -15,17 +15,17 @@ export class ProductWarehouseBranchController {
   async findProductsByBranchId(
     @Param('branchId') branchId: number,
   ): Promise<{ message: string; status: string; data: ProductsDto[] }> {
-    const products =
+    const results =
       await this.productWarehouseBranchService.findProductsByBranchId(branchId);
-    if (!products) {
+    if (!results) {
       throw new NotFoundException(
         `No products found for warehouse branch with id ${branchId}`,
       );
     }
     return {
-      message: 'All products for the warehouse branch fetched successfully',
       status: 'success',
-      data: products,
+      message: 'All products for the warehouse branch fetched successfully',
+      ...results,
     };
   }
 }
