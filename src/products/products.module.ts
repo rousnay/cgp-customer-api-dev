@@ -8,6 +8,8 @@ import { ProductWarehouseBranchService } from './services/product-warehouse-bran
 import { ProductWarehouseBranchController } from './controllers/product-warehouse-branch.controller';
 import { ProductCategoryService } from './services/product-category.service';
 import { ProductCategoryController } from './controllers/product-category.controller';
+import { SimilarProductsService } from './services/product-similar.service';
+import { SimilarProductsController } from './controllers/product-similar.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature()],
@@ -16,12 +18,14 @@ import { ProductCategoryController } from './controllers/product-category.contro
     ProductWarehouseService,
     ProductWarehouseBranchService,
     ProductCategoryService,
+    SimilarProductsService,
   ],
   controllers: [
     ProductsController,
     ProductWarehouseController,
     ProductWarehouseBranchController,
     ProductCategoryController,
+    SimilarProductsController,
   ],
 })
 export class ProductsModule {}

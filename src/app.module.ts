@@ -25,7 +25,7 @@ import { SearchModule } from './search/search.module';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-      logging: ['query', 'error', 'schema', 'warn', 'info', 'log', 'migration'],
+      // logging: ['query', 'error', 'schema', 'warn', 'info', 'log', 'migration'],
       synchronize: true,
       ssl: false,
       // ssl: {
