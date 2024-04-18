@@ -149,8 +149,8 @@ export class HomeController {
       message: 'Home data fetched successfully',
       status: 'success',
       categories,
-      warehouses,
-      products,
+      warehouses: warehouses.data,
+      products: products.data,
     };
   }
 

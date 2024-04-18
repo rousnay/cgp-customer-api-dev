@@ -14,7 +14,7 @@ export class ProductsService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<any> {
     const productsQuery = `
       SELECT
         *
@@ -59,7 +59,9 @@ export class ProductsService {
         warehouses: warehouseResults,
       });
     }
-    return productsWithBrandData;
+    return {
+      data: productsWithBrandData,
+    };
   }
 
   async findOne(id: number): Promise<any | undefined> {

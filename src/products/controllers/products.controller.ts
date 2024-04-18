@@ -90,12 +90,17 @@ export class ProductsController {
   async findAll(): Promise<{
     message: string;
     status: string;
-    data: ProductsDto[];
+    // data: ProductsDto[];
   }> {
+    const results = await this.productService.findAll();
+    if (results === undefined || results === null) {
+      throw new NotFoundException(`No product has found`);
+    }
+
     return {
-      message: 'Product list fetched successfully',
       status: 'success',
-      data: await this.productService.findAll(),
+      message: 'Product list fetched successfully',
+      ...results,
     };
   }
 
