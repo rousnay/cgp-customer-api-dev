@@ -30,8 +30,8 @@ export class SearchController {
   })
   @ApiQuery({ name: 'priceMin', type: Number, required: false })
   @ApiQuery({ name: 'priceMax', type: Number, required: false })
-  @ApiQuery({ name: 'currentPage', type: Number, required: false })
-  @ApiQuery({ name: 'limit', type: Number, required: false })
+  // @ApiQuery({ name: 'currentPage', type: Number, required: false })
+  // @ApiQuery({ name: 'limit', type: Number, required: false })
   async searchProducts(
     @Query('query') query: string,
     @Query('brand') brand: string,
@@ -43,8 +43,8 @@ export class SearchController {
     @Query('sort') sort: string,
     @Query('priceMin') priceMin: number,
     @Query('priceMax') priceMax: number,
-    @Query('currentPage') currentPage: number,
-    @Query('limit') limit: number,
+    // @Query('currentPage') currentPage: number,
+    // @Query('limit') limit: number,
   ) {
     const products = await this.searchProductsService.searchProducts(
       query,
@@ -57,8 +57,8 @@ export class SearchController {
       sort,
       priceMin,
       priceMax,
-      currentPage,
-      limit,
+      // currentPage,
+      // limit,
     );
 
     if (!products || products.length === 0) {

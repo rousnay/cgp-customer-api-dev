@@ -16,8 +16,8 @@ export class SearchProductsService {
     sort: string,
     priceMin: number,
     priceMax: number,
-    currentPage: number,
-    limit: number,
+    // currentPage: number,
+    // limit: number,
   ): Promise<any> {
     let sqlQuery = `
       SELECT
@@ -143,48 +143,48 @@ export class SearchProductsService {
     console.log('products found', productResults.length);
 
     // Apply pagination
-    currentPage = currentPage || 1;
-    limit = limit || 10;
-    const startIndex = (currentPage - 1) * limit;
-    const endIndex = currentPage * limit;
-    const paginatedResults = productsWithBrandAndWarehouses.slice(
-      startIndex,
-      endIndex,
-    );
+    // currentPage = currentPage || 1;
+    // limit = limit || 10;
+    // const startIndex = (currentPage - 1) * limit;
+    // const endIndex = currentPage * limit;
+    // const paginatedResults = productsWithBrandAndWarehouses.slice(
+    //   startIndex,
+    //   endIndex,
+    // );
 
-    console.log('paginatedResults products found', paginatedResults.length);
+    // console.log('paginatedResults products found', paginatedResults.length);
 
-    // Calculate pagination metadata
-    const totalCount = productsWithBrandAndWarehouses.length;
-    const totalPages = Math.ceil(totalCount / limit);
-    const firstPageUrl = `/search/products/?page=1&limit=${limit}`;
-    const previousPageUrl =
-      currentPage > 1
-        ? `/search/products/?page=${currentPage - 1}&limit=${limit}`
-        : null;
-    const nextPageUrl =
-      currentPage < totalPages
-        ? `/search/products/?page=${currentPage + 1}&limit=${limit}`
-        : null;
-    const lastPageUrl = `/search/products/?page=${totalPages}&limit=${limit}`;
+    // // Calculate pagination metadata
+    // const totalCount = productsWithBrandAndWarehouses.length;
+    // const totalPages = Math.ceil(totalCount / limit);
+    // const firstPageUrl = `/search/products/?page=1&limit=${limit}`;
+    // const previousPageUrl =
+    //   currentPage > 1
+    //     ? `/search/products/?page=${currentPage - 1}&limit=${limit}`
+    //     : null;
+    // const nextPageUrl =
+    //   currentPage < totalPages
+    //     ? `/search/products/?page=${currentPage + 1}&limit=${limit}`
+    //     : null;
+    // const lastPageUrl = `/search/products/?page=${totalPages}&limit=${limit}`;
 
     return {
-      pagination: {
-        meta: {
-          totalItems: totalCount,
-          itemsPerPage: Number(limit),
-          itemsInCurrentPage: paginatedResults.length,
-          totalPages,
-          currentPage: Number(currentPage),
-        },
-        links: {
-          firstPage: firstPageUrl,
-          previousPage: previousPageUrl,
-          nextPage: nextPageUrl,
-          lastPage: lastPageUrl,
-        },
-      },
-      data: paginatedResults,
+      // pagination: {
+      //   meta: {
+      //     totalItems: totalCount,
+      //     itemsPerPage: Number(limit),
+      //     itemsInCurrentPage: paginatedResults.length,
+      //     totalPages,
+      //     currentPage: Number(currentPage),
+      //   },
+      //   links: {
+      //     firstPage: firstPageUrl,
+      //     previousPage: previousPageUrl,
+      //     nextPage: nextPageUrl,
+      //     lastPage: lastPageUrl,
+      //   },
+      // },
+      data: productsWithBrandAndWarehouses,
     };
   }
 }

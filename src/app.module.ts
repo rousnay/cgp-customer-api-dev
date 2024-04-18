@@ -33,7 +33,7 @@ import { SearchModule } from './search/search.module';
       // },
     }),
     ApplicationModule,
-    // SearchModule,
+    SearchModule,
     AuthModule,
     // UsersModule,
     CustomersModule,
