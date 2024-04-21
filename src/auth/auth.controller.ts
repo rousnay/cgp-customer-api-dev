@@ -44,9 +44,11 @@ export class AuthController {
     content: {
       'application/json': {
         example: {
-          msg: 'An OTP has been sent to your email inbox. Please use this OTP to verify your email address.',
+          status: 'success',
+          message:
+            'An OTP has been sent to your email inbox. Please use this OTP to verify your email address.',
           data: {
-            session_id: 'xbbfqdd1n4uxwcahvi7xmkg2pgzm15c4z',
+            session_id: 'sczwivkttybvvikhe3b56haxdcjpwr2q4',
           },
         },
       },
@@ -89,10 +91,11 @@ export class AuthController {
     content: {
       'application/json': {
         example: {
-          msg: 'OTP verified successfully',
+          status: 'success',
+          message: 'Email has been verified with OTP successfully',
           data: {
-            session_id: 'xbbfqdd1n4uxwcahvi7xmkg2pgzm15c4z',
-            otp: '358777',
+            session_id: 'ooxlmcbbq65tu84lsinit9yckvghvppjz',
+            otp: '631476',
           },
         },
       },
@@ -124,7 +127,9 @@ export class AuthController {
     content: {
       'application/json': {
         example: {
-          msg: 'Login password updated successfully. Please use updated password to login',
+          status: 'success',
+          message:
+            'Login password updated successfully. Please use updated password to login',
           data: {
             user: {
               id: 25,
@@ -182,7 +187,9 @@ export class AuthController {
     content: {
       'application/json': {
         example: {
-          msg: 'An OTP has been sent to your email inbox. Please use this OTP to login.',
+          status: 'success',
+          message:
+            'An OTP has been sent to your email inbox. Please use this OTP to login.',
           data: {
             session_id: 'm2oqt4mzsyqzvbdrrk9tzr22dkfsu6lzd',
           },
@@ -220,7 +227,8 @@ export class AuthController {
     content: {
       'application/json': {
         example: {
-          msg: 'User authenticated successfully',
+          status: 'success',
+          message: 'User authenticated successfully',
           data: {
             user: {
               id: 26,

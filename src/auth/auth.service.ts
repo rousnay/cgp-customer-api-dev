@@ -38,7 +38,11 @@ export class AuthService {
       );
 
       // Success response
-      return response.data;
+      return {
+        status: 'success',
+        message: response?.data?.msg,
+        data: response?.data?.data,
+      };
     } catch (error) {
       // Handle error
       if (error.response && error.response.status) {
@@ -86,11 +90,9 @@ export class AuthService {
       if (response.status === 200 || response.status === 201) {
         // Success response
         return {
-          msg: 'OTP verified successfully',
-          data: {
-            session_id: session_id,
-            otp: otp,
-          },
+          status: 'success',
+          message: 'OTP verified successfully',
+          data: { session_id: session_id, otp: otp },
         };
       } else {
         return response.data;
@@ -151,23 +153,13 @@ export class AuthService {
       // Assuming Laravel returns the authenticated user data
       if (response.status === 200 || response.status === 201) {
         // Success response
-        return response.data;
-        if (response?.data?.data?.auth_token) {
-          // const payload = { username: session_id, sub: otp };
-          // return {
-          //   msg: response?.data?.data?.msg,
-          //   user: response?.data?.data?.user,
-          //   access_token: this.jwtService.sign(payload),
-          //   //   auth_token: response?.data?.data?.auth_token,
-          // };
-        } else {
-          // Unexpected response format
-          // throw new Error('Unexpected response format');
-        }
+        return {
+          status: 'success',
+          message: response?.data?.msg,
+          data: response?.data?.data,
+        };
       } else {
         return response.data;
-        // Unexpected response format
-        throw new Error('Unexpected response format');
       }
     } catch (error) {
       // Handle error
@@ -216,7 +208,11 @@ export class AuthService {
         config,
       );
       // Success response
-      return response.data;
+      return {
+        status: 'success',
+        message: response?.data?.msg,
+        data: response?.data?.data,
+      };
     } catch (error) {
       // Handle error
       if (error.response && error.response.status) {
@@ -262,11 +258,11 @@ export class AuthService {
       // return response?.data;
       if (response.status === 200 || response.status === 201) {
         // Success response
-        // return response.data;
         if (response?.data?.data?.auth_token) {
           const payload = { username: session_id, sub: otp };
           return {
-            msg: response?.data?.msg,
+            status: 'success',
+            message: response?.data?.msg,
             data: {
               user: response?.data?.data?.user,
               access_token: this.jwtService.sign(payload),
