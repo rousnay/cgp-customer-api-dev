@@ -18,10 +18,10 @@ import { Customers } from 'src/customers/entities/customers.entity';
     TypeOrmModule.forFeature([Customers]),
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '30d' },
     }),
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtStrategy],
   providers: [AuthService, LocalStrategy, JwtStrategy, PasswordService],
   controllers: [AuthController],
 })

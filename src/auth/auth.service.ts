@@ -16,12 +16,12 @@ import { REQUEST } from '@nestjs/core';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(REQUEST) private readonly request: Request,
     private jwtService: JwtService,
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
     @InjectRepository(Customers)
     private customerRepository: Repository<Customers>,
-    @Inject(REQUEST) private readonly request: Request,
   ) {}
 
   async registration(
@@ -137,7 +137,7 @@ export class AuthService {
           data: {
             session_id: session_id,
             otp: otp,
-            user: response?.data?.data?.user,
+            // user: response?.data?.data?.user,
             customer: savedCustomer,
           },
         };
@@ -212,7 +212,7 @@ export class AuthService {
           status: 'success',
           message: response?.data?.msg,
           data: {
-            user: user,
+            // user: user,
             customer: customer,
           },
         };
@@ -319,27 +319,32 @@ export class AuthService {
       if (response.status === 200 || response.status === 201) {
         // Success response
         if (response?.data?.data?.auth_token) {
-          const user = await response?.data?.data?.user;
-          const payload = { username: user.email, sub: user.id };
+          const user_id = await response?.data?.data?.user.id;
+
+          console.log(response);
+          console.log(user_id);
 
           //get customer data by user_id
           const customer = await this.customerRepository.findOne({
-            where: { user_id: user?.user_id },
+            where: { user_id: user_id },
           });
+
+          const payload = { username: customer.email, sub: customer.id };
+          const access_token = this.jwtService.sign(
+            { payload },
+            {
+              expiresIn: '30d',
+            },
+          );
 
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
-              user: user,
+              // user: user,
               customer: customer,
-              access_token: this.jwtService.sign(
-                { payload },
-                {
-                  expiresIn: '7d',
-                },
-              ),
-              auth_token: response?.data?.data?.auth_token,
+              access_token: access_token,
+              // auth_token: response?.data?.data?.auth_token,
             },
           };
         } else {
@@ -487,6 +492,24 @@ export class AuthService {
       };
     } catch (error) {
       throw new Error(`Error fetching user: ${error.message}`);
+    }
+  }
+
+  async validateUser(payload: any): Promise<any> {
+    // Extract user id from the payload
+    console.log(payload);
+    const customer_id = payload.sub;
+
+    // Find the user in the database by userId
+    const user = await this.customerRepository.findOne({
+      where: { id: customer_id },
+    });
+
+    // If user is found, return the user, otherwise return null
+    if (user) {
+      return user;
+    } else {
+      return null;
     }
   }
 }

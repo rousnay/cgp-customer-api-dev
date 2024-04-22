@@ -1,14 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
+import { UpdateCustomerDto } from '../dtos/update-customer.dto';
 import { ApiResponseDto } from '../dtos/api-response.dto';
 import { Customers } from '../entities/customers.entity';
 import { Preferences } from 'src/application/entities/preferences.entity';
+import { REQUEST } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class CustomersService {
   constructor(
+    @Inject(REQUEST) private readonly request: Request,
+    private jwtService: JwtService,
     @InjectRepository(Customers)
     private customersRepository: Repository<Customers>,
     @InjectRepository(Preferences)
@@ -40,39 +45,47 @@ export class CustomersService {
     };
   }
 
-  public async getCustomer(customerId: number): Promise<Customers> {
-    return await this.customersRepository.findOne({
-      where: { id: customerId },
-    });
+  public async getLoggedInCustomerProfile(): Promise<{ data: Customers }> {
+    try {
+      const customer = this.request['user'];
+      return {
+        data: customer,
+      };
+    } catch (error) {
+      throw new Error(`Error fetching customer: ${error.message}`);
+    }
   }
 
-  public async createCustomer(
-    createCustomerDto: CreateCustomerDto,
-  ): Promise<Customers> {
-    return await this.customersRepository.save(createCustomerDto);
+  public async getCustomer(customerId: number): Promise<{ data: Customers }> {
+    const customer = await this.customersRepository.findOne({
+      where: { id: customerId },
+    });
+
+    return {
+      data: customer,
+    };
   }
 
   public async editCustomer(
     customerId: number,
-    createCustomerDto: CreateCustomerDto,
-  ): Promise<Customers> {
-    const editedCustomer = await this.customersRepository.findOne({
+    updateCustomerDto: UpdateCustomerDto,
+  ): Promise<{ data: Customers }> {
+    const customer = await this.customersRepository.findOne({
       where: { id: customerId },
     });
 
-    if (!editedCustomer) {
+    if (!customer) {
       throw new NotFoundException('Customer not found');
     }
     const result = await this.customersRepository.update(
       { id: customerId },
-      createCustomerDto,
+      updateCustomerDto,
     );
     console.log(result);
-    return editedCustomer;
-  }
-
-  public async deleteCustomer(customerId: number): Promise<void> {
-    await this.customersRepository.delete(customerId);
+    const editedCustomer = await this.customersRepository.findOne({
+      where: { id: customerId },
+    });
+    return { data: editedCustomer };
   }
 
   async getCustomerPreferences(customerId: number): Promise<number[]> {
@@ -86,6 +99,7 @@ export class CustomersService {
     }
     return customer.preferences.map((preference) => preference.id);
   }
+
   async setCustomerPreferences(
     customer: Customers,
     preferenceIds: number[],
@@ -128,4 +142,13 @@ export class CustomersService {
     // Save the updated customer entity
     await this.customersRepository.save(customer);
   }
+
+  // public async createCustomer(
+  //   createCustomerDto: CreateCustomerDto,
+  // ): Promise<Customers> {
+  //   return await this.customersRepository.save(createCustomerDto);
+  // }
+  // public async deleteCustomer(customerId: number): Promise<void> {
+  //   await this.customersRepository.delete(customerId);
+  // }
 }

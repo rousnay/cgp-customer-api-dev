@@ -14,7 +14,8 @@ import {
   Put,
 } from '@nestjs/common';
 import { CustomersService } from '../services/customers.service';
-import { CreateCustomerDto } from '../dtos/create-customer.dto';
+// import { CreateCustomerDto } from '../dtos/create-customer.dto';
+import { UpdateCustomerDto } from '../dtos/update-customer.dto';
 import { Customers } from '../entities/customers.entity';
 import {
   ApiHeader,
@@ -74,23 +75,25 @@ export class CustomerController {
         example: {
           message: 'Customers fetched successfully',
           status: 'success',
+          totalCount: 1,
+          currentPage: 1,
+          currentLimit: 10,
           data: [
             {
-              id: 1,
-              sosVoterId: '2119833852',
-              idNumber: 4336257,
-              voterStatus: 'A',
-              partyCode: ' ',
-              firstName: 'ATIF',
-              middleName: 'ATIQ',
-              lastName: 'ABBASI',
-              sex: 'M',
-              birthDate: '1973',
-              streetName: 'FOREST',
-              streetNumber: '9302',
-              streetType: 'LN',
-              city: 'DALLAS',
-              zipCode: '75243',
+              id: 3,
+              user_id: 44,
+              first_name: 'Mozahidur',
+              last_name: 'Rahman',
+              phone: '01711111111',
+              email: 'rousnay@revinr.com',
+              date_of_birth: null,
+              gender: null,
+              profile_image_url: null,
+              registration_date: '2024-04-21T11:47:24.000Z',
+              last_login: '2024-04-21T05:47:42.541Z',
+              is_active: true,
+              created_at: '2024-04-21T05:47:42.541Z',
+              updated_at: '2024-04-21T05:47:42.541Z',
             },
           ],
         },
@@ -109,13 +112,28 @@ export class CustomerController {
     return customers;
   }
 
-  // Get logged in customer +++++++++++++++++++++++++++++++++
+  // Get logged in customer profile +++++++++++++++++++++++++++++++++
+  @Get('profile')
+  @ApiOperation({ summary: 'Get logged in customer profile' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
-  @Get('profile')
-  getProfile(@Request() req: any) {
-    return req.user;
+  async getCustomerProfile(): Promise<{
+    message: string;
+    status: string;
+    data: Customers;
+  }> {
+    try {
+      const result = await this.customersService.getLoggedInCustomerProfile();
+      return {
+        status: 'success',
+        message: 'Logged in customer profile has been fetched successfully',
+        ...result,
+      };
+    } catch (error) {
+      throw new Error(`Error fetching user: ${error.message}`);
+    }
   }
+
   // Get a customer by ID ++++++++++++++++++++++++++++++++++
   @Get('/:customerId')
   @UseGuards(JwtAuthGuard)
@@ -124,8 +142,15 @@ export class CustomerController {
   @ApiParam({ name: 'customerId', type: Number })
   @ApiResponse({ status: 200, type: Customers })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  public async getCustomer(@Param('customerId') customerId: number) {
-    return await this.customersService.getCustomer(customerId);
+  public async getCustomer(
+    @Param('customerId') customerId: number,
+  ): Promise<{ message: string; status: string; data: Customers }> {
+    const result = await this.customersService.getCustomer(customerId);
+    return {
+      status: 'success',
+      message: 'Customer fetched successfully',
+      ...result,
+    };
   }
 
   // // Create a new customer ++++++++++++++++++++++++++++++++
@@ -191,17 +216,34 @@ export class CustomerController {
   // @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Update customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
-  @ApiBody({ type: CreateCustomerDto })
+  @ApiBody({ type: UpdateCustomerDto })
   @ApiResponse({ status: 200, type: Customers })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   public async editCustomer(
-    @Body() createCustomerDto: CreateCustomerDto,
+    // @Body() createCustomerDto: CreateCustomerDto,
+    @Body() formData: any,
     @Param('customerId') customerId: number,
-  ): Promise<Customers> {
-    return await this.customersService.editCustomer(
+  ): Promise<{ message: string; status: string; data: Customers }> {
+    const updateCustomerDto = new UpdateCustomerDto();
+    updateCustomerDto.first_name = formData.first_name;
+    updateCustomerDto.last_name = formData.last_name;
+    updateCustomerDto.phone = formData.phone;
+    updateCustomerDto.email = formData.email;
+    updateCustomerDto.date_of_birth = formData.date_of_birth;
+    updateCustomerDto.gender = formData.gender;
+    updateCustomerDto.profile_image_url = formData.profile_image_url;
+    updateCustomerDto.is_active = formData.is_active;
+
+    const result = await this.customersService.editCustomer(
       customerId,
-      createCustomerDto,
+      updateCustomerDto,
     );
+
+    return {
+      status: 'success',
+      message: 'Customer updated successfully',
+      ...result,
+    };
   }
 
   @Get(':customerId/preferences')
@@ -230,7 +272,7 @@ export class CustomerController {
     }
 
     await this.customersService.setCustomerPreferences(
-      customer,
+      customer.data,
       customerPreferencesDto.preferences,
     );
   }
@@ -246,20 +288,8 @@ export class CustomerController {
     }
 
     await this.customersService.updateCustomerPreferences(
-      customer,
+      customer.data,
       updatePreferencesDto.preferences,
     );
   }
-
-  // // Delete a customer by ID +++++++++++++++++++++++++++++
-  // @Delete('/delete/:customerId')
-  // // @UseGuards(JwtAuthGuard)
-  // // @ApiBearerAuth('access_token')
-  // @ApiOperation({ summary: 'Delete customer by ID' })
-  // @ApiParam({ name: 'customerId', type: Number })
-  // @ApiResponse({ status: 200 })
-  // @ApiResponse({ status: 403, description: 'Forbidden.' })
-  // public async deleteCustomer(@Param('customerId') customerId: number) {
-  //   return await this.customerService.deleteCustomer(customerId);
-  // }
 }

@@ -5,10 +5,16 @@ import { CustomersService } from './services/customers.service';
 import { CustomerAddressBook } from './entities/customer_address_book.entity';
 import { CustomerController } from './controllers/customers.controller';
 import { Preferences } from 'src/application/entities/preferences.entity';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from 'src/auth/constants';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Customers, CustomerAddressBook, Preferences]),
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: '60s' },
+    }),
   ],
   exports: [CustomersService],
   providers: [CustomersService],

@@ -103,20 +103,6 @@ export class AuthController {
           data: {
             session_id: 'ac1kjd8oiscdzsejzn839khbjedtruzfy',
             otp: '245611',
-            user: {
-              id: 43,
-              name: 'Mozahidur Rahman',
-              first_name: 'Mozahidur',
-              last_name: 'Rahman',
-              email: 'rousnay@revinr.com',
-              phone: '01711111111',
-              email_verified_at: null,
-              active: 1,
-              user_type: 'customer',
-              role_id: null,
-              created_at: '2024-04-21T11:32:48.000000Z',
-              updated_at: '2024-04-21T11:32:48.000000Z',
-            },
             customer: {
               user_id: 43,
               first_name: 'Mozahidur',
@@ -168,20 +154,6 @@ export class AuthController {
           message:
             'Login password updated successfully. Please use updated password to login',
           data: {
-            user: {
-              id: 44,
-              name: 'Mozahidur Rahman',
-              first_name: 'Mozahidur',
-              last_name: 'Rahman',
-              email: 'rousnay@revinr.com',
-              phone: '01711111111',
-              email_verified_at: null,
-              active: 1,
-              user_type: 'customer',
-              role_id: null,
-              created_at: '2024-04-21T11:47:24.000000Z',
-              updated_at: '2024-04-21T11:48:00.000000Z',
-            },
             customer: {
               id: 3,
               user_id: 44,
@@ -283,20 +255,6 @@ export class AuthController {
           status: 'success',
           message: 'User authenticated successfully',
           data: {
-            user: {
-              id: 44,
-              name: 'Mozahidur Rahman',
-              first_name: 'Mozahidur',
-              last_name: 'Rahman',
-              email: 'rousnay@revinr.com',
-              phone: '01711111111',
-              email_verified_at: null,
-              active: 1,
-              user_type: 'customer',
-              role_id: null,
-              created_at: '2024-04-21T11:47:24.000000Z',
-              updated_at: '2024-04-21T11:48:00.000000Z',
-            },
             customer: {
               id: 3,
               user_id: 44,
@@ -324,34 +282,12 @@ export class AuthController {
     return this.authService.verifyLoginWithOTP(data.session_id, data.otp);
   }
 
+  @Get('customer')
+  @ApiOperation({ summary: '**Testing purpose only**' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
-  @Get('user')
-  async getAuthenticatedUser(@Req() req: Request): Promise<any> {
-    try {
-      const authorizationHeader = req.headers['authorization'];
-      console.log(authorizationHeader);
-      const user = await this.authService.getLoggedInUserInfo(
-        authorizationHeader,
-      );
-      return {
-        message: 'Login user data fetched successfully',
-        status: 'success',
-        ...user,
-      };
-    } catch (error) {
-      throw new Error('Invalid token');
-    }
-  }
-
-  @Get('id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access_token')
-  async getUserIdFromToken(): Promise<number> {
-    try {
-      return await this.authService.getLoggedInUserId();
-    } catch (error) {
-      throw new Error(`Error fetching user: ${error.message}`);
-    }
+  async getProfile(@Req() request: Request) {
+    // The authenticated user can be accessed from the request object
+    return request['user'];
   }
 }

@@ -9,12 +9,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from '../entities/customers.entity'; // Adjust the import path if necessary
 
-export class CreateCustomerDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty()
-  user_id: number;
-
+export class UpdateCustomerDto {
   @IsString()
   @ApiProperty()
   @MaxLength(50)
@@ -53,19 +48,6 @@ export class CreateCustomerDto {
   profile_image_url?: string;
 
   @IsOptional()
-  @IsDateString()
-  @ApiProperty({ type: Date, required: false })
-  registration_date?: Date;
-
-  @IsOptional()
-  @IsDateString()
-  @ApiProperty({ type: Date, required: false })
-  last_login?: Date;
-
-  @IsOptional()
   @ApiProperty({ required: false })
   is_active?: boolean;
 }
-
-// Exclude email field from CreateCustomerDto
-// export type UpdateCustomerWithoutUserIdDto = Omit<CreateCustomerDto, 'user_id'>;

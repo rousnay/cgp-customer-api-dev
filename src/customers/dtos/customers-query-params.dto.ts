@@ -20,7 +20,12 @@ export class CustomersQueryParamsDto {
   @IsString()
   @IsOptional()
   @ApiProperty({ required: false })
-  phone_number: string;
+  phone: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  email: string;
 
   @IsOptional()
   @IsString()
