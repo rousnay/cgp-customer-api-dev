@@ -29,7 +29,13 @@ export class CreateCustomerDto {
   @IsString()
   @ApiProperty({ required: false })
   @MaxLength(20)
-  phone_number?: string;
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  @MaxLength(50)
+  email?: string;
 
   @IsOptional()
   @IsDateString()

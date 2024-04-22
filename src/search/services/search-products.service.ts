@@ -184,7 +184,9 @@ export class SearchProductsService {
       //     lastPage: lastPageUrl,
       //   },
       // },
-      data: productsWithBrandAndWarehouses,
+      data: {
+        products: productsWithBrandAndWarehouses,
+      },
     };
   }
 }

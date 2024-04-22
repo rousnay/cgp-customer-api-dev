@@ -1,12 +1,28 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Req,
+} from '@nestjs/common';
 import axios from 'axios';
 import { JwtService } from '@nestjs/jwt';
 import { CreateCustomerDto } from 'src/customers/dtos/create-customer.dto';
 import { Customers } from 'src/customers/entities/customers.entity';
+import { EntityManager, Repository } from 'typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { REQUEST } from '@nestjs/core';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
+    @InjectRepository(Customers)
+    private customerRepository: Repository<Customers>,
+    @Inject(REQUEST) private readonly request: Request,
+  ) {}
 
   async registration(
     first_name: string,
@@ -89,10 +105,41 @@ export class AuthService {
       // return response?.data;
       if (response.status === 200 || response.status === 201) {
         // Success response
+        const userData = response?.data?.data?.user;
+
+        // Create a new Customer entity based on the registration data
+        const createCustomerDto: CreateCustomerDto = {
+          user_id: userData?.id,
+          first_name: userData?.first_name,
+          last_name: userData?.last_name,
+          phone: userData?.phone,
+          email: userData?.email,
+          registration_date: userData?.created_at,
+        };
+
+        // Create a new Customers entity
+        const newCustomer = Customers.create({
+          user_id: createCustomerDto.user_id,
+          first_name: createCustomerDto.first_name,
+          last_name: createCustomerDto.last_name,
+          phone: createCustomerDto.phone,
+          email: userData.email,
+          registration_date: createCustomerDto.registration_date,
+        });
+
+        // Save the new Customer entity to the database
+        const savedCustomer = await newCustomer.save();
+
+        // Return the registration data along with the newly created Customer entity
         return {
           status: 'success',
           message: 'OTP verified successfully',
-          data: { session_id: session_id, otp: otp },
+          data: {
+            session_id: session_id,
+            otp: otp,
+            user: response?.data?.data?.user,
+            customer: savedCustomer,
+          },
         };
       } else {
         return response.data;
@@ -123,6 +170,7 @@ export class AuthService {
       }
     }
   }
+
   async resetPassword(
     session_id: string,
     otp: string,
@@ -153,10 +201,20 @@ export class AuthService {
       // Assuming Laravel returns the authenticated user data
       if (response.status === 200 || response.status === 201) {
         // Success response
+        const user = await response?.data?.data?.user;
+
+        //get customer data by user_id
+        const customer = await this.customerRepository.findOne({
+          where: { user_id: user?.user_id },
+        });
+
         return {
           status: 'success',
           message: response?.data?.msg,
-          data: response?.data?.data,
+          data: {
+            user: user,
+            customer: customer,
+          },
         };
       } else {
         return response.data;
@@ -184,6 +242,7 @@ export class AuthService {
       }
     }
   }
+
   async login(
     identity: string,
     password: string,
@@ -208,6 +267,7 @@ export class AuthService {
         config,
       );
       // Success response
+
       return {
         status: 'success',
         message: response?.data?.msg,
@@ -259,14 +319,27 @@ export class AuthService {
       if (response.status === 200 || response.status === 201) {
         // Success response
         if (response?.data?.data?.auth_token) {
-          const payload = { username: session_id, sub: otp };
+          const user = await response?.data?.data?.user;
+          const payload = { username: user.email, sub: user.id };
+
+          //get customer data by user_id
+          const customer = await this.customerRepository.findOne({
+            where: { user_id: user?.user_id },
+          });
+
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
-              user: response?.data?.data?.user,
-              access_token: this.jwtService.sign(payload),
-              //   auth_token: response?.data?.data?.auth_token,
+              user: user,
+              customer: customer,
+              access_token: this.jwtService.sign(
+                { payload },
+                {
+                  expiresIn: '7d',
+                },
+              ),
+              auth_token: response?.data?.data?.auth_token,
             },
           };
         } else {
@@ -301,6 +374,119 @@ export class AuthService {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
+    }
+  }
+
+  async getLoggedInUserId(): Promise<number> {
+    const authorizationHeader = this.request.headers['authorization'];
+    if (!authorizationHeader) {
+      throw new Error('Authorization header is missing');
+    }
+
+    const [type, token] = authorizationHeader.split(' ');
+
+    if (type !== 'Bearer') {
+      throw new Error('Invalid authorization header format');
+    }
+
+    try {
+      const decoded = this.jwtService.verify(token);
+
+      const {
+        payload: { sub },
+      } = decoded;
+
+      return sub;
+    } catch (error) {
+      throw new Error(`Error fetching user: ${error.message}`);
+    }
+  }
+
+  async getLoggedInUserInfo(authorizationHeader: string): Promise<any> {
+    if (!authorizationHeader) {
+      throw new Error('Authorization header is missing');
+    }
+
+    const [type, token] = authorizationHeader.split(' ');
+
+    if (type !== 'Bearer') {
+      throw new Error('Invalid authorization header format');
+    }
+
+    try {
+      const decoded = this.jwtService.verify(token);
+
+      console.log(decoded);
+
+      const {
+        payload: { username, sub },
+      } = decoded;
+
+      const query = `
+      SELECT * FROM users WHERE id = ?
+    `;
+
+      const users = await this.entityManager
+        .query(query, [sub])
+        .catch((error) => {
+          console.error('Error executing query:', error);
+        });
+      console.log('test1');
+      if (users.length === 0) {
+        return null;
+      }
+
+      return {
+        data: {
+          ...users[0],
+        },
+      };
+    } catch (error) {
+      throw new Error(`Error fetching user: ${error.message}`);
+    }
+  }
+
+  async getLoggedInCustomerInfo(authorizationHeader: string): Promise<any> {
+    if (!authorizationHeader) {
+      throw new Error('Authorization header is missing');
+    }
+
+    const [type, token] = authorizationHeader.split(' ');
+
+    if (type !== 'Bearer') {
+      throw new Error('Invalid authorization header format');
+    }
+
+    try {
+      const decoded = this.jwtService.verify(token);
+
+      console.log(decoded);
+
+      const {
+        payload: { username, sub },
+      } = decoded;
+
+      const query = `
+      SELECT * FROM customers WHERE id = ?
+    `;
+
+      const users = await this.entityManager
+        .query(query, [sub])
+        .catch((error) => {
+          console.error('Error executing query:', error);
+        });
+      console.log('test1');
+      if (users.length === 0) {
+        return null;
+      }
+
+      return {
+        data: {
+          ...users[0],
+        },
+      };
+    } catch (error) {
+      throw new Error(`Error fetching user: ${error.message}`);
     }
   }
 }

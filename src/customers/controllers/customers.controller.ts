@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
   Query,
   UsePipes,
   UseGuards,
@@ -108,10 +109,17 @@ export class CustomerController {
     return customers;
   }
 
+  // Get logged in customer +++++++++++++++++++++++++++++++++
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @Get('profile')
+  getProfile(@Request() req: any) {
+    return req.user;
+  }
   // Get a customer by ID ++++++++++++++++++++++++++++++++++
   @Get('/:customerId')
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth('access_token')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get a customer by ID' })
   @ApiParam({ name: 'customerId', type: Number })
   @ApiResponse({ status: 200, type: Customers })

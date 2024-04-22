@@ -9,12 +9,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { PasswordService } from './password.service';
 import { AuthController } from './auth.controller';
+import { Customers } from 'src/customers/entities/customers.entity';
 
 @Module({
   imports: [
     // UsersModule,
     PassportModule,
-    // TypeOrmModule.forFeature([AuthModule]),
+    TypeOrmModule.forFeature([Customers]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60s' },

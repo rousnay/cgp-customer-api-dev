@@ -40,7 +40,10 @@ export class Customers extends BaseEntity {
   last_name: string;
 
   @Column({ length: 20, nullable: true })
-  phone_number: string;
+  phone: string;
+
+  @Column({ nullable: true })
+  email: string;
 
   @Column({ type: 'date', nullable: true })
   date_of_birth: Date;
