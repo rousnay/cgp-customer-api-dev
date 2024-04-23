@@ -19,11 +19,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  // async validate(payload: any) {
-  //   // console.log(payload.payload.username);
-  //   return { username: payload.payload.username, id: payload.payload.sub };
-  // }
-
   async validate(payload: any) {
     const user = await this.validateUser(payload);
     if (!user) {
@@ -34,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validateUser(payload: any): Promise<any> {
     // Extract user id from the payload
-    const customer_id = payload.payload.sub;
+    const customer_id = payload.sub;
 
     // Find the user in the database by userId
     const user = await this.customerRepository.findOne({

@@ -425,7 +425,7 @@ export class AuthController {
   @ApiBearerAuth('access_token')
   async getProfile(@Req() request: Request) {
     // The authenticated user can be accessed from the request object
-    console.log(request['user']);
+    // console.log(request['user']);
     return request['user'];
   }
 }

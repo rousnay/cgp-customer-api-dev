@@ -208,7 +208,7 @@ export class AuthService {
 
           const payload = { username: customer.email, sub: customer.id };
           const access_token = this.jwtService.sign(
-            { payload },
+            { ...payload },
             {
               expiresIn: '30d',
             },
@@ -345,7 +345,7 @@ export class AuthService {
 
           const payload = { username: customer.email, sub: customer.id };
           const access_token = this.jwtService.sign(
-            { payload },
+            { ...payload },
             {
               expiresIn: '30d',
             },
