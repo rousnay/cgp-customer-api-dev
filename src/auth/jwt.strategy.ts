@@ -34,7 +34,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validateUser(payload: any): Promise<any> {
     // Extract user id from the payload
-    const customer_id = payload.sub;
+    const customer_id = payload.payload.sub;
 
     // Find the user in the database by userId
     const user = await this.customerRepository.findOne({

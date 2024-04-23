@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsDateString,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiBody, ApiProperty, ApiConsumes } from '@nestjs/swagger';
 import { Gender } from '../entities/customers.entity'; // Adjust the import path if necessary
 
 export class UpdateCustomerDto {

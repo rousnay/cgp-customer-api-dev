@@ -12,7 +12,12 @@ import {
   UseGuards,
   NotFoundException,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+
 import { CustomersService } from '../services/customers.service';
 // import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { UpdateCustomerDto } from '../dtos/update-customer.dto';
@@ -35,6 +40,7 @@ import { CustomersQueryParamsDto } from '../dtos/customers-query-params.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { CustomerPreferencesDto } from '../dtos/customer-preferences.dto';
 import { UpdateCustomerPreferencesDto } from '../dtos/update-customer-preferences.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 // @ApiHeader({
 //   name: 'X-MyHeader',
@@ -211,41 +217,66 @@ export class CustomerController {
   // }
 
   // Edit a customer by ID ++++++++++++++++++++++++++++++++
-  @Patch(':customerId/edit/')
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth('access_token')
-  @ApiOperation({ summary: 'Update customer by ID' })
-  @ApiParam({ name: 'customerId', type: Number })
-  @ApiBody({ type: UpdateCustomerDto })
-  @ApiResponse({ status: 200, type: Customers })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  public async editCustomer(
-    // @Body() createCustomerDto: CreateCustomerDto,
-    @Body() formData: any,
-    @Param('customerId') customerId: number,
-  ): Promise<{ message: string; status: string; data: Customers }> {
-    const updateCustomerDto = new UpdateCustomerDto();
-    updateCustomerDto.first_name = formData.first_name;
-    updateCustomerDto.last_name = formData.last_name;
-    updateCustomerDto.phone = formData.phone;
-    updateCustomerDto.email = formData.email;
-    updateCustomerDto.date_of_birth = formData.date_of_birth;
-    updateCustomerDto.gender = formData.gender;
-    updateCustomerDto.profile_image_url = formData.profile_image_url;
-    updateCustomerDto.is_active = formData.is_active;
+  // @Patch(':customerId/edit/')
+  // // @FormDataRequest()
+  // @ApiConsumes('multipart/form-data')
+  // @UseInterceptors(
+  //   FileInterceptor('file', {
+  //     storage: diskStorage({
+  //       destination: '/tmp', // Destination folder for uploaded files
+  //       filename: (req, file, callback) => {
+  //         const originalName = file.originalname;
+  //         const date = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
+  //         const time = new Date().toLocaleTimeString('en-US', {
+  //           hour12: false,
+  //         }); // Current time in HH:MM:SS format
+  //         const formattedTime = time.replace(/:/g, '-'); // Replacing colons with underscores for HH_MM_SS
+  //         const randomNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
 
-    const result = await this.customersService.editCustomer(
-      customerId,
-      updateCustomerDto,
-    );
+  //         const fileNameParts = [
+  //           originalName.replace(/\.[^/.]+$/, ''), // File name without extension
+  //           date,
+  //           formattedTime,
+  //           randomNumber.toString(),
+  //         ];
 
-    return {
-      status: 'success',
-      message: 'Customer updated successfully',
-      ...result,
-    };
-  }
+  //         const finalFileName =
+  //           fileNameParts.join('_') + extname(file.originalname); // Join parts with underscores
+  //         return callback(null, finalFileName);
+  //       },
+  //     }),
+  //   }),
+  // )
+  // @ApiOperation({ summary: 'Update customer by ID' })
+  // @ApiParam({ name: 'customerId', type: Number })
+  // @ApiBody({ type: UpdateCustomerDto })
+  // @ApiResponse({ status: 200, type: Customers })
+  // @ApiResponse({ status: 403, description: 'Forbidden.' })
+  // public async editCustomer(
+  //   @Body() formData: UpdateCustomerDto, // Use FormDataPipe
+  //   @Param('customerId') customerId: number,
+  // ): Promise<{ message: string; status: string; data: Customers }> {
+  //   const updateCustomerDto = new UpdateCustomerDto();
+  //   updateCustomerDto.first_name = formData.first_name;
+  //   updateCustomerDto.last_name = formData.last_name;
+  //   updateCustomerDto.phone = formData.phone;
+  //   updateCustomerDto.email = formData.email;
+  //   updateCustomerDto.date_of_birth = formData.date_of_birth;
+  //   updateCustomerDto.gender = formData.gender;
+  //   updateCustomerDto.profile_image_url = formData.profile_image_url;
+  //   updateCustomerDto.is_active = formData.is_active;
 
+  //   const result = await this.customersService.editCustomer(
+  //     customerId,
+  //     updateCustomerDto,
+  //   );
+
+  //   return {
+  //     status: 'success',
+  //     message: 'Customer updated successfully',
+  //     ...result,
+  //   };
+  // }
   @Get(':customerId/preferences')
   async getCustomerPreferences(
     @Param('customerId') customerId: number,

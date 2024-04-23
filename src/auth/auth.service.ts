@@ -196,22 +196,39 @@ export class AuthService {
 
       // Assuming Laravel returns the authenticated user data
       if (response.status === 200 || response.status === 201) {
-        // Success response
-        const user = await response?.data?.data?.user;
+        const user_id = await response?.data?.data?.user.id;
+        if (user_id) {
+          //get customer data by user_id
+          const customer = await this.customerRepository.findOne({
+            where: { user_id: user_id },
+          });
 
-        //get customer data by user_id
-        const customer = await this.customerRepository.findOne({
-          where: { user_id: user?.user_id },
-        });
+          console.log(user_id);
+          console.log(customer.id);
 
-        return {
-          status: 'success',
-          message: response?.data?.msg,
-          data: {
-            // user: user,
-            customer: customer,
-          },
-        };
+          const payload = { username: customer.email, sub: customer.id };
+          const access_token = this.jwtService.sign(
+            { payload },
+            {
+              expiresIn: '30d',
+            },
+          );
+
+          return {
+            status: 'success',
+            message: response?.data?.msg,
+            data: {
+              // user: user,
+              customer: customer,
+              access_token: access_token,
+              // auth_token: response?.data?.data?.auth_token,
+            },
+          };
+        } else {
+          return response?.data;
+          // Unexpected response format
+          // throw new Error('Unexpected response format');
+        }
       } else {
         return response.data;
       }
@@ -317,12 +334,10 @@ export class AuthService {
       // return response?.data;
       if (response.status === 200 || response.status === 201) {
         // Success response
-        if (response?.data?.data?.auth_token) {
-          const user_id = await response?.data?.data?.user.id;
+        const user_id = await response?.data?.data?.user.id;
 
-          console.log(response);
+        if (user_id) {
           console.log(user_id);
-
           //get customer data by user_id
           const customer = await this.customerRepository.findOne({
             where: { user_id: user_id },

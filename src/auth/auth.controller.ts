@@ -168,6 +168,8 @@ export class AuthController {
               created_at: '2024-04-21T05:47:42.541Z',
               updated_at: '2024-04-21T05:47:42.541Z',
             },
+            access_token:
+              'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5YmJiYzlmOS0zZWVhLTQ3NzUtYTY1Zi01NzkzZDY1ZDEzYzMiLCJqdGkiOiI3NTJiOWMwNzcwZWRiZmQ2OWY4Mjg1NWZhZmM3NGYyODA1ZDUyY2IxYmQ0ZmRmNmQzN2NhYTUwOWJmNGQzZmJiZDI4YTEwN2M3YjY3MzBhMCIsImlhdCI6MTcxMzQzNTQ4Ni44MTgzNDEsIm5iZiI6MTcxMzQzNTQ4Ni44MTgzNDUsImV4cCI6MTc0NDk3MTQ4Ni44MTYyMjQsInN1YiI6IjI2Iiwic2NvcGVzIjpbXX0.rmNNicKItoHmzHL-uzgyaMvbITUcXygjQkqbtNREWSHLuY2kjlL_7nz8j_mBAh9TUaVdK2tB_LxpRTKUZ5RKx7wzOfIzXlmIkz9AuXfgaeEh97jp1Jv0Vi1aIZLJJdnThuRUQg_JEYobFz6iX7d8TwBJDLXJI5GnZnSn39DoAPsdlQ7D1zvLSIGdCJE-tzZcOORne0G-wuGUYr97dmEo0OQZQYMgFaRYarWoC6LxCnBoc1K-2oOwblUp-O4fPrSefSbH7paqMaxElo0LZ13LOVPg93OpctFftGK9vuPprvAIuGXXfahbdyseaII9RaumzW4IUf2z9AhoqoGsAMgkeHLaaYMzJKIt9PEdbBZVUi_ByvTA-KrfF4cXz_kZ0veDQ7MEWzF8p0SfwPnqGwAawAe9Dcu2eSQUbw63-3H3ot3twZgZwp0h7FVcYH9Q-VO1G7cvjUQkvVAy7qXEgIEShgobYGQjbBAum-E-NEiH1V0lLm4BGtH31jSaltUl-rIQ3wUCDCHD4p4pofMnCou-cZ4C865BR0O4dvGzi-IFKkDccLnWCU_30JPvAnyMYIpdaf6R3rN_SlBz9bv8IncbsuEOUcHVFkvlMWIOawrfF3dnwAoQMk724EB7LJxKN-oi2FcqBbIH_96aZTQaSzVPJ5kkxyw5RLya9P6RAY9WrZk',
           },
         },
       },
@@ -423,6 +425,7 @@ export class AuthController {
   @ApiBearerAuth('access_token')
   async getProfile(@Req() request: Request) {
     // The authenticated user can be accessed from the request object
+    console.log(request['user']);
     return request['user'];
   }
 }
