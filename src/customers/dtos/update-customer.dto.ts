@@ -5,49 +5,52 @@ import {
   MaxLength,
   IsOptional,
   IsDateString,
+  IsEmpty,
 } from 'class-validator';
-import { ApiBody, ApiProperty, ApiConsumes } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from '../entities/customers.entity'; // Adjust the import path if necessary
 
 export class UpdateCustomerDto {
+  @IsOptional()
   @IsString()
-  @ApiProperty()
-  @MaxLength(50)
+  @IsEmpty({ each: true })
+  @ApiProperty({ description: 'First name', required: false })
   first_name: string;
 
+  @IsOptional()
   @IsString()
-  @ApiProperty()
-  @MaxLength(50)
+  @ApiProperty({ description: 'Last name', required: false })
   last_name: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ required: false })
-  @MaxLength(20)
+  @ApiProperty({ description: 'Phone number', required: false })
   phone?: string;
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ required: false })
-  @MaxLength(50)
+  @ApiProperty({ description: 'Email address', required: false })
   email?: string;
 
   @IsOptional()
   @IsDateString()
-  @ApiProperty({ type: Date, required: false })
+  @ApiProperty({ description: 'Date of birth', type: Date, required: false })
   date_of_birth?: Date;
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ enum: Gender, enumName: 'Gender', required: false })
+  @ApiProperty({ description: 'Gender', enum: Gender, required: false })
   gender?: Gender | null;
 
-  @IsOptional()
-  @IsString()
-  @ApiProperty({ required: false })
-  profile_image_url?: string;
+  // @IsOptional()
+  // @ApiProperty({
+  //   type: 'string',
+  //   format: 'binary',
+  //   required: false,
+  // })
+  // profile_image: Express.Multer.File;
 
   @IsOptional()
-  @ApiProperty({ required: false })
+  @ApiProperty({ description: 'Active status', required: false })
   is_active?: boolean;
 }
