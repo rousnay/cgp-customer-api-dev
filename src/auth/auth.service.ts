@@ -136,7 +136,6 @@ export class AuthService {
           message: 'OTP verified successfully',
           data: {
             session_id: session_id,
-            otp: otp,
             // user: response?.data?.data?.user,
             customer: savedCustomer,
           },
@@ -171,17 +170,14 @@ export class AuthService {
     }
   }
 
-  async resetPassword(
+  async setPassword(
     session_id: string,
-    otp: string,
     password: string,
     password_confirmation: string,
-    // user_type: string,
   ): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('session_id', session_id);
-      formData.append('otp', otp);
       formData.append('password', password);
       formData.append('password_confirmation', password_confirmation);
 
@@ -193,7 +189,7 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/reset-password',
+        'https://cgp.studypress.org/api/v1/user/auth/set-password',
         formData,
         config,
       );
@@ -254,6 +250,8 @@ export class AuthService {
       formData.append('password', password);
       formData.append('user_type', 'customer');
 
+      console.log(formData);
+
       const config = {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -266,6 +264,7 @@ export class AuthService {
         formData,
         config,
       );
+
       // Success response
 
       return {
@@ -374,6 +373,176 @@ export class AuthService {
       } else {
         // console.error('Error registering user:', error);
         console.error('Error generating OTP:', error);
+        throw new HttpException(
+          'Internal server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  async forgetPassword(identity: string): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('identity', identity);
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      // Make a request to your Laravel backend to forget-password the user
+      const response = await axios.post(
+        'https://cgp.studypress.org/api/v1/user/auth/forget-password',
+        formData,
+        config,
+      );
+
+      // Success response
+      return {
+        status: 'success',
+        message: response?.data?.msg,
+        data: response?.data?.data,
+      };
+    } catch (error) {
+      // Handle error
+      if (error.response && error.response.status) {
+        throw new HttpException(
+          {
+            statusCode: error.response.status,
+            message:
+              error.response.data.error.message ||
+              error.response.statusText ||
+              'Internal server error',
+            error: error.response.statusText,
+          },
+          error.response.status,
+        );
+      } else {
+        console.error('Error registering user:', error);
+        throw new HttpException(
+          'Internal server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  async resetPassword(
+    session_id: string,
+    otp: string,
+    password: string,
+    password_confirmation: string,
+    // user_type: string,
+  ): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('session_id', session_id);
+      formData.append('otp', otp);
+      formData.append('password', password);
+      formData.append('password_confirmation', password_confirmation);
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      // Make a request to your Laravel backend to authenticate the user
+      const response = await axios.post(
+        'https://cgp.studypress.org/api/v1/user/auth/reset-password',
+        formData,
+        config,
+      );
+
+      // Assuming Laravel returns the authenticated user data
+      if (response.status === 200 || response.status === 201) {
+        // Success response
+        const user = await response?.data?.data?.user;
+
+        //get customer data by user_id
+        const customer = await this.customerRepository.findOne({
+          where: { user_id: user?.user_id },
+        });
+
+        return {
+          status: 'success',
+          message: response?.data?.msg,
+          data: {
+            // user: user,
+            customer: customer,
+          },
+        };
+      } else {
+        return response.data;
+      }
+    } catch (error) {
+      // Handle error
+      if (error.response && error.response.status) {
+        throw new HttpException(
+          {
+            statusCode: error.response.status,
+            message:
+              error.response.data.error.message ||
+              error.response.statusText ||
+              'Internal server error',
+            error: error.response.statusText,
+          },
+          error.response.status,
+        );
+      } else {
+        console.error('Error registering user:', error);
+        throw new HttpException(
+          'Internal server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  async resentOTP(session_id: string): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('session_id', session_id);
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
+      // Make a request to your Laravel backend to forget-password the user
+      const response = await axios.post(
+        'https://cgp.studypress.org/api/v1/user/auth/forget-password',
+        formData,
+        config,
+      );
+
+      // Success response
+      return {
+        status: 'success',
+        message: response?.data?.msg,
+        data: {
+          session_id: session_id,
+        },
+      };
+    } catch (error) {
+      // Handle error
+      if (error.response && error.response.status) {
+        throw new HttpException(
+          {
+            statusCode: error.response.status,
+            message:
+              error.response.data.error.message ||
+              error.response.statusText ||
+              'Internal server error',
+            error: error.response.statusText,
+          },
+          error.response.status,
+        );
+      } else {
+        console.error('Error registering user:', error);
         throw new HttpException(
           'Internal server error',
           HttpStatus.INTERNAL_SERVER_ERROR,

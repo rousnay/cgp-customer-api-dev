@@ -102,7 +102,6 @@ export class AuthController {
           message: 'OTP verified successfully',
           data: {
             session_id: 'ac1kjd8oiscdzsejzn839khbjedtruzfy',
-            otp: '245611',
             customer: {
               user_id: 43,
               first_name: 'Mozahidur',
@@ -128,16 +127,15 @@ export class AuthController {
     return this.authService.verifyEmailWithOTP(data.session_id, data.otp);
   }
 
-  @Post('reset-password')
-  @ApiOperation({ summary: 'Reset user password' })
+  @Post('set-password')
+  @ApiOperation({ summary: 'Set user password' })
   @ApiBody({
-    description: 'User credentials to reset password',
+    description: 'User credentials to set password',
     examples: {
       credentials: {
         summary: 'Example of valid data',
         value: {
           session_id: 'r4m17y4p1vpaens2zj86lscguxqhxynvf',
-          otp: '33456',
           password: '12345678',
           password_confirmation: '12345678',
         },
@@ -146,7 +144,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 201,
-    description: 'All data related to home page',
+    description: 'All data related to set password',
     content: {
       'application/json': {
         example: {
@@ -175,18 +173,16 @@ export class AuthController {
       },
     },
   })
-  async resetPassword(
+  async setPassword(
     @Body()
     credentials: {
       session_id: string;
-      otp: string;
       password: string;
       password_confirmation: string;
     },
   ) {
-    return this.authService.resetPassword(
+    return this.authService.setPassword(
       credentials.session_id,
-      credentials.otp,
       credentials.password,
       credentials.password_confirmation,
     );
@@ -280,6 +276,145 @@ export class AuthController {
   })
   async verifyLoginWithOTP(@Body() data: { session_id: string; otp: string }) {
     return this.authService.verifyLoginWithOTP(data.session_id, data.otp);
+  }
+
+  @Post('forget-password')
+  @ApiOperation({ summary: 'Forget password' })
+  @ApiBody({
+    description: 'Customer registration data',
+    examples: {
+      credentials: {
+        summary: 'Example of valid data',
+        value: {
+          identity: 'rousnay@revinr.com',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'All data related to forget password',
+    content: {
+      'application/json': {
+        example: {
+          status: 'success',
+          message:
+            'An OTP has been sent to your email inbox. Please use this OTP to reset your password.',
+          data: {
+            session_id: 'sczwivkttybvvikhe3b56haxdcjpwr2q4',
+          },
+        },
+      },
+    },
+  })
+  async forgetPassword(
+    @Body()
+    data: {
+      identity: string;
+    },
+  ) {
+    return this.authService.forgetPassword(data.identity);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset user password' })
+  @ApiBody({
+    description: 'User credentials to reset password',
+    examples: {
+      credentials: {
+        summary: 'Example of valid data',
+        value: {
+          session_id: 'r4m17y4p1vpaens2zj86lscguxqhxynvf',
+          otp: '33456',
+          password: '12345678',
+          password_confirmation: '12345678',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'All data related to home page',
+    content: {
+      'application/json': {
+        example: {
+          status: 'success',
+          message:
+            'Login password updated successfully. Please use updated password to login',
+          data: {
+            customer: {
+              id: 3,
+              user_id: 44,
+              first_name: 'Mozahidur',
+              last_name: 'Rahman',
+              phone: '01711111111',
+              email: 'rousnay@revinr.com',
+              date_of_birth: null,
+              gender: null,
+              profile_image_url: null,
+              registration_date: '2024-04-21T11:47:24.000Z',
+              last_login: '2024-04-21T05:47:42.541Z',
+              is_active: true,
+              created_at: '2024-04-21T05:47:42.541Z',
+              updated_at: '2024-04-21T05:47:42.541Z',
+            },
+          },
+        },
+      },
+    },
+  })
+  async resetPassword(
+    @Body()
+    credentials: {
+      session_id: string;
+      otp: string;
+      password: string;
+      password_confirmation: string;
+    },
+  ) {
+    return this.authService.resetPassword(
+      credentials.session_id,
+      credentials.otp,
+      credentials.password,
+      credentials.password_confirmation,
+    );
+  }
+
+  @Post('resent-otp')
+  @ApiOperation({ summary: 'Resent OTP' })
+  @ApiBody({
+    description: 'Resent OTP data',
+    examples: {
+      credentials: {
+        summary: 'Example of valid data',
+        value: {
+          session_id: 'sczwivkttybvvikhe3b56haxdcjpwr2q4',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'All data related to resent OTP',
+    content: {
+      'application/json': {
+        example: {
+          status: 'success',
+          message: 'A new OTP is sent to registered email inbox.',
+          data: {
+            session_id: 'sczwivkttybvvikhe3b56haxdcjpwr2q4',
+          },
+        },
+      },
+    },
+  })
+  async resentOTP(
+    @Body()
+    data: {
+      session_id: string;
+    },
+  ) {
+    return this.authService.resentOTP(data.session_id);
   }
 
   @Get('customer')
