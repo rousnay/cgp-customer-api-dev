@@ -12,6 +12,8 @@ import { PreferencesService } from './services/preferences.service';
 import { PreferencesController } from './controllers/preferences.controller';
 import { WarehouseCategoryService } from 'src/warehouse/services/warehouse-category.services';
 import { ProductCategoryService } from 'src/products/services/product-category.service';
+import { BrandsController } from './controllers/brands.controller';
+import { BrandsService } from './services/brands.service';
 
 @Module({
   imports: [
@@ -20,22 +22,29 @@ import { ProductCategoryService } from 'src/products/services/product-category.s
     ProductsModule,
   ],
   exports: [
-    PreferencesService,
-    CategoriesService,
     WarehousesService,
     ProductsService,
+    BrandsService,
     WarehouseCategoryService,
     ProductCategoryService,
+    CategoriesService,
+    PreferencesService,
   ],
   providers: [
-    CategoriesService,
-    PreferencesService,
     WarehousesService,
     ProductsService,
+    BrandsService,
     WarehouseCategoryService,
     ProductCategoryService,
+    CategoriesService,
+    PreferencesService,
   ],
-  controllers: [HomeController, CategoriesController, PreferencesController],
+  controllers: [
+    HomeController,
+    BrandsController,
+    CategoriesController,
+    PreferencesController,
+  ],
 })
 export class ApplicationModule implements OnModuleInit {
   constructor(private readonly preferenceService: PreferencesService) {}
