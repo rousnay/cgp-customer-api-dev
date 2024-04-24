@@ -142,7 +142,7 @@ export class HomeController {
     warehouses: WarehousesDto[];
     products: ProductsDto[];
   }> {
-    const categories = await this.categoryService.findAll();
+    const categories = await this.categoryService.findAllWithProductCount();
     const warehouses = await this.warehouseService.findAll();
     const products = await this.productService.findAll();
     return {

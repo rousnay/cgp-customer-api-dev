@@ -6,6 +6,5 @@ export class CategoriesDto {
   grand_parent_id: number;
   serial: number;
   active: boolean;
-  created_at: Date;
-  updated_at: Date;
+  product_count: number;
 }
