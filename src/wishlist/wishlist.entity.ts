@@ -1,4 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class WishList {
@@ -11,9 +16,11 @@ export class WishList {
   @Column()
   product_id: number;
 
-  @Column()
-  created_at: Date;
-
-  @Column()
-  updated_at: Date;
+  @CreateDateColumn({
+    type: 'timestamp',
+    // precision: 6,
+    nullable: true,
+    // default: () => 'CURRENT_TIMESTAMP(6)',
+  })
+  added_at: Date;
 }

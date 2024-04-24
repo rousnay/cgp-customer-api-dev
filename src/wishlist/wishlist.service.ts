@@ -12,6 +12,11 @@ export class WishListService {
     private readonly wishListRepository: Repository<WishList>,
   ) {}
 
+  async getWishList(): Promise<WishList[]> {
+    const customerId = this.request['user'].id;
+    return this.wishListRepository.find({ where: { customer_id: customerId } });
+  }
+
   async addToWishList(productId: number): Promise<WishList> {
     const customerId = this.request['user'].id;
     const existingWishListItem = await this.wishListRepository.findOne({
@@ -32,11 +37,6 @@ export class WishListService {
     return this.wishListRepository.save(newWishListItem);
   }
 
-  async getWishList(): Promise<WishList[]> {
-    const customerId = this.request['user'].id;
-    return this.wishListRepository.find({ where: { customer_id: customerId } });
-  }
-
   async removeFromWishList(productId: number): Promise<any> {
     const customerId = this.request['user'].id;
     const wishListItem = await this.wishListRepository.findOne({
@@ -53,22 +53,64 @@ export class WishListService {
     await this.wishListRepository.remove(wishListItem);
   }
 
-  // async addMultipleToWishList(productIds: number[]): Promise<WishList[]> {
-  //   const customerId = this.request['user'].id;
-  //   const existingWishListItems = await this.wishListRepository.find({
-  //     where: { customer_id: customerId, product_id: In(productIds) },
-  //   });
+  async updateWishList(productId: number): Promise<any> {
+    const customerId = this.request['user'].id;
+    let wishListItem = await this.wishListRepository.findOne({
+      where: {
+        customer_id: customerId,
+        product_id: productId,
+      },
+    });
 
-  //   if (existingWishListItems.length > 0) {
-  //     throw new Error('Some products already exist in the wish list');
-  //   }
+    if (wishListItem) {
+      // If the item already exists, remove it
+      await this.wishListRepository.remove(wishListItem);
+      return {
+        status: 'success',
+        message: 'Wish list item removed successfully',
+      }; // Exit early after removing the item
+    } else {
+      // If the item doesn't exist, add it
+      wishListItem = this.wishListRepository.create({
+        customer_id: customerId,
+        product_id: productId,
+      });
+      return {
+        status: 'success',
+        message: 'Wish list item added successfully',
+        data: await this.wishListRepository.save(wishListItem),
+      };
+    }
+  }
 
-  //   const newWishListItems = productIds.map((productId) =>
-  //     this.wishListRepository.create({
-  //       customer_id: customerId,
-  //       product_id: productId,
-  //     }),
-  //   );
-  //   return this.wishListRepository.save(newWishListItems);
-  // }
+  async addMultipleToWishList(productIds: number[]): Promise<WishList[]> {
+    const customerId = this.request['user'].id;
+
+    // Find existing wishlist items for the customer and the given product ids
+    const existingWishListItems = await this.wishListRepository.find({
+      where: { customer_id: customerId, product_id: In(productIds) },
+    });
+
+    // Filter out the product ids for which wishlist items already exist
+    const newProductIds = productIds.filter(
+      (productId) =>
+        !existingWishListItems.some((item) => item.product_id === productId),
+    );
+
+    // Create wishlist items for the new product ids
+    const newWishListItems = newProductIds.map((productId) =>
+      this.wishListRepository.create({
+        customer_id: customerId,
+        product_id: productId,
+      }),
+    );
+
+    // Save the new wishlist items
+    const savedNewWishListItems = await this.wishListRepository.save(
+      newWishListItems,
+    );
+
+    // Return the newly added wishlist items along with any existing items
+    return [...existingWishListItems, ...savedNewWishListItems];
+  }
 }
