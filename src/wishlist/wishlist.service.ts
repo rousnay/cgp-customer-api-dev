@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { WishList } from './wishlist.entity';
 import { REQUEST } from '@nestjs/core';
+import { ProductsService } from 'src/products/services/products.service';
 
 @Injectable()
 export class WishListService {
@@ -10,11 +11,36 @@ export class WishListService {
     @Inject(REQUEST) private readonly request: Request,
     @InjectRepository(WishList)
     private readonly wishListRepository: Repository<WishList>,
+    private readonly productsService: ProductsService,
   ) {}
 
-  async getWishList(): Promise<WishList[]> {
+  // async getWishList(): Promise<WishList[]> {
+  //   const customerId = this.request['user'].id;
+  //   return this.wishListRepository.find({ where: { customer_id: customerId } });
+  // }
+
+  async getWishList(): Promise<any[]> {
     const customerId = this.request['user'].id;
-    return this.wishListRepository.find({ where: { customer_id: customerId } });
+    const wishListItems = await this.wishListRepository.find({
+      where: { customer_id: customerId },
+    });
+
+    const wishListWithProductData = [];
+    for (const wishListItem of wishListItems) {
+      const productData = await this.productsService.findOne(
+        wishListItem.product_id,
+      );
+      if (productData) {
+        delete wishListItem.product_id; // Remove product_id
+        delete wishListItem.customer_id; // Remove customer_id
+        wishListWithProductData.push({
+          ...wishListItem,
+          product: productData.data, // Include full product data
+        });
+      }
+    }
+
+    return wishListWithProductData;
   }
 
   async addToWishList(productId: number): Promise<WishList> {
