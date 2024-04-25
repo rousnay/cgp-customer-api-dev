@@ -54,6 +54,7 @@ export class Customers extends BaseEntity {
     nullable: true,
     // default: Gender.OTHER
   })
+  
   gender: Gender | null; // Define the column as nullable in the entity
 
   @Column({ nullable: true })
