@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { In, Repository, EntityManager } from 'typeorm';
 import { WishList } from './wishlist.entity';
 import { REQUEST } from '@nestjs/core';
 import { ProductsService } from 'src/products/services/products.service';
@@ -12,6 +12,8 @@ export class WishListService {
     @InjectRepository(WishList)
     private readonly wishListRepository: Repository<WishList>,
     private readonly productsService: ProductsService,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
   ) {}
 
   // async getWishList(): Promise<WishList[]> {
@@ -26,16 +28,61 @@ export class WishListService {
     });
 
     const wishListWithProductData = [];
+
     for (const wishListItem of wishListItems) {
-      const productData = await this.productsService.findOne(
+      const productQuery = `
+      SELECT
+        *
+      FROM
+        products
+      WHERE
+        id = ?`;
+
+      const productData = await this.entityManager.query(productQuery, [
         wishListItem.product_id,
-      );
+      ]);
+
       if (productData) {
         delete wishListItem.product_id; // Remove product_id
         delete wishListItem.customer_id; // Remove customer_id
+
+        // Fetching brands data
+        const brandQuery = `
+            SELECT
+                b.name
+            FROM
+                brands b
+            WHERE
+                id = ?`;
+        const brandResult = await this.entityManager.query(brandQuery, [
+          productData[0]?.brand_id,
+        ]);
+
+        // Fetching warehouse data
+        const warehousesQuery = `
+            SELECT
+                pw.warehouse_id,
+                w.name AS warehouse_name
+            FROM
+                product_warehouse_branch pw
+            INNER JOIN
+                warehouses w ON pw.warehouse_id = w.id
+            WHERE
+                pw.product_id = ?`;
+
+        const warehouseResults = await this.entityManager.query(
+          warehousesQuery,
+          [productData[0]?.id],
+        );
+
         wishListWithProductData.push({
           ...wishListItem,
-          product: productData.data, // Include full product data
+
+          product: {
+            ...productData[0],
+            brand_name: brandResult[0]?.name, // Add the brand data as a separate object
+            warehouses: warehouseResults,
+          }, // Include full product data
         });
       }
     }
