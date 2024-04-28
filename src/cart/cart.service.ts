@@ -7,35 +7,35 @@ import {
 } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, EntityManager } from 'typeorm';
-import { WishList } from './wishlist.entity';
+import { Cart } from './cart.entity';
 import { REQUEST } from '@nestjs/core';
 import { ProductsService } from 'src/products/services/products.service';
 
 @Injectable()
-export class WishListService {
+export class CartService {
   constructor(
     @Inject(REQUEST) private readonly request: Request,
-    @InjectRepository(WishList)
-    private readonly wishListRepository: Repository<WishList>,
+    @InjectRepository(Cart)
+    private readonly cartRepository: Repository<Cart>,
     private readonly productsService: ProductsService,
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
   ) {}
 
-  // async getWishList(): Promise<WishList[]> {
+  // async getCart(): Promise<Cart[]> {
   //   const customerId = this.request['user'].id;
-  //   return this.wishListRepository.find({ where: { customer_id: customerId } });
+  //   return this.cartRepository.find({ where: { customer_id: customerId } });
   // }
 
-  async getWishList(): Promise<any[]> {
+  async getCart(): Promise<any[]> {
     const customerId = this.request['user'].id;
-    const wishListItems = await this.wishListRepository.find({
+    const cartItems = await this.cartRepository.find({
       where: { customer_id: customerId },
     });
 
-    const wishListWithProductData = [];
+    const cartWithProductData = [];
 
-    for (const wishListItem of wishListItems) {
+    for (const cartItem of cartItems) {
       const productQuery = `
       SELECT
         *
@@ -45,12 +45,12 @@ export class WishListService {
         id = ?`;
 
       const productData = await this.entityManager.query(productQuery, [
-        wishListItem.product_id,
+        cartItem.product_id,
       ]);
 
       if (productData) {
-        delete wishListItem.product_id; // Remove product_id
-        delete wishListItem.customer_id; // Remove customer_id
+        delete cartItem.product_id; // Remove product_id
+        delete cartItem.customer_id; // Remove customer_id
 
         // Fetching brands data
         const brandQuery = `
@@ -81,8 +81,8 @@ export class WishListService {
           [productData[0]?.id],
         );
 
-        wishListWithProductData.push({
-          ...wishListItem,
+        cartWithProductData.push({
+          ...cartItem,
 
           product: {
             ...productData[0],
@@ -93,110 +93,108 @@ export class WishListService {
       }
     }
 
-    return wishListWithProductData;
+    return cartWithProductData;
   }
 
-  async addToWishList(productId: number): Promise<WishList> {
+  async addToCart(productId: number): Promise<Cart> {
     const customerId = this.request['user'].id;
-    const existingWishListItem = await this.wishListRepository.findOne({
+    const existingCartItem = await this.cartRepository.findOne({
       where: {
         customer_id: customerId,
         product_id: productId,
       },
     });
 
-    if (existingWishListItem) {
+    if (existingCartItem) {
       throw new HttpException(
         {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Product already exists in the wish list',
+          message: 'Product already exists in the cart',
           error: 'Bad Request',
         },
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    const newWishListItem = this.wishListRepository.create({
+    const newCartItem = this.cartRepository.create({
       customer_id: customerId,
       product_id: productId,
     });
-    return this.wishListRepository.save(newWishListItem);
+    return this.cartRepository.save(newCartItem);
   }
 
-  async removeFromWishList(productId: number): Promise<any> {
+  async removeFromCart(productId: number): Promise<any> {
     const customerId = this.request['user'].id;
-    const wishListItem = await this.wishListRepository.findOne({
+    const cartItem = await this.cartRepository.findOne({
       where: {
         customer_id: customerId,
         product_id: productId,
       },
     });
 
-    if (!wishListItem) {
-      throw new NotFoundException('Wish list item not found');
+    if (!cartItem) {
+      throw new NotFoundException('Cart list item not found');
     }
 
-    await this.wishListRepository.remove(wishListItem);
+    await this.cartRepository.remove(cartItem);
   }
 
-  async updateWishList(productId: number): Promise<any> {
+  async updateCart(productId: number): Promise<any> {
     const customerId = this.request['user'].id;
-    let wishListItem = await this.wishListRepository.findOne({
+    let cartItem = await this.cartRepository.findOne({
       where: {
         customer_id: customerId,
         product_id: productId,
       },
     });
 
-    if (wishListItem) {
+    if (cartItem) {
       // If the item already exists, remove it
-      await this.wishListRepository.remove(wishListItem);
+      await this.cartRepository.remove(cartItem);
       return {
         status: 'success',
-        message: 'Wish list item removed successfully',
+        message: 'Product removed from the cart successfully',
       }; // Exit early after removing the item
     } else {
       // If the item doesn't exist, add it
-      wishListItem = this.wishListRepository.create({
+      cartItem = this.cartRepository.create({
         customer_id: customerId,
         product_id: productId,
       });
       return {
         status: 'success',
-        message: 'Wish list item added successfully',
-        data: await this.wishListRepository.save(wishListItem),
+        message: 'Product added to the cart successfully',
+        data: await this.cartRepository.save(cartItem),
       };
     }
   }
 
-  async addMultipleToWishList(productIds: number[]): Promise<WishList[]> {
+  async addMultipleToCart(productIds: number[]): Promise<Cart[]> {
     const customerId = this.request['user'].id;
 
-    // Find existing wishlist items for the customer and the given product ids
-    const existingWishListItems = await this.wishListRepository.find({
+    // Find existing cart items for the customer and the given product ids
+    const existingCartItems = await this.cartRepository.find({
       where: { customer_id: customerId, product_id: In(productIds) },
     });
 
-    // Filter out the product ids for which wishlist items already exist
+    // Filter out the product ids for which cart items already exist
     const newProductIds = productIds.filter(
       (productId) =>
-        !existingWishListItems.some((item) => item.product_id === productId),
+        !existingCartItems.some((item) => item.product_id === productId),
     );
 
-    // Create wishlist items for the new product ids
-    const newWishListItems = newProductIds.map((productId) =>
-      this.wishListRepository.create({
+    // Create cart items for the new product ids
+    const newCartItems = newProductIds.map((productId) =>
+      this.cartRepository.create({
         customer_id: customerId,
         product_id: productId,
       }),
     );
 
-    // Save the new wishlist items
-    const savedNewWishListItems = await this.wishListRepository.save(
-      newWishListItems,
-    );
+    // Save the new cart items
+    const savedNewCartItems = await this.cartRepository.save(newCartItems);
 
-    // Return the newly added wishlist items along with any existing items
-    return [...existingWishListItems, ...savedNewWishListItems];
+    // Return the newly added cart items along with any existing items
+    return [...existingCartItems, ...savedNewCartItems];
   }
 }

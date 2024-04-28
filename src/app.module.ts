@@ -14,6 +14,7 @@ import { CustomersModule } from './customers/customers.module';
 import { GeoLocationModule } from './geolocation/geolocation.module';
 import { SearchModule } from './search/search.module';
 import { WishListModule } from './wishlist/wishlist.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { WishListModule } from './wishlist/wishlist.module';
     WarehouseModule,
     ProductsModule,
     WishListModule,
+    CartModule,
     GeoLocationModule,
   ],
   providers: [AppService],
