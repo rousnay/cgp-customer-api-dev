@@ -1,29 +1,63 @@
-export class CreateOrderDto {
-  customer_id: number;
-  warehouse_id: number;
-  total_item: number;
-  total_price: number;
-  discount: number;
-  vat: number;
-  payable_amount: number;
-  order_status: OrderStatus; // Import OrderStatus enum from order.entity.ts
-  products: OrderProductDto[]; // Define OrderProductDto
-}
+import { ApiProperty } from '@nestjs/swagger';
+import { OrderStatus } from '../entities/order.entity';
 
 export class OrderProductDto {
+  @ApiProperty()
   product_id: number;
-  variant_id?: number;
+
+  // @ApiProperty({ required: false })
+  // variant_id?: number | null; // Nullable variant_id
+
+  @ApiProperty()
   quantity: number;
+
+  @ApiProperty()
   regular_price: number;
+
+  @ApiProperty()
   sales_price: number;
-  offer_id?: number;
+
+  @ApiProperty({ required: false })
+  offer_id?: number | null; // Nullable offer_id
 }
 
-export enum OrderStatus {
-  PENDING = 'pending',
-  ACCEPTED = 'accepted',
-  PROCESSING = 'processing',
-  SHIPPED = 'shipped',
-  DELIVERED = 'delivered',
+export class CreateOrderDto {
+  @ApiProperty()
+  customer_id: number;
+
+  @ApiProperty()
+  warehouse_id: number;
+
+  @ApiProperty()
+  total_item: number;
+
+  @ApiProperty()
+  total_price: number;
+
+  @ApiProperty()
+  discount: number;
+
+  @ApiProperty()
+  vat: number;
+
+  @ApiProperty()
+  payable_amount: number;
+
+  @ApiProperty()
+  order_status: OrderStatus;
+
+  @ApiProperty({ required: false })
+  delivery_id?: number | null; // Nullable delivery_id
+
+  @ApiProperty({ required: false })
+  shipping_address_id?: number | null; // Nullable shipping_address_id
+
+  @ApiProperty({ required: false })
+  billing_address_id?: number | null; // Nullable billing_address_id
+
+  @ApiProperty({ required: false })
+  payment_id?: number | null; // Nullable payment_id
+
+  @ApiProperty({ type: [OrderProductDto] })
+  products: OrderProductDto[];
 }
-    

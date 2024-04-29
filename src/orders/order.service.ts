@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
@@ -8,6 +9,7 @@ import { CreateOrderDto } from './dtos/create-order.dto';
 @Injectable()
 export class OrderService {
   constructor(
+    @Inject(REQUEST) private readonly request: Request,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderDetail)
@@ -22,7 +24,7 @@ export class OrderService {
       const orderDetail = new OrderDetail();
       orderDetail.order_id = savedOrder.id;
       orderDetail.product_id = product.product_id;
-      orderDetail.variant_id = product.variant_id;
+      // orderDetail.variant_id = product.variant_id;
       orderDetail.product_quantity = product.quantity;
       orderDetail.regular_price = product.regular_price;
       orderDetail.sales_price = product.sales_price;
@@ -65,7 +67,8 @@ export class OrderService {
     return order;
   }
 
-  async getOrderHistory(customerId: number): Promise<Order[]> {
+  async getOrderHistory(): Promise<Order[]> {
+    const customerId = this.request['user'].id;
     return this.orderRepository.find({ where: { customer_id: customerId } });
   }
 }

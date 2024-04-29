@@ -7,11 +7,14 @@ import {
   Body,
   ParseIntPipe,
   NotFoundException,
+  UseGuards,
+  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { Order } from './entities/order.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('orders')
 @ApiTags('Orders')
@@ -19,6 +22,10 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Place an order' })
+  @ApiBody({ type: CreateOrderDto })
   async placeOrder(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
     try {
       const order = await this.orderService.placeOrder(createOrderDto);
@@ -28,7 +35,10 @@ export class OrderController {
     }
   }
 
-  @Delete(':orderId')
+  @Put(':orderId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Cancel an order' })
   async cancelOrder(
     @Param('orderId', ParseIntPipe) orderId: number,
   ): Promise<void> {
@@ -43,6 +53,9 @@ export class OrderController {
   }
 
   @Delete(':orderId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Delete an order' })
   async deleteOrder(
     @Param('orderId', ParseIntPipe) orderId: number,
   ): Promise<void> {
@@ -57,6 +70,9 @@ export class OrderController {
   }
 
   @Get(':orderId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Get an order' })
   async getOrderById(
     @Param('orderId', ParseIntPipe) orderId: number,
   ): Promise<Order> {
@@ -71,10 +87,11 @@ export class OrderController {
     }
   }
 
-  @Get('history/:customerId')
-  async getOrderHistory(
-    @Param('customerId', ParseIntPipe) customerId: number,
-  ): Promise<Order[]> {
-    return this.orderService.getOrderHistory(customerId);
+  @Get('history')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Get order history' })
+  async getOrderHistory(): Promise<Order[]> {
+    return this.orderService.getOrderHistory();
   }
 }
