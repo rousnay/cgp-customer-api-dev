@@ -64,23 +64,6 @@ export class CartController {
     };
   }
 
-  @Delete('remove-single/:cartId')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access_token')
-  @ApiOperation({ summary: 'Remove product from cart' })
-  async removeFromCart(@Param('cartId', ParseIntPipe) cartId: number): Promise<{
-    status: string;
-    message: string;
-    data: Cart;
-  }> {
-    const result = await this.cartService.removeFromCart(cartId);
-    return {
-      status: 'success',
-      message: 'Product has been removed from cart successfully',
-      data: result,
-    };
-  }
-
   @Patch('update-single/:cartId/:quantity')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
@@ -97,6 +80,23 @@ export class CartController {
     return {
       status: 'success',
       message: 'Cart has been updated successfully',
+      data: result,
+    };
+  }
+
+  @Delete('remove-single/:cartId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Remove product from cart' })
+  async removeFromCart(@Param('cartId', ParseIntPipe) cartId: number): Promise<{
+    status: string;
+    message: string;
+    data: Cart;
+  }> {
+    const result = await this.cartService.removeFromCart(cartId);
+    return {
+      status: 'success',
+      message: 'Product has been removed from cart successfully',
       data: result,
     };
   }

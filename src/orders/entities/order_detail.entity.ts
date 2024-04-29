@@ -7,32 +7,40 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Cart {
+export class OrderDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  customer_id: number;
+  order_id: number;
 
   @Column()
   product_id: number;
 
+  @Column({ nullable: true })
+  variant_id: number;
+
   @Column()
-  quantity: number;
+  product_quantity: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  regular_price: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  sales_price: number;
+
+  @Column({ nullable: true })
+  offer_id: number;
 
   @CreateDateColumn({
     type: 'timestamp',
-    // precision: 6,
     nullable: true,
-    // default: () => 'CURRENT_TIMESTAMP(6)',
   })
   created_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    // precision: 6,
     nullable: true,
-    // default: () => 'CURRENT_TIMESTAMP(6)',
   })
   updated_at: Date;
 }

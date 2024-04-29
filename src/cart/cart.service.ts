@@ -22,11 +22,6 @@ export class CartService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  // async getCart(): Promise<Cart[]> {
-  //   const customerId = this.request['user'].id;
-  //   return this.cartRepository.find({ where: { customer_id: customerId } });
-  // }
-
   async getCart(): Promise<any[]> {
     const customerId = this.request['user'].id;
     const cartItems = await this.cartRepository.find({
@@ -121,26 +116,6 @@ export class CartService {
     return this.cartRepository.save(newCartItem);
   }
 
-  async removeFromCart(cartId: number): Promise<any> {
-    const customerId = this.request['user'].id;
-
-    // Find the cart item by id and product_id
-    const cartItem = await this.cartRepository.findOne({
-      where: {
-        id: cartId,
-        customer_id: customerId,
-      },
-    });
-
-    // If the cart item doesn't exist, throw a NotFoundException
-    if (!cartItem) {
-      throw new NotFoundException('Cart item not found');
-    }
-
-    // Remove the cart item
-    await this.cartRepository.remove(cartItem);
-  }
-
   async updateCart(cartId: number, quantity: number): Promise<Cart> {
     const customerId = this.request['user'].id;
     const existingCartItem = await this.cartRepository.findOne({
@@ -159,6 +134,26 @@ export class CartService {
     existingCartItem.quantity = quantity;
     await this.cartRepository.save(existingCartItem);
     return existingCartItem;
+  }
+
+  async removeFromCart(cartId: number): Promise<any> {
+    const customerId = this.request['user'].id;
+
+    // Find the cart item by id and product_id
+    const cartItem = await this.cartRepository.findOne({
+      where: {
+        id: cartId,
+        customer_id: customerId,
+      },
+    });
+
+    // If the cart item doesn't exist, throw a NotFoundException
+    if (!cartItem) {
+      throw new NotFoundException('Cart item not found');
+    }
+
+    // Remove the cart item
+    await this.cartRepository.remove(cartItem);
   }
 
   async addMultipleToCart(
