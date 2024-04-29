@@ -16,6 +16,9 @@ export class Cart {
   @Column()
   product_id: number;
 
+  @Column()
+  quantity: number;
+
   @CreateDateColumn({
     type: 'timestamp',
     // precision: 6,

@@ -96,7 +96,7 @@ export class CartService {
     return cartWithProductData;
   }
 
-  async addToCart(productId: number): Promise<Cart> {
+  async addToCart(productId: number, quantity: number): Promise<Cart> {
     const customerId = this.request['user'].id;
     const existingCartItem = await this.cartRepository.findOne({
       where: {
@@ -106,95 +106,127 @@ export class CartService {
     });
 
     if (existingCartItem) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Product already exists in the cart',
-          error: 'Bad Request',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      // If the product already exists, update its quantity
+      existingCartItem.quantity = quantity;
+      await this.cartRepository.save(existingCartItem);
+      return existingCartItem;
     }
 
+    // If the product doesn't exist, create a new cart item
     const newCartItem = this.cartRepository.create({
       customer_id: customerId,
       product_id: productId,
+      quantity: quantity,
     });
     return this.cartRepository.save(newCartItem);
   }
 
-  async removeFromCart(productId: number): Promise<any> {
+  async removeFromCart(cartId: number): Promise<any> {
     const customerId = this.request['user'].id;
+
+    // Find the cart item by id and product_id
     const cartItem = await this.cartRepository.findOne({
       where: {
+        id: cartId,
         customer_id: customerId,
-        product_id: productId,
       },
     });
 
+    // If the cart item doesn't exist, throw a NotFoundException
     if (!cartItem) {
-      throw new NotFoundException('Cart list item not found');
+      throw new NotFoundException('Cart item not found');
     }
 
+    // Remove the cart item
     await this.cartRepository.remove(cartItem);
   }
 
-  async updateCart(productId: number): Promise<any> {
+  async updateCart(cartId: number, quantity: number): Promise<Cart> {
     const customerId = this.request['user'].id;
-    let cartItem = await this.cartRepository.findOne({
+    const existingCartItem = await this.cartRepository.findOne({
       where: {
+        id: cartId,
         customer_id: customerId,
-        product_id: productId,
       },
     });
 
-    if (cartItem) {
-      // If the item already exists, remove it
-      await this.cartRepository.remove(cartItem);
-      return {
-        status: 'success',
-        message: 'Product removed from the cart successfully',
-      }; // Exit early after removing the item
-    } else {
-      // If the item doesn't exist, add it
-      cartItem = this.cartRepository.create({
-        customer_id: customerId,
-        product_id: productId,
-      });
-      return {
-        status: 'success',
-        message: 'Product added to the cart successfully',
-        data: await this.cartRepository.save(cartItem),
-      };
+    // If the cart item doesn't exist, throw a NotFoundException
+    if (!existingCartItem) {
+      throw new NotFoundException('Cart item not found');
     }
+
+    // If the cart already exists, update its quantity
+    existingCartItem.quantity = quantity;
+    await this.cartRepository.save(existingCartItem);
+    return existingCartItem;
   }
 
-  async addMultipleToCart(productIds: number[]): Promise<Cart[]> {
+  async addMultipleToCart(
+    productQuantities: { productId: number; quantity: number }[],
+  ): Promise<Cart[]> {
     const customerId = this.request['user'].id;
 
     // Find existing cart items for the customer and the given product ids
     const existingCartItems = await this.cartRepository.find({
-      where: { customer_id: customerId, product_id: In(productIds) },
+      where: {
+        customer_id: customerId,
+        product_id: In(productQuantities.map((item) => item.productId)),
+      },
     });
 
-    // Filter out the product ids for which cart items already exist
-    const newProductIds = productIds.filter(
-      (productId) =>
-        !existingCartItems.some((item) => item.product_id === productId),
-    );
+    // Update quantities for existing cart items
+    existingCartItems.forEach((existingCartItem) => {
+      const matchedProductQuantity = productQuantities.find(
+        (item) => item.productId === existingCartItem.product_id,
+      );
+      if (matchedProductQuantity) {
+        existingCartItem.quantity = matchedProductQuantity.quantity;
+      }
+    });
 
-    // Create cart items for the new product ids
-    const newCartItems = newProductIds.map((productId) =>
-      this.cartRepository.create({
-        customer_id: customerId,
-        product_id: productId,
-      }),
-    );
+    // Create new cart items for products that don't exist in the cart
+    const newCartItems = productQuantities
+      .filter(
+        (item) =>
+          !existingCartItems.some(
+            (cartItem) => cartItem.product_id === item.productId,
+          ),
+      )
+      .map((item) =>
+        this.cartRepository.create({
+          customer_id: customerId,
+          product_id: item.productId,
+          quantity: item.quantity,
+        }),
+      );
 
-    // Save the new cart items
+    // Save both updated existing cart items and newly created cart items
+    const savedExistingCartItems = await this.cartRepository.save(
+      existingCartItems,
+    );
     const savedNewCartItems = await this.cartRepository.save(newCartItems);
 
-    // Return the newly added cart items along with any existing items
-    return [...existingCartItems, ...savedNewCartItems];
+    // Return the updated existing cart items along with the newly created cart items
+    return [...savedExistingCartItems, ...savedNewCartItems];
+  }
+
+  async removeMultipleFromCart(cartIds: number[]): Promise<void> {
+    const customerId = this.request['user'].id;
+
+    // Find the cart items by ids and customer_id
+    const cartItems = await this.cartRepository.find({
+      where: {
+        id: In(cartIds),
+        customer_id: customerId,
+      },
+    });
+
+    // If any of the cart items don't exist, remove the existing ones and throw a NotFoundException
+    if (cartItems.length === 0) {
+      throw new NotFoundException('One or more cart items not found');
+    }
+
+    // Remove the cart items
+    await this.cartRepository.remove(cartItems);
   }
 }
