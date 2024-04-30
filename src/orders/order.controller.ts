@@ -47,7 +47,6 @@ export class OrderController {
             shipping_address_id: 0,
             billing_address_id: 0,
             payment_id: 0,
-            total_item: 0,
             total_price: 0,
             discount: 0,
             vat: 0,

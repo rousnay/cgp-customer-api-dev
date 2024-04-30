@@ -20,17 +20,17 @@ export class CustomerAddressBook extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @Column()
-  // customer_id: number;
+  @Column()
+  customer_id: number;
 
-  @ManyToOne(() => Customers, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'customer_id' })
-  customer: Customers;
+  // @ManyToOne(() => Customers, { onDelete: 'CASCADE' })
+  // @JoinColumn({ name: 'customer_id' })
+  // customer: Customers;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   first_name: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   last_name: string;
 
   @Column({ length: 20, nullable: true })
@@ -39,20 +39,26 @@ export class CustomerAddressBook extends BaseEntity {
   @Column({ length: 20, nullable: true })
   phone_number_2: string;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, nullable: true })
   address: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   city: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   state: string;
 
-  @Column({ length: 20 })
+  @Column({ length: 20, nullable: true })
   postal_code: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   country_id: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  longitude: number;
 
   @Column({ type: 'text', nullable: true })
   notes: string;
@@ -61,7 +67,7 @@ export class CustomerAddressBook extends BaseEntity {
     type: 'enum',
     enum: AddressType,
     nullable: true,
-    //default: AddressType.SHIPPING
+    default: null,
   })
   address_type: AddressType;
 

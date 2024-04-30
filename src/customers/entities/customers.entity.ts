@@ -5,16 +5,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToOne,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
 
 import { Preferences } from 'src/application/entities/preferences.entity';
-
-// import { Users } from 'src/users/users.entity';
 
 export enum Gender {
   MALE = 'male',
@@ -25,10 +20,6 @@ export enum Gender {
 export class Customers extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-
-  // @OneToOne(() => Users, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'user_id' })
-  // user: Users;
 
   @Column()
   user_id: number;
@@ -54,7 +45,6 @@ export class Customers extends BaseEntity {
     nullable: true,
     // default: Gender.OTHER
   })
-  
   gender: Gender | null; // Define the column as nullable in the entity
 
   @Column({ nullable: true })
@@ -76,17 +66,13 @@ export class Customers extends BaseEntity {
 
   @CreateDateColumn({
     type: 'timestamp',
-    // precision: 6,
     nullable: true,
-    // default: () => 'CURRENT_TIMESTAMP(6)',
   })
   created_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    // precision: 6,
     nullable: true,
-    // default: () => 'CURRENT_TIMESTAMP(6)',
   })
   updated_at: Date;
 }
