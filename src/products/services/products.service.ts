@@ -17,9 +17,48 @@ export class ProductsService {
   async findAll(): Promise<any> {
     const productsQuery = `
       SELECT
-        *
+        pw.id,
+        pw.product_name,
+        pw.regular_price,
+        pw.sales_price,
+        pw.quantity,
+        pw.active,
+        pw.has_own_product_img,
+        p.barcode,
+        p.category_id,
+        p.primary_category_id,
+        p.brand_id,
+        p.unit,
+        p.size_id,
+        p.size_height,
+        p.size_width,
+        p.size_length,
+        p.colour_id,
+        p.group_id,
+        p.weight,
+        p.weight_unit_id,
+        p.materials,
+        p.short_desc,
+        p.long_desc,
+        p.details_overview,
+        p.details_specifications,
+        p.details_size_and_materials,
+        p.details_size_and_materials,
+        p.created_at,
+        p.updated_at,
+        w.name AS warehouse_name,
+        c.name AS category_name,
+        b.name AS brand_name
       FROM
-        products`;
+        products p
+      LEFT JOIN
+        brands b ON p.brand_id = b.id
+      LEFT JOIN
+        categories c ON p.category_id = c.id
+      LEFT JOIN
+        product_warehouse_branch pw ON p.id = pw.product_id
+      LEFT JOIN
+        warehouses w ON pw.warehouse_id = w.id`;
 
     const productResults = await this.entityManager.query(productsQuery);
 
@@ -48,7 +87,7 @@ export class ProductsService {
             INNER JOIN
                 warehouses w ON pw.warehouse_id = w.id
             WHERE
-                pw.product_id = ?`;
+                pw.id = ?`;
 
       const warehouseResults = await this.entityManager.query(warehousesQuery, [
         product.id,
@@ -67,11 +106,50 @@ export class ProductsService {
   async findOne(id: number): Promise<any | undefined> {
     const productQuery = `
       SELECT
-        *
+        pw.id,
+        pw.product_name,
+        pw.regular_price,
+        pw.sales_price,
+        pw.quantity,
+        pw.active,
+        pw.has_own_product_img,
+        p.barcode,
+        p.category_id,
+        p.primary_category_id,
+        p.brand_id,
+        p.unit,
+        p.size_id,
+        p.size_height,
+        p.size_width,
+        p.size_length,
+        p.colour_id,
+        p.group_id,
+        p.weight,
+        p.weight_unit_id,
+        p.materials,
+        p.short_desc,
+        p.long_desc,
+        p.details_overview,
+        p.details_specifications,
+        p.details_size_and_materials,
+        p.details_size_and_materials,
+        p.created_at,
+        p.updated_at,
+        w.name AS warehouse_name,
+        c.name AS category_name,
+        b.name AS brand_name
       FROM
-        products
+        product_warehouse_branch pw
+      LEFT JOIN
+        products p ON pw.product_id = p.id
+      LEFT JOIN
+        brands b ON p.brand_id = b.id
+      LEFT JOIN
+        categories c ON p.category_id = c.id
+      LEFT JOIN
+        warehouses w ON pw.warehouse_id = w.id
       WHERE
-        id = ?`;
+        pw.id = ?`;
 
     const productResult = await this.entityManager.query(productQuery, [id]);
     if (productResult.length === 0) {
@@ -102,7 +180,7 @@ export class ProductsService {
             INNER JOIN
                 warehouses w ON pw.warehouse_id = w.id
             WHERE
-                pw.product_id = ?`;
+                pw.id = ?`;
 
     const warehousesResults = await this.entityManager.query(warehousesQuery, [
       id,

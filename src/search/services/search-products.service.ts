@@ -21,7 +21,35 @@ export class SearchProductsService {
   ): Promise<any> {
     let sqlQuery = `
       SELECT
-        p.*,
+        pw.id,
+        pw.product_name,
+        pw.regular_price,
+        pw.sales_price,
+        pw.quantity,
+        pw.active,
+        pw.has_own_product_img,
+        p.barcode,
+        p.category_id,
+        p.primary_category_id,
+        p.brand_id,
+        p.unit,
+        p.size_id,
+        p.size_height,
+        p.size_width,
+        p.size_length,
+        p.colour_id,
+        p.group_id,
+        p.weight,
+        p.weight_unit_id,
+        p.materials,
+        p.short_desc,
+        p.long_desc,
+        p.details_overview,
+        p.details_specifications,
+        p.details_size_and_materials,
+        p.details_size_and_materials,
+        p.created_at,
+        p.updated_at,
         w.name AS warehouse_name,
         c.name AS category_name,
         b.name AS brand_name
@@ -76,27 +104,27 @@ export class SearchProductsService {
     }
 
     if (priceMin) {
-      sqlQuery += ` AND p.price >= ?`;
+      sqlQuery += ` AND pw.price >= ?`;
       parameters.push(priceMin);
     }
 
     if (priceMax) {
-      sqlQuery += ` AND p.price <= ?`;
+      sqlQuery += ` AND pw.price <= ?`;
       parameters.push(priceMax);
     }
 
     // Apply sorting
     if (sort) {
       if (sort === 'recent') {
-        sqlQuery += ' ORDER BY p.created_at DESC';
+        sqlQuery += ' ORDER BY pw.created_at DESC';
       } else if (sort === 'older') {
-        sqlQuery += ' ORDER BY p.created_at ASC';
+        sqlQuery += ' ORDER BY pw.created_at ASC';
       } else if (sort === 'name') {
-        sqlQuery += ' ORDER BY p.name ASC';
+        sqlQuery += ' ORDER BY pw.name ASC';
       } else if (sort === 'price_high') {
-        sqlQuery += ' ORDER BY p.price DESC';
+        sqlQuery += ' ORDER BY pw.price DESC';
       } else if (sort === 'price_low') {
-        sqlQuery += ' ORDER BY p.price ASC';
+        sqlQuery += ' ORDER BY pw.price ASC';
       }
     }
     // Execute the query
@@ -127,7 +155,7 @@ export class SearchProductsService {
             INNER JOIN
                 warehouses w ON pw.warehouse_id = w.id
             WHERE
-                pw.product_id = ?`;
+                pw.id = ?`;
 
       const warehouseResults = await this.entityManager.query(warehousesQuery, [
         product.id,
@@ -154,7 +182,7 @@ export class SearchProductsService {
 
     // console.log('paginatedResults products found', paginatedResults.length);
 
-    // // Calculate pagination metadata
+    // Calculate pagination metadata
     // const totalCount = productsWithBrandAndWarehouses.length;
     // const totalPages = Math.ceil(totalCount / limit);
     // const firstPageUrl = `/search/products/?page=1&limit=${limit}`;

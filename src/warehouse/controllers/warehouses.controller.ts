@@ -81,7 +81,7 @@ export class WarehousesController {
   }> {
     const warehouse = await this.warehouseService.findOne(id);
     if (warehouse === undefined || warehouse === null) {
-      throw new NotFoundException(`Product with id ${id} not found`);
+      throw new NotFoundException(`Warehouse with id ${id} not found`);
     }
     return {
       message: 'Warehouse with specified id fetched successfully',
