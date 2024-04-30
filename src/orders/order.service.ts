@@ -23,9 +23,33 @@ export class OrderService {
 
   async placeOrder(createOrderDto: CreateOrderDto): Promise<any> {
     const customer_id = this.request['user'].id;
+
+    const total_price = createOrderDto.products.reduce((total, product) => {
+      return total + product.regular_price;
+    }, 0);
+
+    const total_sales_price = createOrderDto.products.reduce(
+      (total, product) => {
+        return total + product.sales_price;
+      },
+      0,
+    );
+
+    const discount = total_price - total_sales_price;
+
+    const vat = total_sales_price * 0.15;
+    const delivery_charge = 0;
+
+    const payable_amount = total_price - discount + vat + delivery_charge;
+
     const newOrder = this.orderRepository.create({
       ...createOrderDto,
       customer_id,
+      total_price,
+      discount,
+      vat,
+      delivery_charge,
+      payable_amount,
     });
     const savedOrder = await this.orderRepository.save(newOrder);
 

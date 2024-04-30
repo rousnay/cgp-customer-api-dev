@@ -20,6 +20,9 @@ export class OrderDetail {
   @Column({ nullable: true })
   variant_id: number;
 
+  @Column({ nullable: true })
+  offer_id: number;
+
   @Column()
   product_quantity: number;
 
@@ -29,18 +32,15 @@ export class OrderDetail {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   sales_price: number;
 
-  @Column({ nullable: true })
-  offer_id: number;
+  // @CreateDateColumn({
+  //   type: 'timestamp',
+  //   nullable: true,
+  // })
+  // created_at: Date;
 
-  @CreateDateColumn({
-    type: 'timestamp',
-    nullable: true,
-  })
-  created_at: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    nullable: true,
-  })
-  updated_at: Date;
+  // @UpdateDateColumn({
+  //   type: 'timestamp',
+  //   nullable: true,
+  // })
+  // updated_at: Date;
 }
