@@ -13,7 +13,13 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { Order } from './entities/order.entity';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('orders')
@@ -26,10 +32,73 @@ export class OrderController {
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Place an order' })
   @ApiBody({ type: CreateOrderDto })
-  async placeOrder(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
+  @ApiResponse({
+    status: 201,
+    description: 'All data related to set password',
+    content: {
+      'application/json': {
+        example: {
+          status: 'success',
+          message: 'Order placed successfully',
+          data: {
+            customer_id: 6,
+            warehouse_id: 0,
+            delivery_id: 0,
+            shipping_address_id: 0,
+            billing_address_id: 0,
+            payment_id: 0,
+            total_item: 0,
+            total_price: 0,
+            discount: 0,
+            vat: 0,
+            payable_amount: 0,
+            created_at: '2024-04-30T01:02:20.657Z',
+            updated_at: '2024-04-30T01:02:20.657Z',
+            id: 13,
+            order_status: 'pending',
+            line_items: [
+              {
+                order_id: 13,
+                product_id: 1,
+                product_quantity: 0,
+                regular_price: 0,
+                sales_price: 0,
+                offer_id: 0,
+                variant_id: null,
+                created_at: '2024-04-30T01:02:20.882Z',
+                updated_at: '2024-04-30T01:02:20.882Z',
+                id: 19,
+              },
+              {
+                order_id: 13,
+                product_id: 2,
+                product_quantity: 0,
+                regular_price: 0,
+                sales_price: 0,
+                offer_id: 0,
+                variant_id: null,
+                created_at: '2024-04-30T01:02:20.999Z',
+                updated_at: '2024-04-30T01:02:20.999Z',
+                id: 20,
+              },
+            ],
+          },
+        },
+      },
+    },
+  })
+  async placeOrder(@Body() createOrderDto: CreateOrderDto): Promise<{
+    status: string;
+    message: string;
+    data: Order;
+  }> {
     try {
       const order = await this.orderService.placeOrder(createOrderDto);
-      return order;
+      return {
+        status: 'success',
+        message: 'Order placed successfully',
+        data: order,
+      };
     } catch (error) {
       throw error;
     }

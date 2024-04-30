@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { OrderDetail } from './entities/order_detail.entity';
 import { CreateOrderDto } from './dtos/create-order.dto';
+// import { CartService } from 'src/cart/cart.service';
+import { Cart } from 'src/cart/cart.entity';
 
 @Injectable()
 export class OrderService {
@@ -14,10 +16,17 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderDetail)
     private readonly orderDetailRepository: Repository<OrderDetail>,
+    // private readonly cartService: CartService,
+    @InjectRepository(Cart)
+    private readonly cartRepository: Repository<Cart>,
   ) {}
 
-  async placeOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    const newOrder = this.orderRepository.create(createOrderDto);
+  async placeOrder(createOrderDto: CreateOrderDto): Promise<any> {
+    const customer_id = this.request['user'].id;
+    const newOrder = this.orderRepository.create({
+      ...createOrderDto,
+      customer_id,
+    });
     const savedOrder = await this.orderRepository.save(newOrder);
 
     const orderDetails = createOrderDto.products.map((product) => {
@@ -32,14 +41,30 @@ export class OrderService {
       return orderDetail;
     });
 
-    await this.orderDetailRepository.save(orderDetails);
+    const savedOrderDetails = await this.orderDetailRepository.save(
+      orderDetails,
+    );
 
-    return savedOrder;
+    const productIdsToRemove = createOrderDto.products.map(
+      (product) => product.product_id,
+    );
+
+    // Find and delete cart items for each product ID
+    await Promise.all(
+      productIdsToRemove.map(async (productId) => {
+        await this.cartRepository.delete({
+          product_id: productId,
+          customer_id,
+        });
+      }),
+    );
+
+    return { ...savedOrder, line_items: savedOrderDetails };
   }
 
   async cancelOrder(orderId: number): Promise<void> {
     const order = await this.orderRepository.findOne({
-      where: { id: orderId },
+      where: { id: orderId, customer_id: this.request['user'].id },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -49,7 +74,7 @@ export class OrderService {
 
   async deleteOrder(orderId: number): Promise<void> {
     const order = await this.orderRepository.findOne({
-      where: { id: orderId },
+      where: { id: orderId, customer_id: this.request['user'].id },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -59,7 +84,7 @@ export class OrderService {
 
   async getOrderById(orderId: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
-      where: { id: orderId },
+      where: { id: orderId, customer_id: this.request['user'].id },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -68,7 +93,8 @@ export class OrderService {
   }
 
   async getOrderHistory(): Promise<Order[]> {
-    const customerId = this.request['user'].id;
-    return this.orderRepository.find({ where: { customer_id: customerId } });
+    return this.orderRepository.find({
+      where: { customer_id: this.request['user'].id },
+    });
   }
 }

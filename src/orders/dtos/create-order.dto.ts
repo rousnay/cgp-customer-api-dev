@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OrderStatus } from '../entities/order.entity';
 
 export class OrderProductDto {
   @ApiProperty()
@@ -22,8 +21,8 @@ export class OrderProductDto {
 }
 
 export class CreateOrderDto {
-  @ApiProperty()
-  customer_id: number;
+  // @ApiProperty()
+  // customer_id: number;
 
   @ApiProperty()
   warehouse_id: number;
@@ -34,17 +33,14 @@ export class CreateOrderDto {
   @ApiProperty()
   total_price: number;
 
-  @ApiProperty()
-  discount: number;
+  @ApiProperty({ required: false })
+  discount?: number | null;
 
-  @ApiProperty()
-  vat: number;
+  // @ApiProperty()
+  // vat: number;
 
   @ApiProperty()
   payable_amount: number;
-
-  @ApiProperty()
-  order_status: OrderStatus;
 
   @ApiProperty({ required: false })
   delivery_id?: number | null; // Nullable delivery_id
