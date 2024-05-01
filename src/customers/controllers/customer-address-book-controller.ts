@@ -39,8 +39,8 @@ export class CustomerAddressBookController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access_token')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get all addresses' })
   @ApiQuery({ name: 'type', type: String, required: false })
   async getAddresses(
@@ -54,20 +54,13 @@ export class CustomerAddressBookController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access_token')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get address by id' })
-  @ApiQuery({ name: 'type', type: String, required: false })
-  async getAddressById(
-    @Param('id') id: number,
-    @Query('type') type?: string,
-  ): Promise<CustomerAddressBook> {
+  async getAddressById(@Param('id') id: number): Promise<CustomerAddressBook> {
     const address = await this.addressBookService.getAddressById(id);
     if (!address) {
       throw new NotFoundException('Address not found');
-    }
-    if (type && address.address_type !== type) {
-      throw new NotFoundException('Address not found with specified type');
     }
     return address;
   }

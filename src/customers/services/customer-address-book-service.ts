@@ -27,20 +27,29 @@ export class CustomerAddressBookService {
   }
 
   async getAllAddresses(): Promise<CustomerAddressBook[]> {
-    return await this.addressBookRepository.find({
-      where: { customer_id: this.request['user'].id },
-    });
+    return await this.addressBookRepository
+      .find
+      //   {
+      //   where: { customer_id: this.request['user'].id },
+      // }
+      ();
   }
 
   async getAddressesByType(type: any): Promise<CustomerAddressBook[]> {
     return await this.addressBookRepository.find({
-      where: { customer_id: this.request['user'].id, address_type: type },
+      where: {
+        // customer_id: this.request['user'].id,
+        address_type: type,
+      },
     });
   }
 
   async getAddressById(id: number): Promise<CustomerAddressBook> {
     return await this.addressBookRepository.findOne({
-      where: { customer_id: this.request['user'].id, id: id },
+      where: {
+        // customer_id: this.request['user'].id,
+        id: id,
+      },
     });
   }
 }
