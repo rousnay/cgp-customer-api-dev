@@ -123,7 +123,7 @@ export class OrderService {
     const userId = this.request['user'].id;
     const query = `
         SELECT
-            o.id AS order_id,
+            o.*,
             w.name AS warehouse_name,
             shipping_cb.first_name AS shipping_first_name,
             shipping_cb.last_name AS shipping_last_name,
@@ -195,8 +195,45 @@ export class OrderService {
     }
 
     const orderDetails = {
-      order_id: result[0].order_id,
-      shipping_address: result[0].shipping_address,
+      order_id: result[0].id,
+      total_price: result[0].total_price,
+      discount: result[0].discount,
+      vat: result[0].vat,
+      delivery_charge: result[0].delivery_charge,
+      payable_amount: result[0].payable_amount,
+      order_type: result[0].order_type,
+      order_status: result[0].order_status,
+      created_at: result[0].created_at,
+      updated_at: result[0].updated_at,
+      shipping_address: {
+        first_name: result[0].shipping_first_name,
+        last_name: result[0].shipping_last_name,
+        phone_number_1: result[0].shipping_phone_number_1,
+        phone_number_2: result[0].shipping_phone_number_2,
+        address: result[0].shipping_address,
+        city: result[0].shipping_city,
+        state: result[0].shipping_state,
+        postal_code: result[0].shipping_postal_code,
+        country_id: result[0].shipping_country_id,
+        latitude: result[0].shipping_latitude,
+        longitude: result[0].shipping_longitude,
+        notes: result[0].shipping_notes,
+      },
+      billing_address: {
+        first_name: result[0].billing_first_name,
+        last_name: result[0].billing_last_name,
+        phone_number_1: result[0].billing_phone_number_1,
+        phone_number_2: result[0].billing_phone_number_2,
+        address: result[0].billing_address,
+        city: result[0].billing_city,
+        state: result[0].billing_state,
+        postal_code: result[0].billing_postal_code,
+        country_id: result[0].billing_country_id,
+        latitude: result[0].billing_latitude,
+        longitude: result[0].billing_longitude,
+        notes: result[0].billing_notes,
+      },
+
       line_items: result.map((row: any) => ({
         name: row.product_name,
         quantity: row.product_quantity,
@@ -214,21 +251,7 @@ export class OrderService {
       })),
     };
 
-    return result;
-
-    // const order = this.mapRawResultToOrder(result);
-    // return order;
-  }
-
-  async mapRawResultToOrder(rawResult: any): Promise<any> {
-    // Assuming rawResult is an object containing properties similar to your Order entity
-    const order = {
-      // rawResult,
-      id: rawResult[0].order_id,
-      // Map other properties similarly
-    };
-
-    return order;
+    return orderDetails;
   }
 
   async getOrderHistory(): Promise<Orders[]> {

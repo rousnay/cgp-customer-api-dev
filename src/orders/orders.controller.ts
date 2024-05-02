@@ -141,12 +141,18 @@ export class OrderController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get an order' })
-  async getOrderById(
-    @Param('orderId', ParseIntPipe) orderId: number,
-  ): Promise<Orders> {
+  async getOrderById(@Param('orderId', ParseIntPipe) orderId: number): Promise<{
+    status: string;
+    message: string;
+    data: any;
+  }> {
     try {
       const order = await this.orderService.getOrderById(orderId);
-      return order;
+      return {
+        status: 'success',
+        message: 'Order has been fetched successfully',
+        data: order,
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException('Order not found');
@@ -159,7 +165,16 @@ export class OrderController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get order history' })
-  async getOrderHistory(): Promise<Orders[]> {
-    return this.orderService.getOrderHistory();
+  async getOrderHistory(): Promise<{
+    status: string;
+    message: string;
+    data: any;
+  }> {
+    const orders = this.orderService.getOrderHistory();
+    return {
+      status: 'success',
+      message: 'Order has been fetched successfully',
+      data: orders,
+    };
   }
 }
