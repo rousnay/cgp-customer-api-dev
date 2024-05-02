@@ -34,8 +34,19 @@ export class CustomerAddressBookController {
   @ApiOperation({ summary: 'Create new address' })
   async createAddress(
     @Body() createAddressDto: CreateCustomerAddressDto,
-  ): Promise<CustomerAddressBook> {
-    return await this.addressBookService.createAddress(createAddressDto);
+  ): Promise<{
+    status: string;
+    message: string;
+    data: CustomerAddressBook;
+  }> {
+    const result = await this.addressBookService.createAddress(
+      createAddressDto,
+    );
+    return {
+      status: 'success',
+      message: 'Address created successfully',
+      data: result,
+    };
   }
 
   @Get()
@@ -43,13 +54,25 @@ export class CustomerAddressBookController {
   // @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get all addresses' })
   @ApiQuery({ name: 'type', type: String, required: false })
-  async getAddresses(
-    @Query('type') type?: string,
-  ): Promise<CustomerAddressBook[]> {
+  async getAddresses(@Query('type') type?: string): Promise<{
+    status: string;
+    message: string;
+    data: CustomerAddressBook[];
+  }> {
     if (type) {
-      return await this.addressBookService.getAddressesByType(type);
+      const results = await this.addressBookService.getAddressesByType(type);
+      return {
+        status: 'success',
+        message: 'Address fetched successfully',
+        data: results,
+      };
     } else {
-      return await this.addressBookService.getAllAddresses();
+      const results = await this.addressBookService.getAllAddresses();
+      return {
+        status: 'success',
+        message: 'Address fetched successfully',
+        data: results,
+      };
     }
   }
 
@@ -57,11 +80,19 @@ export class CustomerAddressBookController {
   // @UseGuards(JwtAuthGuard)
   // @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get address by id' })
-  async getAddressById(@Param('id') id: number): Promise<CustomerAddressBook> {
+  async getAddressById(@Param('id') id: number): Promise<{
+    status: string;
+    message: string;
+    data: CustomerAddressBook;
+  }> {
     const address = await this.addressBookService.getAddressById(id);
     if (!address) {
-      throw new NotFoundException('Address not found');
+      throw new NotFoundException('Address with given id is not found');
     }
-    return address;
+    return {
+      status: 'success',
+      message: 'Address fetched successfully',
+      data: address,
+    };
   }
 }
