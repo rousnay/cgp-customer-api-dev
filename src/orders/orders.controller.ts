@@ -10,9 +10,9 @@ import {
   UseGuards,
   Put,
 } from '@nestjs/common';
-import { OrderService } from './order.service';
+import { OrderService } from './orders.service';
 import { CreateOrderDto } from './dtos/create-order.dto';
-import { Order } from './entities/order.entity';
+import { Orders } from './entities/orders.entity';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -89,7 +89,7 @@ export class OrderController {
   async placeOrder(@Body() createOrderDto: CreateOrderDto): Promise<{
     status: string;
     message: string;
-    data: Order;
+    data: Orders;
   }> {
     try {
       const order = await this.orderService.placeOrder(createOrderDto);
@@ -137,13 +137,13 @@ export class OrderController {
     }
   }
 
-  @Get(':orderId')
+  @Get('single/:orderId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get an order' })
   async getOrderById(
     @Param('orderId', ParseIntPipe) orderId: number,
-  ): Promise<Order> {
+  ): Promise<Orders> {
     try {
       const order = await this.orderService.getOrderById(orderId);
       return order;
@@ -159,7 +159,7 @@ export class OrderController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get order history' })
-  async getOrderHistory(): Promise<Order[]> {
+  async getOrderHistory(): Promise<Orders[]> {
     return this.orderService.getOrderHistory();
   }
 }

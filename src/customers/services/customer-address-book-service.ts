@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { CustomerAddressBook } from '../entities/customer-address-book.entity';
 import { CreateCustomerAddressDto } from '../dtos/create-customer-address.dto';
 
@@ -17,10 +17,38 @@ export class CustomerAddressBookService {
     createAddressDto: CreateCustomerAddressDto,
   ): Promise<CustomerAddressBook> {
     // Create a new address entity
+    const customer_id = this.request['user'].id;
     const address = this.addressBookRepository.create({
       ...createAddressDto,
-      customer_id: this.request['user'].id, // Set the customer_id
+      customer_id,
     });
+
+    if (address.is_default === true) {
+      // Find all other addresses of the same type for the customer
+      const otherAddresses = await this.addressBookRepository.find({
+        where: {
+          customer_id,
+          address_type: address.address_type,
+          // id: Not(address.id), // Exclude the current address
+        },
+      });
+
+      console.log('otherAddresses', otherAddresses);
+
+      // Update all other addresses of the same type to be not default
+      if (otherAddresses.length > 0) {
+        const afterUpdate = await this.addressBookRepository.update(
+          {
+            customer_id,
+            address_type: address.address_type,
+            id: Not(address.id), // Exclude the current address
+          },
+          { is_default: false },
+        );
+
+        console.log('afterUpdate', afterUpdate);
+      }
+    }
 
     // Save the address to the database
     return await this.addressBookRepository.save(address);
