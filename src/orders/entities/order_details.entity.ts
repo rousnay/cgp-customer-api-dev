@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class OrderDetails {
@@ -31,16 +25,4 @@ export class OrderDetails {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   sales_price: number;
-
-  // @CreateDateColumn({
-  //   type: 'timestamp',
-  //   nullable: true,
-  // })
-  // created_at: Date;
-
-  // @UpdateDateColumn({
-  //   type: 'timestamp',
-  //   nullable: true,
-  // })
-  // updated_at: Date;
 }

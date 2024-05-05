@@ -16,6 +16,7 @@ import { SearchModule } from './search/search.module';
 import { WishListModule } from './wishlist/wishlist.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './orders/order.module';
+import { TransportationsModule } from './transportations/transportations.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { OrderModule } from './orders/order.module';
     WishListModule,
     CartModule,
     OrderModule,
+    TransportationsModule,
     GeoLocationModule,
   ],
   providers: [AppService],

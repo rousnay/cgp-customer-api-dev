@@ -53,7 +53,13 @@ export class CustomerAddressBookController {
   // @UseGuards(JwtAuthGuard)
   // @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get all addresses' })
-  @ApiQuery({ name: 'type', type: String, required: false })
+  @ApiQuery({
+    name: 'type',
+    type: String,
+    required: false,
+    description: 'Type of address (optional)',
+    enum: ['shipping', 'billing', 'pickup'],
+  })
   async getAddresses(@Query('type') type?: string): Promise<{
     status: string;
     message: string;

@@ -256,7 +256,6 @@ export class OrderService {
 
   async getOrderHistory(): Promise<Orders[]> {
     const customer_id = this.request['user'].id;
-    console.log(customer_id);
     return this.orderRepository.find({
       where: { customer_id },
     });

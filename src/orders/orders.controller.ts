@@ -137,7 +137,7 @@ export class OrderController {
     }
   }
 
-  @Get('single/:orderId')
+  @Get(':orderId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get an order' })

@@ -13,6 +13,7 @@ import { Customers } from './customers.entity';
 export enum AddressType {
   SHIPPING = 'shipping',
   BILLING = 'billing',
+  PICKUP = 'pickup',
 }
 
 @Entity()
