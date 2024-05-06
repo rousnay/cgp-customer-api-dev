@@ -32,7 +32,7 @@ export class TransportationCostCalculationController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
-  @ApiOperation({ summary: 'Create Transportation Order' })
+  @ApiOperation({ summary: 'Calculate Transportation Cost' })
   @ApiBody({ type: CalculateTransportationCostDto })
   async calculate(
     @Body() createTransportationOrderDto: CalculateTransportationCostDto,
