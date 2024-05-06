@@ -21,7 +21,7 @@ export class GeoLocationService {
       const response: GeocodeResponse = await this.googleMapsClient.geocode({
         params: {
           address,
-          key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c', // Replace with your actual API key
+          key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c',
         },
       });
 
@@ -41,12 +41,13 @@ export class GeoLocationService {
     destination: string,
   ): Promise<DistanceMatrixResponse> {
     try {
+      console.log(origin, destination);
       const response: DistanceMatrixResponse =
         await this.googleMapsClient.distancematrix({
           params: {
             origins: [origin],
             destinations: [destination],
-            key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c', // Replace with your Google Maps API key
+            key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c',
           },
         });
 

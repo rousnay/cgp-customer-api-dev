@@ -77,7 +77,7 @@ export class TransportationVehiclesService {
           'active',
         ])
         .from('vehicle_types', 'vt')
-        .where('vt.id = :id', { id })
+        .where('vt.type_id = :id', { id })
         .getRawOne();
 
       if (!query) {

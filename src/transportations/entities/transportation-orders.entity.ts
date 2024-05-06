@@ -66,7 +66,7 @@ export class TransportationOrders {
   discount: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  GST: number;
+  gst: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   payable_amount: number;

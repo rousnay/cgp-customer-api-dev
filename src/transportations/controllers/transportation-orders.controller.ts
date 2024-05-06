@@ -24,7 +24,9 @@ import { CreateTransportationOrderDto } from '../dtos/create-transportation-orde
 @ApiTags('Transportation')
 @Controller('transportation/orders')
 export class TransportationOrdersController {
-  constructor(private readonly ordersService: TransportationOrdersService) {}
+  constructor(
+    private readonly transportationOrdersService: TransportationOrdersService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -38,7 +40,9 @@ export class TransportationOrdersController {
     message: string;
     data: CreateTransportationOrderDto;
   }> {
-    const order = await this.ordersService.create(createTransportationOrderDto);
+    const order = await this.transportationOrdersService.create(
+      createTransportationOrderDto,
+    );
 
     return {
       status: 'success',
