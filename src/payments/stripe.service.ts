@@ -2,6 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
+import { CreateTransportationOrderDto } from 'src/transportations/dtos/create-transportation-order.dto';
 
 @Injectable()
 export class StripeService {
@@ -28,22 +29,69 @@ export class StripeService {
         payment_method_types: ['card'], // Payment method types allowed (e.g., card)
         line_items: products.map((product) => ({
           price_data: {
-            currency: 'usd', // Currency of the product
+            currency: 'usd',
             product_data: {
-              name: product.name, // Name of the product
+              name: product.name,
             },
             unit_amount: product.price * 100, // Price of the product in cents
           },
-          quantity: product.quantity, // Quantity of the product
+          quantity: product.quantity,
         })),
         mode: 'payment', // Payment mode (e.g., payment, subscription)
-        success_url: 'https://yourwebsite.com/success', // URL to redirect to after successful payment
-        cancel_url: 'https://yourwebsite.com/cancel', // URL to redirect to after canceled payment
+        success_url: 'https://raw-bertie-wittyplex.koyeb.app/',
+        cancel_url: 'https://raw-bertie-wittyplex.koyeb.app/',
       });
 
       return session;
     } catch (error) {
       throw new Error(`Error creating checkout session: ${error.message}`);
+    }
+  }
+
+  async processTransportationOrderPayment(
+    order: any,
+  ): Promise<Stripe.Checkout.Session> {
+    try {
+      // Create a checkout session with Stripe
+      const session = await this.stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'aud',
+              product_data: {
+                name: 'Transportation Service', // Customize as needed
+              },
+              unit_amount: order.payable_amount * 100, // Stripe requires amount in cents
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        // customer_details: {
+        //   // address:
+        //   //   "{ 'line1': '123 Main St', 'city': 'San Francisco', 'state': 'CA', 'postal_code': '94105', 'country': 'US' }",
+        //   email: order.email,
+        //   // name: order.name,
+        //   // phone: '01234567890',
+        // },
+        // customer: {
+        //   name: order.name, // Include user's name in the payment request
+        // },
+        // customer_name: "John Doe",
+        // customer_phone: '01234567890',
+        // customer_address:
+        //   '{ "line1": "123 Main St", "city": "San Francisco", "state": "CA", "postal_code": "94105", "country": "US" }',
+        customer_email: order.email,
+        success_url: 'https://raw-bertie-wittyplex.koyeb.app/', // Redirect URL after successful payment
+        cancel_url: 'https://raw-bertie-wittyplex.koyeb.app/', // Redirect URL if payment is canceled
+      });
+
+      // Return the session ID to redirect the user to Stripe Checkout
+      return session;
+    } catch (error) {
+      console.error('Error processing payment:', error.message);
+      throw new Error('Error processing payment');
     }
   }
 

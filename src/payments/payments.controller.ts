@@ -52,7 +52,7 @@ export class PaymentController {
   }
 
   @Post('webhook-receiver')
-  @ApiOperation({ summary: 'Stripe Webhook Receiver' })
+  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
   async handleStripeWebhook(
     @Headers('stripe-signature') signature: string,
     @Req() req: any,

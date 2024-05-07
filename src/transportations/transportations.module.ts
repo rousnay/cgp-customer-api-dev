@@ -7,6 +7,9 @@ import { TransportationOrdersService } from './services/transportation-orders.se
 import { TransportationOrdersController } from './controllers/transportation-orders.controller';
 import { TransportationCostCalculationService } from './services/transportation-cost-calculation.service';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
+import { StripeService } from 'src/payments/stripe.service';
+import { CustomerAddressBookService } from 'src/customers/services/customer-address-book-service';
+import { CustomerAddressBook } from 'src/customers/entities/customer-address-book.entity';
 
 @Module({
   imports: [
@@ -15,6 +18,9 @@ import { TransportationCostCalculationController } from './controllers/transport
       TransportationOrdersService,
       TransportationCostCalculationService,
       TransportationOrders,
+      CustomerAddressBook,
+      CustomerAddressBookService,
+      StripeService,
     ]),
   ],
   controllers: [
@@ -26,6 +32,8 @@ import { TransportationCostCalculationController } from './controllers/transport
     TransportationVehiclesService,
     TransportationCostCalculationService,
     TransportationOrdersService,
+    CustomerAddressBookService,
+    StripeService,
   ],
 })
 export class TransportationsModule {}
