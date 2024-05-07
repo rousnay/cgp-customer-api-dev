@@ -37,7 +37,7 @@ export class PaymentController {
   constructor(private readonly stripeService: StripeService) {}
 
   @Post('create-checkout-session')
-  @ApiOperation({ summary: 'Create Checkout Session' })
+  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (session)' })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   async createCheckoutSession(@Body() products: any[]): Promise<any> {
@@ -51,21 +51,21 @@ export class PaymentController {
     }
   }
 
-  @Post('webhook-receiver')
-  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
-  async handleStripeWebhook(
-    @Headers('stripe-signature') signature: string,
-    @Req() req: any,
-    @Res() res: any,
-  ): Promise<void> {
-    try {
-      const rawPayload = req.rawBody; // Access the raw request body
-      await this.stripeService.handleWebhookEvent(rawPayload, signature);
-      res.status(200).end();
-    } catch (error) {
-      // Handle any errors that occur during webhook event handling
-      console.error('Error handling webhook event', error.message);
-      throw new Error('Error handling webhook event');
-    }
-  }
+  // @Post('webhook-receiver')
+  // @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
+  // async handleStripeWebhook(
+  //   @Headers('stripe-signature') signature: string,
+  //   @Req() req: any,
+  //   @Res() res: any,
+  // ): Promise<void> {
+  //   try {
+  //     const rawPayload = req.rawBody; // Access the raw request body
+  //     await this.stripeService.handleWebhookEvent(rawPayload, signature);
+  //     res.status(200).end();
+  //   } catch (error) {
+  //     // Handle any errors that occur during webhook event handling
+  //     console.error('Error handling webhook event', error.message);
+  //     throw new Error('Error handling webhook event');
+  //   }
+  // }
 }
