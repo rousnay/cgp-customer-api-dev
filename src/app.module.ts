@@ -17,11 +17,15 @@ import { WishListModule } from './wishlist/wishlist.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './orders/order.module';
 import { TransportationsModule } from './transportations/transportations.module';
-import { PaymentsModule } from './payments/payments.module';
+import { PaymentModule } from './payments/payments.module';
+import configPayment from './config/payment.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configPayment],
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DATABASE_HOST,
@@ -49,7 +53,7 @@ import { PaymentsModule } from './payments/payments.module';
     OrderModule,
     TransportationsModule,
     GeoLocationModule,
-    PaymentsModule,
+    PaymentModule,
   ],
   providers: [AppService],
   controllers: [AppController],
