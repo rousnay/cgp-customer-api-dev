@@ -47,7 +47,7 @@ export class TransportationVehiclesService {
           min_km: row.min_km,
           min_fare: row.min_fare,
           per_km_fare: row.per_km_fare,
-          max_time_in_minutes: row._max_time_in_minutes,
+          max_time_in_minutes: row.max_time_in_minutes,
           per_minutes_fare: row.per_minutes_fare,
           active: row.active,
         }),
@@ -76,6 +76,8 @@ export class TransportationVehiclesService {
         throw new NotFoundException('Vehicle not found');
       }
 
+      console.log(query);
+
       const media_url =
         this.base_url +
         '/' +
@@ -95,7 +97,7 @@ export class TransportationVehiclesService {
         min_km: query.min_km,
         min_fare: query.min_fare,
         per_km_fare: query.per_km_fare,
-        max_time_in_minutes: query._max_time_in_minutes,
+        max_time_in_minutes: query.max_time_in_minutes,
         per_minutes_fare: query.per_minutes_fare,
         active: query.active,
       };

@@ -17,6 +17,7 @@ import { WishListModule } from './wishlist/wishlist.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './orders/order.module';
 import { TransportationsModule } from './transportations/transportations.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { TransportationsModule } from './transportations/transportations.module'
     OrderModule,
     TransportationsModule,
     GeoLocationModule,
+    PaymentsModule,
   ],
   providers: [AppService],
   controllers: [AppController],

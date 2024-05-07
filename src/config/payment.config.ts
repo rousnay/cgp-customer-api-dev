@@ -1,9 +1,4 @@
-// import * as process from 'process';
-const configApp = () => ({
-  NODE_ENV: process.env.NODE_ENV || 'development',
-  GLOBAL: {
-    PORT: process.env.PORT || 3000,
-  },
+const configPayment = () => ({
   STRIPE_CONFIG: {
     apiKey: process.env.STRIPE_API_KEY,
     webhookConfig: {
@@ -14,4 +9,4 @@ const configApp = () => ({
     },
   },
 });
-export default configApp;
+export default configPayment;

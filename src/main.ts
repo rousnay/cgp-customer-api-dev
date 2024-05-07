@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { setupSwagger } from './config/swagger.config';
+import { configSwagger } from './config/swagger.config';
 // import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
@@ -18,7 +18,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  setupSwagger(app);
+  configSwagger(app);
   await app.listen(port);
 }
 bootstrap();

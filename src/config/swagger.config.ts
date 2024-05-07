@@ -1,7 +1,7 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication } from '@nestjs/common';
 
-export function setupSwagger(app: INestApplication): void {
+export function configSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle(process.env.APP_NAME)
     .setDescription(process.env.APP_DESCRIPTION)
