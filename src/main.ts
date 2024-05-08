@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { configSwagger } from './config/swagger.config';
+import { ValidationPipe } from '@nestjs/common';
 // import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
@@ -20,6 +21,8 @@ async function bootstrap() {
   });
 
   configSwagger(app);
+  // Enable validation globally
+  // app.useGlobalPipes(new ValidationPipe());
   await app.listen(port);
 }
 bootstrap();

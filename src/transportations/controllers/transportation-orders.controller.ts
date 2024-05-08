@@ -9,6 +9,7 @@ import {
   NotFoundException,
   UseGuards,
   Put,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
