@@ -55,7 +55,7 @@ export class StripeService {
   async createPaymentIntent(payableAmount: number): Promise<string> {
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: payableAmount,
+        amount: payableAmount * 100,
         currency: 'aud',
       });
       return paymentIntent.client_secret;
