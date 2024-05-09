@@ -29,12 +29,18 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { StripeService } from './stripe.service';
+import { PaymentService } from './services/payments.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
+import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 
 @Controller('payment')
 @ApiTags('Payment')
 export class PaymentController {
-  constructor(private readonly stripeService: StripeService) {}
+  constructor(
+    private readonly stripeService: StripeService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   @Post('create-checkout-session')
   @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (session)' })
@@ -49,6 +55,22 @@ export class PaymentController {
       console.error('Error creating checkout session:', error.message);
       throw new Error('Error creating checkout session');
     }
+  }
+
+  @Post('tokenize')
+  async tokenizeAndStorePaymentInformation(
+    @Body() createPaymentTokenDto: CreatePaymentTokenDto,
+  ): Promise<string> {
+    return this.paymentService.tokenizeAndStorePaymentInformation(
+      createPaymentTokenDto,
+    );
+  }
+
+  @Post('retrieve-method')
+  async retrievePaymentMethod(
+    @Body() retrievePaymentMethodDto: RetrievePaymentMethodDto,
+  ): Promise<any> {
+    return this.paymentService.retrievePaymentMethod(retrievePaymentMethodDto);
   }
 
   // @Post('webhook-receiver')

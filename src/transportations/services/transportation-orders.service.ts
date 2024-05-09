@@ -19,34 +19,53 @@ export class TransportationOrdersService {
   ) {}
 
   async create(
+    payment_client: string,
     createTransportationOrderDto: CreateTransportationOrderDto,
   ): Promise<any> {
-    const customer_id = this.request['user'].id;
-    const customer_email = this.request['user'].email;
-    let stripe;
-    let pickupAddress;
-    let shippingAddress;
+    const customer = this.request['user'];
+    let stripeSession;
+    let stripeClientSecret;
     const order = this.transportationOrdersRepository.create({
-      customer_id,
+      customer_id: customer.id,
       ...createTransportationOrderDto,
     });
 
-    if (order) {
-      pickupAddress = await this.customerAddressBookService.createAddress(
-        createTransportationOrderDto.pickup_address,
-      );
+    if (!order) {
+      throw new Error('Transportation order not created');
+    }
 
-      shippingAddress = await this.customerAddressBookService.createAddress(
-        createTransportationOrderDto.shipping_address,
-      );
+    const pickupAddress = await this.customerAddressBookService.createAddress(
+      createTransportationOrderDto.pickup_address,
+    );
 
-      const processPayment = {
-        payable_amount: order.payable_amount,
-        email: customer_email,
-      };
+    const shippingAddress = await this.customerAddressBookService.createAddress(
+      createTransportationOrderDto.shipping_address,
+    );
 
-      stripe = await this.stripeService.processTransportationOrderPayment(
-        processPayment,
+    const processPayment = {
+      payable_amount: order.payable_amount,
+      shipping_address: createTransportationOrderDto.shipping_address,
+      pickup_address_coordinates:
+        createTransportationOrderDto.pickup_address.latitude.toString() +
+        ',' +
+        createTransportationOrderDto.pickup_address.longitude.toString(),
+      shipping_address_coordinates:
+        createTransportationOrderDto.shipping_address.latitude.toString() +
+        ',' +
+        createTransportationOrderDto.shipping_address.longitude.toString(),
+      vehicle_type_id: createTransportationOrderDto.vehicle_type_id,
+      total_cost: createTransportationOrderDto.total_cost,
+      gst: createTransportationOrderDto.gst,
+    };
+
+    if (payment_client === 'web') {
+      stripeSession =
+        await this.stripeService.processTransportationOrderPayment(
+          processPayment,
+        );
+    } else if (payment_client === 'app') {
+      stripeClientSecret = await this.stripeService.createPaymentIntent(
+        order.payable_amount,
       );
     }
 
@@ -70,7 +89,8 @@ export class TransportationOrdersService {
 
     return {
       order: orderInfo,
-      session: stripe,
+      session: stripeSession,
+      client_secret: stripeClientSecret,
     };
   }
 }

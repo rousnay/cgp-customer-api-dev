@@ -1,14 +1,18 @@
 // payment/stripe.service.ts
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { CreateTransportationOrderDto } from 'src/transportations/dtos/create-transportation-order.dto';
+import { REQUEST } from '@nestjs/core';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    @Inject(REQUEST) private readonly request: Request,
+  ) {
     const stripeSecretKey =
       process.env.STRIPE_SECRET_KEY ||
       'sk_test_51IwUmlIl61pF9onu7EMHKhmQhSTAeMkQBdOYnRLlP1GmfIkH2KLHO0FRdFp1e3oLOcHnKzYSXRjjTRa7YIIYlgQG00e7Jr959f';
@@ -48,10 +52,64 @@ export class StripeService {
     }
   }
 
+  async createPaymentIntent(payableAmount: number): Promise<string> {
+    try {
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount: payableAmount,
+        currency: 'aud',
+      });
+      return paymentIntent.client_secret;
+    } catch (error) {
+      throw new Error('Failed to create payment intent');
+    }
+  }
+
   async processTransportationOrderPayment(
     order: any,
   ): Promise<Stripe.Checkout.Session> {
+    const user = this.request['user'];
+    console.log('order', order);
     try {
+      // Create a customer in Stripe
+      const customer = await this.stripe.customers.create({
+        email: user.email, // Required
+        name: user.first_name + ' ' + user.last_name, // Optional
+        phone: user.phone, // Optional
+        // address: {
+        //   line1: '123 Main St',
+        //   city: 'San Francisco',
+        //   state: 'CA',
+        //   postal_code: '94105',
+        //   country: 'US',
+        // }, // Optional
+        description: 'Transportation order customer', // Optional
+        metadata: {
+          vehicle_type_id: order.vehicle_type_id,
+          total_cost: order.total_cost,
+          gst: order.gst,
+          payable_amount: order.payable_amount,
+          pickup_address_coordinates: order.pickup_address_coordinates,
+          shipping_address_coordinates: order.shipping_address_coordinates,
+        }, // Optional
+        shipping: {
+          address: {
+            line1: order.shipping_address.address,
+            city: order.shipping_address.city,
+            state: order.shipping_address.state,
+            postal_code: order.shipping_address.postal_code,
+            country: 'AU',
+          },
+          name:
+            order.shipping_address.first_name +
+            ' ' +
+            order.shipping_address.last_name,
+          phone: order.shipping_address.phone_number_1,
+        }, // Optional
+        // payment_method: 'pm_1PE9VPGJkp9au0iQJj9pxwaB', // Optional: Attach an existing payment method
+      });
+      console.log('user', user);
+      console.log('customer', customer);
+
       // Create a checkout session with Stripe
       const session = await this.stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -68,6 +126,7 @@ export class StripeService {
           },
         ],
         mode: 'payment',
+        // payment_method: 'pm_1PE9VPGJkp9au0iQJj9pxwaB',
         // customer_details: {
         //   // address:
         //   //   "{ 'line1': '123 Main St', 'city': 'San Francisco', 'state': 'CA', 'postal_code': '94105', 'country': 'US' }",
@@ -82,6 +141,7 @@ export class StripeService {
         // customer_phone: '01234567890',
         // customer_address:
         //   '{ "line1": "123 Main St", "city": "San Francisco", "state": "CA", "postal_code": "94105", "country": "US" }',
+        customer: customer.id,
         customer_email: order.email,
         success_url: 'https://raw-bertie-wittyplex.koyeb.app/', // Redirect URL after successful payment
         cancel_url: 'https://raw-bertie-wittyplex.koyeb.app/', // Redirect URL if payment is canceled
@@ -106,7 +166,7 @@ export class StripeService {
       //   );
       const webhookSecret =
         process.env.STRIPE_WEBHOOK_SECRET ||
-        'whsec_188a7685862251b9d8a65355ce3d3fbf64341be616f7ee2fffe6322b2d7baa2f';
+        'whsec_9c0f4abf9746e0a1f68e0f753a5989586ae6f135cc25699cb4af719793df8372';
 
       const event = this.stripe.webhooks.constructEvent(
         rawPayload,

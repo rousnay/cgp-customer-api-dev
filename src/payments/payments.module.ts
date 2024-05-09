@@ -3,10 +3,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { StripeService } from './stripe.service';
 import { PaymentController } from './payments.controller';
+import { PaymentService } from './services/payments.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { PaymentToken } from './entities/payment-token.entity';
 
 @Module({
-  imports: [ConfigModule],
-  providers: [StripeService],
+  imports: [TypeOrmModule.forFeature([PaymentToken]), ConfigModule],
+  providers: [StripeService, PaymentService],
   controllers: [PaymentController],
 })
 export class PaymentModule {}
