@@ -29,6 +29,12 @@ export class TransportationOrders {
   @Column()
   customer_id: number;
 
+  @Column({ type: 'bigint', nullable: true })
+  cgp_order_id: number;
+
+  @Column({ type: 'bigint', nullable: true })
+  cgp_warehouse_id: number;
+
   @Column()
   vehicle_type_id: number;
 
