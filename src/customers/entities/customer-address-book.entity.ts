@@ -55,10 +55,10 @@ export class CustomerAddressBook extends BaseEntity {
   @Column({ length: 50, nullable: true })
   country_id: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  @Column('double', { nullable: true })
   latitude: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  @Column({ type: 'double', nullable: true })
   longitude: number;
 
   @Column({ type: 'text', nullable: true })
