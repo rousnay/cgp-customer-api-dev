@@ -14,57 +14,68 @@ export class WarehousesService {
   ) {}
 
   async findAll(): Promise<any> {
-    const warehousesQuery = `SELECT * FROM warehouses`;
+    // Fetch all warehouses with unique categories and brands
+    const warehousesQuery = `SELECT w.*,
+    GROUP_CONCAT(DISTINCT b.id) as branch_ids,
+    GROUP_CONCAT(DISTINCT b.branch_type) as branch_types,
+    GROUP_CONCAT(DISTINCT c.name SEPARATOR '|,|') as category_names,
+    GROUP_CONCAT(DISTINCT br.name) as brand_names
+    FROM warehouses w
+    LEFT JOIN warehouse_branches b ON w.id = b.warehouse_id
+    LEFT JOIN product_warehouse_branch pw ON w.id = pw.warehouse_id
+    LEFT JOIN category_product cp ON pw.product_id = cp.product_id
+    LEFT JOIN categories c ON cp.category_id = c.id
+    LEFT JOIN products p ON pw.product_id = p.id
+    LEFT JOIN brands br ON p.brand_id = br.id
+    GROUP BY w.id`;
+
     const warehousesResults = await this.entityManager.query(warehousesQuery);
 
-    const warehousesWithDetails = [];
-    for (const warehouse of warehousesResults) {
-      const branchesQuery = `SELECT * FROM warehouse_branches WHERE warehouse_id = ?`;
-      const branchesResults = await this.entityManager.query(branchesQuery, [
-        warehouse.id,
-      ]);
-      const mainBranch =
-        branchesResults.find(
-          (branch) => branch.branch_type === 'head office',
-        ) || {};
+    // Process each warehouse
+    const warehousesWithDetails = await Promise.all(
+      warehousesResults.map(async (warehouse) => {
+        const branchIds = warehouse.branch_ids
+          ? warehouse.branch_ids.split(',')
+          : [];
+        const branchTypes = warehouse.branch_types
+          ? warehouse.branch_types.split(',')
+          : [];
+        const categoryNames = warehouse.category_names
+          ? warehouse.category_names.split('|,|')
+          : [];
+        const brandNames = warehouse.brand_names
+          ? warehouse.brand_names.split(',').map((name) => name.trim())
+          : [];
 
-      const categoriesQuery = `
-        SELECT c.name
-        FROM category_product cp
-        INNER JOIN categories c ON cp.category_id = c.id
-        WHERE cp.product_id IN (
-          SELECT pw.product_id
-          FROM product_warehouse_branch pw
-          WHERE pw.warehouse_id = ?
-        )
-        GROUP BY c.name`;
-      const categoriesResult = await this.entityManager.query(categoriesQuery, [
-        warehouse.id,
-      ]);
+        const mainBranchIndex = branchTypes.findIndex(
+          (type) => type === 'head office',
+        );
+        const mainBranchId =
+          mainBranchIndex !== -1 ? branchIds[mainBranchIndex] : null;
 
-      const brandsQuery = `
-        SELECT b.name
-        FROM products p
-        INNER JOIN brands b ON p.brand_id = b.id
-        WHERE p.id IN (
-          SELECT pw.product_id
-          FROM product_warehouse_branch pw
-          WHERE pw.warehouse_id = ?
-        )
-        GROUP BY b.name`;
-      const brandsResult = await this.entityManager.query(brandsQuery, [
-        warehouse.id,
-      ]);
+        let mainBranch = null;
+        if (mainBranchId) {
+          const mainBranchQuery = `SELECT * FROM warehouse_branches WHERE id = ?`;
+          mainBranch = await this.entityManager.query(mainBranchQuery, [
+            mainBranchId,
+          ]);
+        }
 
-      warehousesWithDetails.push({
-        ...warehouse,
-        main_branch: mainBranch,
-        categories: categoriesResult.map(
-          (category: { name: string }) => category.name,
-        ),
-        brands: brandsResult.map((category: { name: string }) => category.name),
-      });
-    }
+        // Exclude extra fields from the main object
+        delete warehouse.branch_ids;
+        delete warehouse.branch_types;
+        delete warehouse.category_names;
+        delete warehouse.brand_names;
+
+        return {
+          ...warehouse,
+          main_branch:
+            mainBranch && mainBranch.length > 0 ? mainBranch[0] : null,
+          categories: categoryNames,
+          brands: brandNames,
+        };
+      }),
+    );
 
     return {
       data: warehousesWithDetails,

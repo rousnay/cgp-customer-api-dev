@@ -33,7 +33,7 @@ export class StripeService {
         payment_method_types: ['card'], // Payment method types allowed (e.g., card)
         line_items: products.map((product) => ({
           price_data: {
-            currency: 'usd',
+            currency: 'aud',
             product_data: {
               name: product.name,
             },
