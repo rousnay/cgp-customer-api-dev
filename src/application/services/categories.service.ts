@@ -17,7 +17,7 @@ export class CategoriesService {
 
   //   const categories = await this.entityManager.query(query);
   //   return categories;
-  // }
+  // } //
 
   async findAllWithProductCount(): Promise<CategoriesDto[]> {
     const query = `
