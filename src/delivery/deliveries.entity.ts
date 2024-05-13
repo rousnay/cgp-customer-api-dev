@@ -37,9 +37,6 @@ export class Deliveries {
   vehicle_id: number;
 
   @Column({ nullable: true })
-  vehicle_type_id: number;
-
-  @Column({ nullable: true })
   delivery_charge: number;
 
   @Column({ nullable: true })
