@@ -529,7 +529,7 @@ export class AuthService {
 
       // Make a request to your Laravel backend to forget-password the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/forget-password',
+        'https://cgp.studypress.org/api/v1/user/auth/resend-otp',
         formData,
         config,
       );

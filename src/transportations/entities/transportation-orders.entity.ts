@@ -50,18 +50,6 @@ export class TransportationOrders {
   @Column({ nullable: true })
   payment_id: number;
 
-  @Column({ nullable: true })
-  init_distance: number;
-
-  @Column({ nullable: true })
-  init_duration: number;
-
-  @Column({ nullable: true })
-  final_distance: number;
-
-  @Column({ nullable: true })
-  final_duration: number;
-
   // @Column({ nullable: true })
   // total_item: number;
 
@@ -86,18 +74,6 @@ export class TransportationOrders {
     default: TransportationOrderStatus.PENDING,
   })
   order_status: TransportationOrderStatus;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    nullable: true,
-  })
-  picked_up_at: Date;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    nullable: true,
-  })
-  delivered_at: Date;
 
   @CreateDateColumn({
     type: 'timestamp',
