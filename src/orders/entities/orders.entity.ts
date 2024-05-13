@@ -44,9 +44,6 @@ export class Orders {
   warehouse_id: number;
 
   @Column({ nullable: true })
-  delivery_id: number;
-
-  @Column({ nullable: true })
   shipping_address_id: number;
 
   @Column({ nullable: true })

@@ -80,7 +80,6 @@ export class TransportationOrdersService {
       total_cost: orderSave.total_cost,
       gst: orderSave.gst,
       payable_amount: orderSave.payable_amount,
-      delivery_id: orderSave.delivery_id,
       payment_id: orderSave.payment_id,
       order_status: orderSave.order_status,
       created_at: orderSave.created_at,
