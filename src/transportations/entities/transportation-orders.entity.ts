@@ -82,6 +82,12 @@ export class TransportationOrders {
     type: 'timestamp',
     nullable: true,
   })
+  picked_up_at: Date;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    nullable: true,
+  })
   created_at: Date;
 
   @UpdateDateColumn({
