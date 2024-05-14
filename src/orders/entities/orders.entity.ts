@@ -50,10 +50,13 @@ export class Orders {
   warehouse_id: number;
 
   @Column({ nullable: true })
-  shipping_address_id: number;
+  billing_address_id: number;
 
   @Column({ nullable: true })
-  billing_address_id: number;
+  pickup_address_id: number;
+
+  @Column({ nullable: true })
+  shipping_address_id: number;
 
   @Column({ nullable: true })
   vehicle_type_id: number;
