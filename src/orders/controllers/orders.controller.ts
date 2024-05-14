@@ -10,9 +10,9 @@ import {
   UseGuards,
   Put,
 } from '@nestjs/common';
-import { OrderService } from './orders.service';
-import { CreateOrderDto } from './dtos/create-order.dto';
-import { Orders } from './entities/orders.entity';
+import { OrderService } from '../services/orders.service';
+import { CreateOrderDto } from '../dtos/create-order.dto';
+import { Orders } from '../entities/orders.entity';
 import {
   ApiBearerAuth,
   ApiBody,

@@ -2,9 +2,9 @@ import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
-import { Orders } from './entities/orders.entity';
-import { OrderDetails } from './entities/order_details.entity';
-import { CreateOrderDto } from './dtos/create-order.dto';
+import { Orders } from '../entities/orders.entity';
+import { OrderDetails } from '../entities/order_details.entity';
+import { CreateOrderDto } from '../dtos/create-order.dto';
 // import { CartService } from 'src/cart/cart.service';
 import { Cart } from 'src/cart/cart.entity';
 
@@ -26,7 +26,7 @@ export class OrderService {
   async placeOrder(createOrderDto: CreateOrderDto): Promise<any> {
     const customer_id = this.request['user'].id;
 
-    const total_price = createOrderDto.products.reduce((total, product) => {
+    const total_cost = createOrderDto.products.reduce((total, product) => {
       return total + product.regular_price;
     }, 0);
 
@@ -37,19 +37,19 @@ export class OrderService {
       0,
     );
 
-    const discount = total_price - total_sales_price;
+    const discount = total_cost - total_sales_price;
 
-    const vat = total_sales_price * 0.15;
+    const gst = total_sales_price * 0.1;
     const delivery_charge = 0;
 
-    const payable_amount = total_price - discount + vat + delivery_charge;
+    const payable_amount = total_cost - discount + gst + delivery_charge;
 
     const newOrder = this.orderRepository.create({
       ...createOrderDto,
       customer_id,
-      total_price,
+      total_cost,
       discount,
-      vat,
+      gst,
       delivery_charge,
       payable_amount,
     });

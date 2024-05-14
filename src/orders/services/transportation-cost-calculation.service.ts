@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TransportationOrders } from '../entities/transportation-orders.entity';
+import { Orders } from '../entities/orders.entity';
 import { CalculateTransportationCostDto } from '../dtos/calculate-transportation-cost.dto';
 import {
   Client,
@@ -21,8 +21,8 @@ export class TransportationCostCalculationService {
   constructor(
     @Inject(REQUEST) private readonly request: Request,
 
-    @InjectRepository(TransportationOrders)
-    private readonly transportationOrdersRepository: Repository<TransportationOrders>,
+    @InjectRepository(Orders)
+    private readonly transportationOrdersRepository: Repository<Orders>,
     private readonly transportationVehiclesService: TransportationVehiclesService,
   ) {
     this.googleMapsClient = new Client({});

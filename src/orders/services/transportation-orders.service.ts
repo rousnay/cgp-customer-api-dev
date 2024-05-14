@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TransportationOrders } from '../entities/transportation-orders.entity';
+import { Orders } from '../entities/orders.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
 import { StripeService } from '../../payments/stripe.service';
 import { CustomerAddressBookService } from 'src/customers/services/customer-address-book-service';
@@ -11,8 +11,8 @@ import { CustomerAddressBookService } from 'src/customers/services/customer-addr
 export class TransportationOrdersService {
   // private readonly stripeService: StripeService;
   constructor(
-    @InjectRepository(TransportationOrders)
-    private readonly transportationOrdersRepository: Repository<TransportationOrders>,
+    @InjectRepository(Orders)
+    private readonly transportationOrdersRepository: Repository<Orders>,
     private readonly customerAddressBookService: CustomerAddressBookService, // Inject StripeService
     private readonly stripeService: StripeService, // Inject StripeService
     @Inject(REQUEST) private readonly request: Request,

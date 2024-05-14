@@ -6,10 +6,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum DeliveryType {
-  CGP_PRODUCT = 'cgp_product',
-  TRANSPORTATION = 'transportation',
-  OTHER = 'other',
+export enum ShippingStatus {
+  ACCEPTED = 'accepted',
+  PICKED_UP = 'picked_up',
+  IN_TRANSIT = 'in_transit',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
 }
 
 @Entity()
@@ -19,10 +21,10 @@ export class Deliveries {
 
   @Column({
     type: 'enum',
-    enum: DeliveryType,
-    default: DeliveryType.OTHER,
+    enum: ShippingStatus,
+    default: ShippingStatus.ACCEPTED,
   })
-  delivery_type: DeliveryType;
+  ShippingStatus: ShippingStatus;
 
   @Column({ nullable: true })
   rider_id: number;
@@ -68,6 +70,12 @@ export class Deliveries {
     nullable: true,
   })
   delivered_at: Date;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    nullable: true,
+  })
+  cancelled_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',

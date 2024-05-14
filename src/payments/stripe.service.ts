@@ -2,7 +2,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
-import { CreateTransportationOrderDto } from 'src/transportations/dtos/create-transportation-order.dto';
+import { CreateTransportationOrderDto } from 'src/orders/dtos/create-transportation-order.dto';
 import { REQUEST } from '@nestjs/core';
 
 @Injectable()

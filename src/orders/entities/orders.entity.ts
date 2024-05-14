@@ -11,22 +11,25 @@ export enum OrderStatus {
   ACCEPTED = 'accepted',
   PROCESSING = 'processing',
   SHIPPED = 'shipped',
+  IN_TRANSIT = 'in_transit',
   DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
 }
 
 export enum OrderType {
-  CUSTOMER = 'customer',
-  WAREHOUSE = 'warehouse',
-  CGP = 'cgp',
+  PRODUCT_AND_TRANSPORT = 'product_and_transport',
+  TRANSPORTATION_ONLY = 'transportation_only',
   OTHER = 'other',
 }
 
-// export enum PaymentMethod {
-//   CREDIT_CARD = 'credit_card',
-//   CASH_ON_DELIVERY = 'cash_on_delivery',
-//   BANK_TRANSFER = 'bank_transfer',
-//   PAYPAL = 'paypal',
-//   OTHER = 'other',
+// export enum PaymentStatus {
+//   UNPAID = 'unpaid',
+//   PAID = 'paid',
+//   PARTIAL_PAID = 'partial_paid',
+//   FAILED = 'failed',
+//   CANCELLED = 'cancelled',
+//   REFUNDED = 'refunded',
+//   PARTIAL_REFUNDED = 'partial_refunded',
 // }
 
 @Entity()
@@ -34,8 +37,11 @@ export class Orders {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @Column()
-  // order_type: string;
+  @Column({ type: 'enum', enum: OrderType, default: OrderType.OTHER })
+  order_type: OrderType;
+
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  order_status: OrderStatus;
 
   @Column()
   customer_id: number;
@@ -50,19 +56,19 @@ export class Orders {
   billing_address_id: number;
 
   @Column({ nullable: true })
+  vehicle_type_id: number;
+
+  @Column({ nullable: true })
   payment_id: number;
 
-  // @Column({ nullable: true })
-  // total_item: number;
-
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  total_price: number;
+  total_cost: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   discount: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  vat: number;
+  gst: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   delivery_charge: number;
@@ -70,20 +76,23 @@ export class Orders {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   payable_amount: number;
 
-  // @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.OTHER })
-  // payment_method: PaymentMethod;
-
-  @Column({ type: 'enum', enum: OrderType, default: OrderType.OTHER })
-  order_type: OrderType;
-
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
-  order_status: OrderStatus;
-
   @CreateDateColumn({
     type: 'timestamp',
     nullable: true,
   })
   created_at: Date;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    nullable: true,
+  })
+  accepted_at: Date;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    nullable: true,
+  })
+  cancelled_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',

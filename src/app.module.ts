@@ -16,7 +16,6 @@ import { SearchModule } from './search/search.module';
 import { WishListModule } from './wishlist/wishlist.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './orders/order.module';
-import { TransportationsModule } from './transportations/transportations.module';
 import { PaymentModule } from './payments/payments.module';
 import configPayment from './config/payment.config';
 
@@ -51,7 +50,6 @@ import configPayment from './config/payment.config';
     WishListModule,
     CartModule,
     OrderModule,
-    TransportationsModule,
     GeoLocationModule,
     PaymentModule,
   ],
