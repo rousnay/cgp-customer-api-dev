@@ -23,7 +23,7 @@ export class Deliveries {
   @Column({
     type: 'enum',
     enum: ShippingStatus,
-    default: ShippingStatus.ACCEPTED,
+    default: ShippingStatus.WAITING,
   })
   shipping_status: ShippingStatus;
 
