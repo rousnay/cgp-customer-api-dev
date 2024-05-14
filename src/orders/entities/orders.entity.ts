@@ -46,7 +46,7 @@ export class Orders {
   @Column()
   customer_id: number;
 
-  @Column()
+  @Column({ nullable: true })
   warehouse_id: number;
 
   @Column({ nullable: true })
