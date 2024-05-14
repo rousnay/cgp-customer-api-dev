@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 export enum ShippingStatus {
+  WAITING = 'waiting',
   ACCEPTED = 'accepted',
   PICKED_UP = 'picked_up',
   IN_TRANSIT = 'in_transit',
