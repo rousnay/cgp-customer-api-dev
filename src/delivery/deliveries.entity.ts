@@ -24,7 +24,7 @@ export class Deliveries {
     enum: ShippingStatus,
     default: ShippingStatus.ACCEPTED,
   })
-  ShippingStatus: ShippingStatus;
+  shipping_status: ShippingStatus;
 
   @Column({ nullable: true })
   rider_id: number;
