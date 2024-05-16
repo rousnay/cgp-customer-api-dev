@@ -21,8 +21,11 @@ export class CustomerAddressBook extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   customer_id: number;
+
+  @Column({ nullable: true })
+  warehouse_branch_id: number;
 
   // @ManyToOne(() => Customers, { onDelete: 'CASCADE' })
   // @JoinColumn({ name: 'customer_id' })

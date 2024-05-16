@@ -19,7 +19,7 @@ export enum OrderStatus {
 export enum OrderType {
   PRODUCT_AND_TRANSPORT = 'product_and_transport',
   TRANSPORTATION_ONLY = 'transportation_only',
-  OTHER = 'other',
+  WAREHOUSE_TRANSPORTATION = 'warehouse_transportation',
 }
 
 // export enum PaymentStatus {
@@ -37,13 +37,17 @@ export class Orders {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'enum', enum: OrderType, default: OrderType.OTHER })
+  @Column({
+    type: 'enum',
+    enum: OrderType,
+    default: OrderType.TRANSPORTATION_ONLY,
+  })
   order_type: OrderType;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   order_status: OrderStatus;
 
-  @Column()
+  @Column({ nullable: true })
   customer_id: number;
 
   @Column({ nullable: true })
