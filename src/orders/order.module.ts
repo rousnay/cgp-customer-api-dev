@@ -8,8 +8,8 @@ import { Cart } from 'src/cart/cart.entity';
 import { TransportationVehiclesService } from './services/transportation-vehicles.service';
 import { TransportationOrdersService } from './services/transportation-orders.service';
 import { TransportationCostCalculationService } from './services/transportation-cost-calculation.service';
-import { CustomerAddressBook } from 'src/customers/entities/customer-address-book.entity';
-import { CustomerAddressBookService } from 'src/customers/services/customer-address-book-service';
+import { UserAddressBook } from 'src/customers/entities/user-address-book.entity';
+import { UserAddressBookService } from 'src/customers/services/user-address-book-service';
 import { StripeService } from 'src/payments/stripe.service';
 import { TransportationVehiclesController } from './controllers/transportation-vehicles.controller';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
@@ -24,8 +24,8 @@ import { TransportationOrdersController } from './controllers/transportation-ord
       TransportationVehiclesService,
       TransportationOrdersService,
       TransportationCostCalculationService,
-      CustomerAddressBook,
-      CustomerAddressBookService,
+      UserAddressBook,
+      UserAddressBookService,
       StripeService,
     ]),
   ],
@@ -35,7 +35,7 @@ import { TransportationOrdersController } from './controllers/transportation-ord
     TransportationVehiclesService,
     TransportationCostCalculationService,
     TransportationOrdersService,
-    CustomerAddressBookService,
+    UserAddressBookService,
     StripeService,
   ],
   controllers: [

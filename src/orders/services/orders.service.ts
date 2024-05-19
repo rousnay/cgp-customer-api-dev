@@ -171,9 +171,9 @@ export class OrderService {
         LEFT JOIN
             order_details od ON o.id = od.order_id
         LEFT JOIN
-            customer_address_book shipping_cb ON o.shipping_address_id = shipping_cb.id
+            user_address_book shipping_cb ON o.shipping_address_id = shipping_cb.id
         LEFT JOIN
-            customer_address_book billing_cb ON o.billing_address_id = billing_cb.id
+            user_address_book billing_cb ON o.billing_address_id = billing_cb.id
         LEFT JOIN
             product_warehouse_branch pw ON od.product_id = pw.id
         LEFT JOIN

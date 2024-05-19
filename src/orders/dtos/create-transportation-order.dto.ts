@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateCustomerAddressDto } from '../../customers/dtos/create-customer-address.dto';
+import { CreateUserAddressDto } from '../../customers/dtos/create-user-address.dto';
 
 export class CreateTransportationOrderDto {
-  @ApiProperty({ type: CreateCustomerAddressDto, required: false })
-  pickup_address?: CreateCustomerAddressDto;
+  @ApiProperty({ type: CreateUserAddressDto, required: false })
+  pickup_address?: CreateUserAddressDto;
 
-  @ApiProperty({ type: CreateCustomerAddressDto, required: false })
-  shipping_address?: CreateCustomerAddressDto;
+  @ApiProperty({ type: CreateUserAddressDto, required: false })
+  shipping_address?: CreateUserAddressDto;
 
   @ApiProperty({ required: false })
   vehicle_type_id: number;

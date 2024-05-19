@@ -10,21 +10,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import {
   AddressType,
-  CustomerAddressBook,
-} from '../entities/customer-address-book.entity';
-import { CreateCustomerAddressDto } from '../dtos/create-customer-address.dto';
+  UserAddressBook,
+} from '../entities/user-address-book.entity';
+import { CreateUserAddressDto } from '../dtos/create-user-address.dto';
 
 @Injectable()
-export class CustomerAddressBookService {
+export class UserAddressBookService {
   constructor(
     @Inject(REQUEST) private readonly request: Request,
-    @InjectRepository(CustomerAddressBook)
-    private readonly addressBookRepository: Repository<CustomerAddressBook>,
+    @InjectRepository(UserAddressBook)
+    private readonly addressBookRepository: Repository<UserAddressBook>,
   ) {}
 
   async createAddress(
-    createAddressDto: CreateCustomerAddressDto,
-  ): Promise<CustomerAddressBook> {
+    createAddressDto: CreateUserAddressDto,
+  ): Promise<UserAddressBook> {
     // Create a new address entity
     const customer_id = this.request['user'].id;
 
@@ -82,7 +82,7 @@ export class CustomerAddressBookService {
     return await this.addressBookRepository.save(address);
   }
 
-  async getAllAddresses(): Promise<CustomerAddressBook[]> {
+  async getAllAddresses(): Promise<UserAddressBook[]> {
     return await this.addressBookRepository
       .find
       //   {
@@ -91,7 +91,7 @@ export class CustomerAddressBookService {
       ();
   }
 
-  async getAddressesByType(type: any): Promise<CustomerAddressBook[]> {
+  async getAddressesByType(type: any): Promise<UserAddressBook[]> {
     return await this.addressBookRepository.find({
       where: {
         // customer_id: this.request['user'].id,
@@ -100,7 +100,7 @@ export class CustomerAddressBookService {
     });
   }
 
-  async getAddressById(id: number): Promise<CustomerAddressBook> {
+  async getAddressById(id: number): Promise<UserAddressBook> {
     return await this.addressBookRepository.findOne({
       where: {
         // customer_id: this.request['user'].id,

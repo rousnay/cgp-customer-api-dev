@@ -3,12 +3,9 @@ import {
   BaseEntity,
   PrimaryGeneratedColumn,
   Column,
-  JoinColumn,
-  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Customers } from './customers.entity';
 
 export enum AddressType {
   SHIPPING = 'shipping',
@@ -17,7 +14,7 @@ export enum AddressType {
 }
 
 @Entity()
-export class CustomerAddressBook extends BaseEntity {
+export class UserAddressBook extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -25,11 +22,10 @@ export class CustomerAddressBook extends BaseEntity {
   customer_id: number;
 
   @Column({ nullable: true })
-  warehouse_branch_id: number;
+  warehouse_id: number;
 
-  // @ManyToOne(() => Customers, { onDelete: 'CASCADE' })
-  // @JoinColumn({ name: 'customer_id' })
-  // customer: Customers;
+  @Column({ nullable: true })
+  rider_id: number;
 
   @Column({ length: 50, nullable: true })
   first_name: string;

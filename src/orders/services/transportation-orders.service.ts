@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Orders } from '../entities/orders.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
 import { StripeService } from '../../payments/stripe.service';
-import { CustomerAddressBookService } from 'src/customers/services/customer-address-book-service';
+import { UserAddressBookService } from 'src/customers/services/user-address-book-service';
 
 @Injectable()
 export class TransportationOrdersService {
@@ -13,7 +13,7 @@ export class TransportationOrdersService {
   constructor(
     @InjectRepository(Orders)
     private readonly transportationOrdersRepository: Repository<Orders>,
-    private readonly customerAddressBookService: CustomerAddressBookService, // Inject StripeService
+    private readonly userAddressBookService: UserAddressBookService, // Inject StripeService
     private readonly stripeService: StripeService, // Inject StripeService
     @Inject(REQUEST) private readonly request: Request,
   ) {}
@@ -34,11 +34,11 @@ export class TransportationOrdersService {
       throw new Error('Transportation order not created');
     }
 
-    const pickupAddress = await this.customerAddressBookService.createAddress(
+    const pickupAddress = await this.userAddressBookService.createAddress(
       createTransportationOrderDto.pickup_address,
     );
 
-    const shippingAddress = await this.customerAddressBookService.createAddress(
+    const shippingAddress = await this.userAddressBookService.createAddress(
       createTransportationOrderDto.shipping_address,
     );
 

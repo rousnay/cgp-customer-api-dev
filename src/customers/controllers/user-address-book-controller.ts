@@ -17,28 +17,24 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CustomerAddressBook } from '../entities/customer-address-book.entity';
-import { CustomerAddressBookService } from '../services/customer-address-book-service';
-import { CreateCustomerAddressDto } from '../dtos/create-customer-address.dto';
+import { UserAddressBook } from '../entities/user-address-book.entity';
+import { UserAddressBookService } from '../services/user-address-book-service';
+import { CreateUserAddressDto } from '../dtos/create-user-address.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('customers-addresses')
 @ApiTags('Customers')
-export class CustomerAddressBookController {
-  constructor(
-    private readonly addressBookService: CustomerAddressBookService,
-  ) {}
+export class UserAddressBookController {
+  constructor(private readonly addressBookService: UserAddressBookService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Create new address' })
-  async createAddress(
-    @Body() createAddressDto: CreateCustomerAddressDto,
-  ): Promise<{
+  async createAddress(@Body() createAddressDto: CreateUserAddressDto): Promise<{
     status: string;
     message: string;
-    data: CustomerAddressBook;
+    data: UserAddressBook;
   }> {
     const result = await this.addressBookService.createAddress(
       createAddressDto,
@@ -64,7 +60,7 @@ export class CustomerAddressBookController {
   async getAddresses(@Query('type') type?: string): Promise<{
     status: string;
     message: string;
-    data: CustomerAddressBook[];
+    data: UserAddressBook[];
   }> {
     if (type) {
       const results = await this.addressBookService.getAddressesByType(type);
@@ -90,7 +86,7 @@ export class CustomerAddressBookController {
   async getAddressById(@Param('id') id: number): Promise<{
     status: string;
     message: string;
-    data: CustomerAddressBook;
+    data: UserAddressBook;
   }> {
     const address = await this.addressBookService.getAddressById(id);
     if (!address) {

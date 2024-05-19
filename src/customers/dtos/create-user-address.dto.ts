@@ -1,8 +1,8 @@
 import { IsEnum, IsOptional } from 'class-validator';
-import { AddressType } from '../entities/customer-address-book.entity';
+import { AddressType } from '../entities/user-address-book.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateCustomerAddressDto {
+export class CreateUserAddressDto {
   @ApiProperty()
   @IsOptional()
   first_name: string;
