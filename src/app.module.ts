@@ -1,49 +1,34 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AppController } from './app.controller';
+import { ConfigModule } from './config/config.module';
+import { MysqlModule } from './database/mysql.module';
+import { MongoModule } from './database/mongo.module';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { ProductsModule } from './products/products.module';
-import { WarehouseModule } from './warehouse/warehouses.module';
-import { ApplicationModule } from './application/application.module';
-// import { CategoriesModule } from './application/categories.module';
-// import { UsersModule } from './users/users.module';
-import { CustomersModule } from './customers/customers.module';
-import { GeoLocationModule } from './geolocation/geolocation.module';
-import { SearchModule } from './search/search.module';
-import { WishListModule } from './wishlist/wishlist.module';
-import { CartModule } from './cart/cart.module';
-import { OrderModule } from './orders/order.module';
-import { PaymentModule } from './payments/payments.module';
-import configPayment from './config/payment.config';
+import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
+import { ProductsModule } from './modules/products/products.module';
+import { WarehouseModule } from './modules/warehouse/warehouses.module';
+import { ApplicationModule } from './modules/application/application.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { GeoLocationModule } from './modules/geolocation/geolocation.module';
+import { SearchModule } from './modules/search/search.module';
+import { WishListModule } from './modules/wishlist/wishlist.module';
+import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/orders/order.module';
+import { PaymentModule } from './modules/payments/payments.module';
+import { LocationModule } from './modules/location/location.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { NotificationsModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [configPayment],
-    }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DATABASE_HOST,
-      // port: 3306,
-      username: process.env.DATABASE_USER,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-      // logging: ['query', 'error', 'schema', 'warn', 'info', 'log', 'migration'],
-      synchronize: true,
-      ssl: false,
-      // ssl: {
-      //   rejectUnauthorized: true,
-      // },
-    }),
+    ConfigModule,
+    MysqlModule,
+    MongoModule,
     ApplicationModule,
     SearchModule,
     AuthModule,
-    // UsersModule,
     CustomersModule,
     WarehouseModule,
     ProductsModule,
@@ -52,6 +37,12 @@ import configPayment from './config/payment.config';
     OrderModule,
     GeoLocationModule,
     PaymentModule,
+    LocationModule,
+    ChatModule,
+    NotificationsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
   ],
   providers: [AppService],
   controllers: [AppController],

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Real-time Rider Location</title>
+    <script src="/socket.io/socket.io.js"></script>
+            <script>
+      // Function to initialize the map
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: { lat: 0, lng: 0 },
+        });
+
+        const marker = new google.maps.Marker({
+          position: { lat: 0, lng: 0 },
+          map: map,
+        });
+
+        const socket = io('http://localhost:8000');
+      socket.on('connect', () => {
+        console.log('Connected to WebSocket server');
+      });
+
+        socket.on('locationUpdated', (data) => {
+          const { latitude, longitude } = data;
+          const newPos = new google.maps.LatLng(latitude, longitude);
+          marker.setPosition(newPos);
+          map.setCenter(newPos);
+        });
+      }
+
+      // Asynchronously load the Google Maps API
+      function loadScript(src, callback) {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.defer = true;
+        script.onload = callback;
+        document.head.appendChild(script);
+      }
+
+      // Load the Google Maps API and initialize the map
+      loadScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c&callback=initMap');
+    </script>
+  </head>
+  <body>
+    <div id="map" style="height: 100%;"></div>
+
+
+  </body>
+</html>

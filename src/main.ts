@@ -1,31 +1,49 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { configSwagger } from './config/swagger.config';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-// import { NestExpressApplication } from '@nestjs/platform-express';
+import * as Sentry from '@sentry/node';
+import { AppModule } from './app.module';
+import { SentryFilter } from './core/filters/sentry.filter';
+import { CustomValidationPipe } from './core/pipes/custom-validation.pipe';
+import { SocketAdapter } from './core/adapters/socket.adapter';
+import { configSwagger } from './config/swagger.config';
+import { LoggerFactory } from './config/winston.config';
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;
-  // const app = await NestFactory.create(AppModule);
-  const app = await NestFactory.create(AppModule, { rawBody: true });
-  // const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  // app.enableCors();
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+    // cors: true,
+    // logger: LoggerFactory('MyApp'),
+  });
+
   app.enableCors({
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept',
-
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true,
   });
 
+  // Use the custom validation pipe globally
+  app.useGlobalPipes(new CustomValidationPipe());
+
+  // use the custom socket adapter
+  app.useWebSocketAdapter(new SocketAdapter(app));
+
+  // Import the filter globally, capturing all exceptions on all routes
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new SentryFilter(httpAdapter));
+
+  // Initialize Sentry by passing the DNS included in the .env
+  if (process.env.NODE_ENV === 'staging') {
+    Sentry.init({
+      dsn: process.env.SENTRY_DNS,
+    });
+  }
+
   configSwagger(app);
-  // Enable validation globally
-  // app.useGlobalPipes(new ValidationPipe());
   await app.listen(port);
 }
 bootstrap();
-
-// export { bootstrap };
-// export default bootstrap;
