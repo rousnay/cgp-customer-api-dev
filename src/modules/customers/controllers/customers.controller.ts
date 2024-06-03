@@ -29,16 +29,18 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
-import { CustomersService } from '../services/customers.service';
+import { profileImageInterceptor } from '../../../core/interceptors/file-interceptor';
+import { CloudflareMediaService } from '../../../services/cloudflare-media.service';
 
-import { Customers } from '../entities/customers.entity';
-import { CustomerQueryParamsPipe } from '../customers-query-params.pipe';
 import { ApiResponseDto } from '../dtos/api-response.dto';
+import { CustomerQueryParamsPipe } from '../customers-query-params.pipe';
 // import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { UpdateCustomerDto } from '../dtos/update-customer.dto';
 import { CustomersQueryParamsDto } from '../dtos/customers-query-params.dto';
 import { CustomerPreferencesDto } from '../dtos/customer-preferences.dto';
 import { UpdateCustomerPreferencesDto } from '../dtos/update-customer-preferences.dto';
+import { CustomersService } from '../services/customers.service';
+import { Customers } from '../entities/customers.entity';
 
 // @ApiHeader({
 //   name: 'X-MyHeader',
@@ -47,7 +49,10 @@ import { UpdateCustomerPreferencesDto } from '../dtos/update-customer-preference
 @Controller('customers')
 @ApiTags('Customers')
 export class CustomerController {
-  constructor(private customersService: CustomersService) {}
+  constructor(
+    private customersService: CustomersService,
+    private cloudflareMediaService: CloudflareMediaService,
+  ) {}
 
   // Get all customers ++++++++++++++++++++++++++++++++++++
   @Get('all')
@@ -145,39 +150,32 @@ export class CustomerController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update customer profile' })
   @ApiBody({ type: UpdateCustomerDto })
-  @UseInterceptors(
-    FileInterceptor('profile_image', {
-      storage: diskStorage({
-        destination: '/tmp', // Destination folder for uploaded files
-        filename: (req, file, callback) => {
-          const originalName = file.originalname;
-          const date = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
-          const time = new Date().toLocaleTimeString('en-US', {
-            hour12: false,
-          }); // Current time in HH:MM:SS format
-          const formattedTime = time.replace(/:/g, '-'); // Replacing colons with underscores for HH_MM_SS
-          const randomNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
-
-          const fileNameParts = [
-            originalName.replace(/\.[^/.]+$/, ''), // File name without extension
-            date,
-            formattedTime,
-            randomNumber.toString(),
-          ];
-
-          const finalFileName =
-            fileNameParts.join('_') + extname(file.originalname); // Join parts with underscores
-          return callback(null, finalFileName);
-        },
-      }),
-    }),
-  )
+  // @UseInterceptors(profileImageInterceptor)
+  @UseInterceptors(FileInterceptor('profile_image'))
   @ApiResponse({ status: 200, type: Customers })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   public async editCustomerProfile(
     @UploadedFile() profile_image: Express.Multer.File,
     @Body() formData: UpdateCustomerDto, // Use FormDataPipe
   ): Promise<{ message: string; status: string; data: Customers }> {
+    let cf_media_id = null;
+    let profile_image_url = null;
+
+    console.log(profile_image);
+
+    if (profile_image) {
+      const result = await this.cloudflareMediaService.uploadMedia(
+        profile_image,
+        {
+          model: 'Customer-ProfileImage',
+          model_id: 88,
+          image_type: 'thumbnail',
+        },
+      );
+      cf_media_id = result?.data?.id;
+      profile_image_url = result?.data?.media_url;
+    }
+
     const updateCustomerDto = new UpdateCustomerDto();
     updateCustomerDto.first_name = formData.first_name;
     updateCustomerDto.last_name = formData.last_name;
@@ -185,17 +183,12 @@ export class CustomerController {
     updateCustomerDto.email = formData.email;
     updateCustomerDto.date_of_birth = formData.date_of_birth;
     updateCustomerDto.gender = formData.gender;
-    updateCustomerDto.is_active = formData.is_active;
-
-    if (profile_image) {
-      console.log(profile_image);
-      const filePath = profile_image.path; // Path to the uploaded file
-      console.log(filePath);
-    }
+    updateCustomerDto.profile_image_cf_media_id = cf_media_id;
 
     const result = await this.customersService.editCustomerProfile(
       updateCustomerDto,
     );
+    result.data.profile_image_url = profile_image_url;
 
     return {
       status: 'success',

@@ -10,7 +10,6 @@ import axios from 'axios';
 import { JwtService } from '@nestjs/jwt';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { CreateCustomerDto } from '../customers/dtos/create-customer.dto';
 import { Customers } from '../customers/entities/customers.entity';
 
 @Injectable()
@@ -108,23 +107,23 @@ export class AuthService {
         const userData = response?.data?.data?.user;
 
         // Create a new Customer entity based on the registration data
-        const createCustomerDto: CreateCustomerDto = {
-          user_id: userData?.id,
-          first_name: userData?.first_name,
-          last_name: userData?.last_name,
-          phone: userData?.phone,
-          email: userData?.email,
-          registration_date: userData?.created_at,
-        };
+        // const createCustomerDto: CreateCustomerDto = {
+        //   user_id: userData?.id,
+        //   first_name: userData?.first_name,
+        //   last_name: userData?.last_name,
+        //   phone: userData?.phone,
+        //   email: userData?.email,
+        //   registration_date: userData?.created_at,
+        // };
 
         // Create a new Customers entity
         const newCustomer = Customers.create({
-          user_id: createCustomerDto.user_id,
-          first_name: createCustomerDto.first_name,
-          last_name: createCustomerDto.last_name,
-          phone: createCustomerDto.phone,
+          user_id: userData.user_id,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          phone: userData.phone,
           email: userData.email,
-          registration_date: createCustomerDto.registration_date,
+          registration_date: userData.registration_date,
         });
 
         // Save the new Customer entity to the database
@@ -205,16 +204,8 @@ export class AuthService {
             where: { user_id: user_id },
           });
 
-          console.log(user_id);
-          console.log(customer.id);
-
           const payload = { username: customer.email, sub: customer.id };
-          const access_token = this.jwtService.sign(
-            { ...payload },
-            {
-              expiresIn: '30d',
-            },
-          );
+          const access_token = this.jwtService.sign(payload);
 
           return {
             status: 'success',
@@ -352,12 +343,7 @@ export class AuthService {
           });
 
           const payload = { username: customer.email, sub: customer.id };
-          const access_token = this.jwtService.sign(
-            { ...payload },
-            {
-              expiresIn: '30d',
-            },
-          );
+          const access_token = this.jwtService.sign(payload);
 
           return {
             status: 'success',

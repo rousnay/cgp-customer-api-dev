@@ -10,6 +10,7 @@ import { CustomerController } from './controllers/customers.controller';
 import { Preferences } from '../application/entities/preferences.entity';
 import { UserAddressBookController } from './controllers/user-address-book-controller';
 import { UserAddressBookService } from './services/user-address-book-service';
+import { CloudflareMediaService } from '../../services/cloudflare-media.service';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { UserAddressBookService } from './services/user-address-book-service';
     TypeOrmModule.forFeature([Customers, UserAddressBook, Preferences]),
   ],
   exports: [CustomersService, UserAddressBookService],
-  providers: [CustomersService, UserAddressBookService],
+  providers: [CustomersService, UserAddressBookService, CloudflareMediaService],
   controllers: [CustomerController, UserAddressBookController],
 })
 export class CustomersModule {}

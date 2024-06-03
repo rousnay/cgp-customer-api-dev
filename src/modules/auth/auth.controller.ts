@@ -85,6 +85,7 @@ export class AuthController {
         value: {
           session_id: 'r4m17y4p1vpaens2zj86lscguxqhxynvf',
           otp: '567809',
+          device_token: 'df345nngf8dfgu',
         },
       },
     },
@@ -239,6 +240,7 @@ export class AuthController {
         value: {
           session_id: 'r4m17y4p1vpaens2zj86lscguxqhxynvf',
           otp: '567809',
+          device_token: 'df345nngf8dfgu',
         },
       },
     },

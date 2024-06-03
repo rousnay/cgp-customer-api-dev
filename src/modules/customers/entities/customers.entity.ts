@@ -49,7 +49,7 @@ export class Customers extends BaseEntity {
   gender: Gender | null; // Define the column as nullable in the entity
 
   @Column({ nullable: true })
-  profile_image_url: string;
+  profile_image_cf_media_id: number;
 
   // Define the relationship with preferences
   @ManyToMany(() => Preferences, { onDelete: 'CASCADE' })

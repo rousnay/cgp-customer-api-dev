@@ -68,6 +68,12 @@ export class Orders {
   @Column({ nullable: true })
   payment_id: number;
 
+  @Column({ type: 'decimal', nullable: true })
+  distance_in_km: number;
+
+  @Column({ type: 'int', nullable: true })
+  duration_in_min: number;
+
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   total_cost: number;
 
