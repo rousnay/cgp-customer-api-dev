@@ -5,9 +5,10 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { ProductsService } from '../services/products.service';
-import { ProductsDto } from '../dtos/products.dto';
+
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ProductsDto } from '../dtos/products.dto';
+import { ProductsService } from '../services/products.service';
 
 @Controller('products')
 @ApiTags('Products')

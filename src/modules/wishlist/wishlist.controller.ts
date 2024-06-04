@@ -16,7 +16,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
+
+import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { WishList } from './wishlist.entity';
 import { WishListService } from './wishlist.service';
 

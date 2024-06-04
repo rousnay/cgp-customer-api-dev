@@ -1,7 +1,8 @@
 import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { WarehouseBranchService } from '../services/warehouse-branch.service';
+
 import { WarehouseBranchDto } from '../dtos/warehouse-branch.dto';
+import { WarehouseBranchService } from '../services/warehouse-branch.service';
 
 @Controller('warehouses')
 @ApiTags('Warehouses')

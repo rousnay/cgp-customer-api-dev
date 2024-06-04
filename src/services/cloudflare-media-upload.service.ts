@@ -3,8 +3,10 @@ import { EntityManager } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as FormData from 'form-data';
-import { ConfigService } from 'src/config/config.service';
-import { AppConstants } from 'src/common/constants/constants';
+
+import { ConfigService } from '@config/config.service';
+import { AppConstants } from '@common/constants/constants';
+
 @Injectable()
 export class CloudflareMediaService {
   private readonly cfAccId: string;

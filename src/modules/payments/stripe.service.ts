@@ -1,8 +1,7 @@
-// payment/stripe.service.ts
 import { Inject, Injectable } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
 import Stripe from 'stripe';
 import { CreateTransportationOrderDto } from '../orders/dtos/create-transportation-order.dto';
-import { REQUEST } from '@nestjs/core';
 
 @Injectable()
 export class StripeService {

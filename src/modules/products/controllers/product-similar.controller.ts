@@ -1,6 +1,6 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
-import { SimilarProductsService } from '../services/product-similar.service';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { SimilarProductsService } from '../services/product-similar.service';
 
 @ApiTags('Products')
 @Controller('products')

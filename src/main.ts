@@ -2,12 +2,13 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+
+import { configSwagger } from '@config/swagger.config';
+import { LoggerFactory } from '@config/winston.config';
+import { SentryFilter } from '@core/filters/sentry.filter';
+import { CustomValidationPipe } from '@core/pipes/custom-validation.pipe';
+import { SocketAdapter } from '@core/adapters/socket.adapter';
 import { AppModule } from './app.module';
-import { SentryFilter } from './core/filters/sentry.filter';
-import { CustomValidationPipe } from './core/pipes/custom-validation.pipe';
-import { SocketAdapter } from './core/adapters/socket.adapter';
-import { configSwagger } from './config/swagger.config';
-import { LoggerFactory } from './config/winston.config';
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;

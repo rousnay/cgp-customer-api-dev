@@ -8,8 +8,9 @@ import {
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, EntityManager } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
+
+import { ProductsService } from '@modules/products/services/products.service';
 import { Cart } from './cart.entity';
-import { ProductsService } from '../products/services/products.service';
 
 @Injectable()
 export class CartService {

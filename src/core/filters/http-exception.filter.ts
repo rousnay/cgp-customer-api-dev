@@ -5,9 +5,10 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-// import { ValidationException } from './validation.exception';
+
 import { Response } from 'express';
 import { ValidationError } from 'class-validator';
+// import { ValidationException } from './validation.exception';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {

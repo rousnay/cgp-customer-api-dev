@@ -1,18 +1,19 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '../../config/config.module';
+
+import { ConfigModule } from '@config/config.module';
+import { UserAddressBook } from '@modules/customers/entities/user-address-book.entity';
+import { UserAddressBookService } from '@modules/customers/services/user-address-book-service';
+import { StripeService } from '@modules/payments/stripe.service';
+import { Cart } from '@modules/cart/cart.entity';
 import { Orders } from './entities/orders.entity';
 import { OrderDetails } from './entities/order_details.entity';
 import { OrderService } from './services/orders.service';
 import { OrderController } from './controllers/orders.controller';
-import { Cart } from '../cart/cart.entity';
 import { TransportationVehiclesService } from './services/transportation-vehicles.service';
 import { TransportationOrdersService } from './services/transportation-orders.service';
 import { TransportationCostCalculationService } from './services/transportation-cost-calculation.service';
-import { UserAddressBook } from '../customers/entities/user-address-book.entity';
-import { UserAddressBookService } from '../customers/services/user-address-book-service';
-import { StripeService } from '../payments/stripe.service';
 import { TransportationVehiclesController } from './controllers/transportation-vehicles.controller';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
 import { TransportationOrdersController } from './controllers/transportation-orders.controller';

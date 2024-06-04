@@ -28,6 +28,7 @@
       "@modules/*": ["src/modules/*"],
       "@providers/*": ["src/providers/*"],
       "@services/*": ["src/services/*"],
+      "@storage/*": ["src/storage/*"],
     },
   },
 }

@@ -1,9 +1,11 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { FirebaseAdminService } from 'src/services/firebase-admin.service';
-import { NotificationService } from './notification.service';
+
+import { FirebaseAdminService } from '@services/firebase-admin.service';
 import { SendNotificationDto } from './dtos/send-notification.dto';
 import { SendDeliveryRequestNotificationDto } from './dtos/delivery-request-notification.dto';
+import { NotificationService } from './notification.service';
+
 
 @ApiTags('Notifications')
 @Controller('notifications')

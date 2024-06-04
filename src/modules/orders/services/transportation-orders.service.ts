@@ -2,10 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { StripeService } from '@modules/payments/stripe.service';
+import { UserAddressBookService } from '@modules/customers/services/user-address-book-service';
 import { Orders } from '../entities/orders.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
-import { StripeService } from '../../payments/stripe.service';
-import { UserAddressBookService } from '../../customers/services/user-address-book-service';
 
 @Injectable()
 export class TransportationOrdersService {

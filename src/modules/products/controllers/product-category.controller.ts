@@ -1,7 +1,8 @@
 import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ProductCategoryService } from '../services/product-category.service';
+
 import { ProductsDto } from '../dtos/products.dto';
+import { ProductCategoryService } from '../services/product-category.service';
 
 @Controller('categories/:categoryId/products')
 @ApiTags('Products')

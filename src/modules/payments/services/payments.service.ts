@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
+
 import { CreatePaymentTokenDto } from '../dtos/create-payment-token.dto';
-import { PaymentToken } from '../entities/payment-token.entity';
 import { RetrievePaymentMethodDto } from '../dtos/retrieve-payment-method.dto';
+import { PaymentToken } from '../entities/payment-token.entity';
 
 @Injectable()
 export class PaymentService {

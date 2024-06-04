@@ -5,9 +5,10 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { WarehousesService } from '../services/warehouses.service';
-import { WarehousesDto } from '../dtos/warehouses.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { WarehousesDto } from '../dtos/warehouses.dto';
+import { WarehousesService } from '../services/warehouses.service';
 
 @Controller('warehouses')
 @ApiTags('Warehouses')

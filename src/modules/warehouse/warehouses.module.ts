@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { WarehousesService } from './services/warehouses.service';
 import { WarehousesController } from './controllers/warehouses.controller';
 import { WarehouseBranchService } from './services/warehouse-branch.service';

@@ -20,9 +20,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
-import { TransportationOrdersService } from '../services/transportation-orders.service';
+
+import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
+import { TransportationOrdersService } from '../services/transportation-orders.service';
 
 @ApiTags('Transportation')
 @Controller('transportation/orders')

@@ -18,7 +18,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
+
+import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { CartService } from './cart.service';
 import { Cart } from './cart.entity';
 

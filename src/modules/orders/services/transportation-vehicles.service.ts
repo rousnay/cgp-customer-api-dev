@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
+
 import { TransportationVehicleDto } from '../dtos/transportation-vehicle.dto';
 
 // Define a class representing your transportation vehicles service

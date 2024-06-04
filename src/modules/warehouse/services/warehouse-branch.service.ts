@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
+
 import { WarehouseBranchDto } from '../dtos/warehouse-branch.dto';
 
 @Injectable()

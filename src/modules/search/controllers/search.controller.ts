@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
+
 import { SearchProductsService } from '../services/search-products.service';
 
 @ApiTags('Search')

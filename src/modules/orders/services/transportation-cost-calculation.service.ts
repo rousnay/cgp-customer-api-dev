@@ -2,8 +2,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Orders } from '../entities/orders.entity';
-import { CalculateTransportationCostDto } from '../dtos/calculate-transportation-cost.dto';
+import { Console } from 'console';
+
 import {
   Client,
   LatLngLiteral,
@@ -12,8 +12,9 @@ import {
   DistanceMatrixResponse,
 } from '@googlemaps/google-maps-services-js';
 
+import { Orders } from '../entities/orders.entity';
+import { CalculateTransportationCostDto } from '../dtos/calculate-transportation-cost.dto';
 import { TransportationVehiclesService } from '../services/transportation-vehicles.service';
-import { Console } from 'console';
 
 @Injectable()
 export class TransportationCostCalculationService {

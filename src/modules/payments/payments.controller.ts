@@ -28,11 +28,12 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
-import { StripeService } from './stripe.service';
-import { PaymentService } from './services/payments.service';
+
+import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
+import { StripeService } from './stripe.service';
+import { PaymentService } from './services/payments.service';
 
 @Controller('payment')
 @ApiTags('Payment')

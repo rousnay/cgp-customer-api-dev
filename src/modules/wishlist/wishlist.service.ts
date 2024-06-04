@@ -1,3 +1,4 @@
+import { REQUEST } from '@nestjs/core';
 import {
   HttpException,
   HttpStatus,
@@ -7,9 +8,9 @@ import {
 } from '@nestjs/common';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, EntityManager } from 'typeorm';
+
+import { ProductsService } from '@modules/products/services/products.service';
 import { WishList } from './wishlist.entity';
-import { REQUEST } from '@nestjs/core';
-import { ProductsService } from '../products/services/products.service';
 
 @Injectable()
 export class WishListService {

@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ConfigModule } from '../config/config.module';
-import { ConfigService } from '../config/config.service';
 import { join } from 'path';
+// import { ConfigModule, ConfigService } from '@nestjs/config';
+
+import { ConfigModule } from '@config/config.module';
+import { ConfigService } from '@config/config.service';
 
 @Module({
   imports: [
