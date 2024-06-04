@@ -16,12 +16,18 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    // "moduleResolution": "node",
+    // "resolveJsonModule": true,
+    "paths": {
+      "@common/*": ["src/common/*"],
+      "@core/*": ["src/core/*"],
+      "@config/*": ["src/config/*"],
+      "@database/*": ["src/database/*"],
+      "@loggers/*": ["src/loggers/*"],
+      "@modules/*": ["src/modules/*"],
+      "@providers/*": ["src/providers/*"],
+      "@services/*": ["src/services/*"],
+    },
   },
-  //  "exclude": [
-  //   "node_modules",
-  //   "test",  // Example: Excluding the "test" folder
-  //   "dist",
-  //   "_codes"
-  // ]
 }

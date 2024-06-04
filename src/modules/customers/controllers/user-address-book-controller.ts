@@ -17,7 +17,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
+
+import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { UserAddressBook } from '../entities/user-address-book.entity';
 import { UserAddressBookService } from '../services/user-address-book-service';
 import { CreateUserAddressDto } from '../dtos/create-user-address.dto';

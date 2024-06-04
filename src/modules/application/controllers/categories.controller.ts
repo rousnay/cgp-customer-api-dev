@@ -1,5 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
+
 import { CategoriesService } from '../services/categories.service';
 import { CategoriesDto } from '../dtos/categories.dto';
 

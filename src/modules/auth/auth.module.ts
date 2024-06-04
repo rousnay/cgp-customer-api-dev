@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthService } from './auth.service';
-import { LocalStrategy } from '../../core/guards/local.strategy';
-import { JwtStrategy } from '../../core/guards/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from 'src/config/config.service';
-import { ConfigModule } from 'src/config/config.module';
-import { PasswordService } from '../../core/guards/password.service';
+
+import { ConfigService } from '@config/config.service';
+import { ConfigModule } from '@config/config.module';
+import { PasswordService } from '@core/guards/password.service';
+import { LocalStrategy } from '@core/guards/local.strategy';
+import { JwtStrategy } from '@core/guards/jwt.strategy';
+import { Customers } from '@modules/customers/entities/customers.entity';
+import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { Customers } from '../customers/entities/customers.entity';
 
 @Module({
   imports: [

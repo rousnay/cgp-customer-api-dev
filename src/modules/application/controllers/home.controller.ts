@@ -1,13 +1,14 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { WarehousesDto } from '../../warehouse/dtos/warehouses.dto';
-import { WarehousesService } from '../../warehouse/services/warehouses.service';
-import { ProductsDto } from '../../products/dtos/products.dto';
-import { ProductsService } from '../../products/services/products.service';
+
+import { WarehousesDto } from '@modules/warehouse/dtos/warehouses.dto';
+import { WarehousesService } from '@modules/warehouse/services/warehouses.service';
+import { ProductsDto } from '@modules/products/dtos/products.dto';
+import { ProductsService } from '@modules/products/services/products.service';
+import { WarehouseCategoryService } from '@modules/warehouse/services/warehouse-category.services';
+import { ProductCategoryService } from '@modules/products/services/product-category.service';
 import { CategoriesDto } from '../dtos/categories.dto';
 import { CategoriesService } from '../services/categories.service';
-import { WarehouseCategoryService } from '../../warehouse/services/warehouse-category.services';
-import { ProductCategoryService } from '../../products/services/product-category.service';
 
 @Controller('home')
 @ApiTags('Application')

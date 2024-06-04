@@ -20,7 +20,6 @@ import {
   ApiConsumes,
   ApiParam,
   ApiResponse,
-  ApiOkResponse,
   ApiTags,
   ApiQuery,
   ApiBearerAuth,
@@ -28,13 +27,12 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
-import { profileImageInterceptor } from '../../../core/interceptors/file-interceptor';
-import { CloudflareMediaService } from '../../../services/cloudflare-media.service';
+import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
+import { profileImageInterceptor } from '@core/interceptors/file-interceptor';
+import { CloudflareMediaService } from '@services/cloudflare-media-upload.service';
 
 import { ApiResponseDto } from '../dtos/api-response.dto';
 import { CustomerQueryParamsPipe } from '../customers-query-params.pipe';
-// import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { UpdateCustomerDto } from '../dtos/update-customer.dto';
 import { CustomersQueryParamsDto } from '../dtos/customers-query-params.dto';
 import { CustomerPreferencesDto } from '../dtos/customer-preferences.dto';

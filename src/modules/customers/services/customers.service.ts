@@ -1,13 +1,14 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { Repository, Like, EntityManager } from 'typeorm';
+import { REQUEST } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
+import { Preferences } from '@modules/application/entities/preferences.entity';
+
 import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { UpdateCustomerDto } from '../dtos/update-customer.dto';
 import { ApiResponseDto } from '../dtos/api-response.dto';
 import { Customers } from '../entities/customers.entity';
-import { Preferences } from '../../application/entities/preferences.entity';
-import { REQUEST } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class CustomersService {

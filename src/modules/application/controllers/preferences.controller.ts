@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+
 import { PreferencesService } from '../services/preferences.service';
 import { Preferences } from '../entities/preferences.entity';
 import { AddPreferencesDto } from '../dtos/add-preferences.dto';

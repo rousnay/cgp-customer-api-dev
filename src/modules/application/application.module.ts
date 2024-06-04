@@ -1,19 +1,20 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { WarehousesService } from 'src/modules/warehouse/services/warehouses.service';
-import { WarehouseModule } from 'src/modules/warehouse/warehouses.module';
-import { ProductsService } from 'src/modules/products/services/products.service';
-import { ProductsModule } from 'src/modules/products/products.module';
-import { HomeController } from './controllers/home.controller';
-import { CategoriesService } from 'src/modules/application/services/categories.service';
+
+import { WarehousesService } from '@modules/warehouse/services/warehouses.service';
+import { WarehouseModule } from '@modules/warehouse/warehouses.module';
+import { ProductsService } from '@modules/products/services/products.service';
+import { ProductsModule } from '@modules/products/products.module';
+import { CategoriesService } from '@modules/application/services/categories.service';
+import { WarehouseCategoryService } from '@modules/warehouse/services/warehouse-category.services';
+import { ProductCategoryService } from '@modules/products/services/product-category.service';
 import { CategoriesController } from './controllers/categories.controller';
 import { Preferences } from './entities/preferences.entity';
 import { PreferencesService } from './services/preferences.service';
-import { PreferencesController } from './controllers/preferences.controller';
-import { WarehouseCategoryService } from 'src/modules/warehouse/services/warehouse-category.services';
-import { ProductCategoryService } from 'src/modules/products/services/product-category.service';
 import { BrandsController } from './controllers/brands.controller';
 import { BrandsService } from './services/brands.service';
+import { PreferencesController } from './controllers/preferences.controller';
+import { HomeController } from './controllers/home.controller';
 
 @Module({
   imports: [
