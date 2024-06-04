@@ -9,11 +9,8 @@ import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 
-import {
-  AddressType,
-  UserAddressBook,
-} from '../entities/user-address-book.entity';
-import { CreateUserAddressDto } from '../dtos/create-user-address.dto';
+import { AddressType, UserAddressBook } from './user-address-book.entity';
+import { CreateUserAddressDto } from './create-user-address.dto';
 
 @Injectable()
 export class UserAddressBookService {

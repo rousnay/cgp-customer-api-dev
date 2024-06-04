@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateUserAddressDto } from '../../customers/dtos/create-user-address.dto';
+import { CreateUserAddressDto } from '@modules/user-address-book/create-user-address.dto';
 
 export class CreateTransportationOrderDto {
   @ApiProperty({ type: CreateUserAddressDto, required: false })

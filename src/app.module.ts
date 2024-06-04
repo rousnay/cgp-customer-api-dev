@@ -10,6 +10,7 @@ import { ProductsModule } from '@modules/products/products.module';
 import { WarehouseModule } from '@modules/warehouse/warehouses.module';
 import { ApplicationModule } from '@modules/application/application.module';
 import { CustomersModule } from '@modules/customers/customers.module';
+import { UserAddressBookModule } from '@modules/user-address-book/user-address-book-module';
 import { GeoLocationModule } from '@modules/geolocation/geolocation.module';
 import { SearchModule } from '@modules/search/search.module';
 import { WishListModule } from '@modules/wishlist/wishlist.module';
@@ -31,6 +32,7 @@ import { AppController } from './app.controller';
     SearchModule,
     AuthModule,
     CustomersModule,
+    UserAddressBookModule,
     WarehouseModule,
     ProductsModule,
     WishListModule,

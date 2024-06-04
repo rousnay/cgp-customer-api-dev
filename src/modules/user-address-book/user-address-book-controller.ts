@@ -7,24 +7,21 @@ import {
   Query,
   NotFoundException,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiOperation,
   ApiQuery,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
-import { UserAddressBook } from '../entities/user-address-book.entity';
-import { UserAddressBookService } from '../services/user-address-book-service';
-import { CreateUserAddressDto } from '../dtos/create-user-address.dto';
+import { UserAddressBook } from './user-address-book.entity';
+import { CreateUserAddressDto } from './create-user-address.dto';
+import { UserAddressBookService } from './user-address-book-service';
 
+@ApiTags("Customer's Address Book")
 @Controller('customers-addresses')
-@ApiTags('Customers')
 export class UserAddressBookController {
   constructor(private readonly addressBookService: UserAddressBookService) {}
 
@@ -47,9 +44,9 @@ export class UserAddressBookController {
     };
   }
 
-  @Get()
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth('access_token')
+  @Get('/all')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get all addresses' })
   @ApiQuery({
     name: 'type',
@@ -81,8 +78,8 @@ export class UserAddressBookController {
   }
 
   @Get(':id')
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth('access_token')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get address by id' })
   async getAddressById(@Param('id') id: number): Promise<{
     status: string;

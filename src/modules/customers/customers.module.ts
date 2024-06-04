@@ -6,12 +6,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@config/config.module';
 import { CloudflareMediaService } from '@services/cloudflare-media-upload.service';
 import { Preferences } from '@modules/application/entities/preferences.entity';
-import { Customers } from './entities/customers.entity'; // Import your CustomerEntity
+import { Customers } from './entities/customers.entity';
 import { CustomersService } from './services/customers.service';
-import { UserAddressBook } from './entities/user-address-book.entity';
 import { CustomerController } from './controllers/customers.controller';
-import { UserAddressBookController } from './controllers/user-address-book-controller';
-import { UserAddressBookService } from './services/user-address-book-service';
 
 @Module({
   imports: [
@@ -21,10 +18,10 @@ import { UserAddressBookService } from './services/user-address-book-service';
       timeout: 5000,
       maxRedirects: 5,
     }),
-    TypeOrmModule.forFeature([Customers, UserAddressBook, Preferences]),
+    TypeOrmModule.forFeature([Customers, Preferences]),
   ],
-  exports: [CustomersService, UserAddressBookService],
-  providers: [CustomersService, UserAddressBookService, CloudflareMediaService],
-  controllers: [CustomerController, UserAddressBookController],
+  exports: [CustomersService],
+  providers: [CustomersService, CloudflareMediaService],
+  controllers: [CustomerController],
 })
 export class CustomersModule {}

@@ -4,9 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { StripeService } from '@modules/payments/stripe.service';
-import { UserAddressBookService } from '@modules/customers/services/user-address-book-service';
-import { Orders } from '../entities/orders.entity';
+import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
+import { Orders } from '../entities/orders.entity';
 
 @Injectable()
 export class TransportationOrdersService {
