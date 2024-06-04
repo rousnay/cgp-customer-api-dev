@@ -7,6 +7,8 @@ import {
   Query,
   NotFoundException,
   UseGuards,
+  Put,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -19,6 +21,7 @@ import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { UserAddressBook } from './user-address-book.entity';
 import { CreateUserAddressDto } from './create-user-address.dto';
 import { UserAddressBookService } from './user-address-book-service';
+import { UpdateUserAddressDto } from './update-user-address.dto';
 
 @ApiTags("Customer's Address Book")
 @Controller('customers-addresses')
@@ -94,6 +97,40 @@ export class UserAddressBookController {
       status: 'success',
       message: 'Address fetched successfully',
       data: address,
+    };
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Update an address by id' })
+  async updateAddress(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateAddressDto: UpdateUserAddressDto,
+  ): Promise<{ status: string; message: string; data: UserAddressBook }> {
+    const result = await this.addressBookService.updateAddressById(
+      id,
+      updateAddressDto,
+    );
+    return {
+      status: 'success',
+      message: 'The Address has been updated successfully',
+      data: result,
+    };
+  }
+
+  @Put('set-default/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Set an address as default by id' })
+  async setDefaultAddress(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ status: string; message: string; data: UserAddressBook }> {
+    const result = await this.addressBookService.setDefaultAddressById(id);
+    return {
+      status: 'success',
+      message: 'The address has been set as default successfully',
+      data: result,
     };
   }
 }
