@@ -37,9 +37,9 @@ import { NotificationsModule } from './modules/notification/notification.module'
     OrderModule,
     GeoLocationModule,
     PaymentModule,
-    LocationModule,
-    ChatModule,
-    NotificationsModule,
+    // LocationModule,
+    // ChatModule,
+    // NotificationsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),

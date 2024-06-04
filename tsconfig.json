@@ -18,10 +18,10 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  //  "exclude": [
-  //   "node_modules",
-  //   "test",  // Example: Excluding the "test" folder
-  //   "dist",
-  //   "_codes"
-  // ]
+   "exclude": [
+    "node_modules",
+    "test",  // Example: Excluding the "test" folder
+    "dist",
+    "_codes"
+  ]
 }
