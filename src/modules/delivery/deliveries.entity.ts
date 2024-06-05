@@ -43,6 +43,9 @@ export class Deliveries {
   customer_id: number;
 
   @Column({ nullable: true })
+  warehouse_id: number;
+
+  @Column({ nullable: true })
   order_id: number;
 
   @Column({ nullable: true })
