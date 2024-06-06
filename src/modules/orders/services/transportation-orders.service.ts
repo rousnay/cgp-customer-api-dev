@@ -7,6 +7,7 @@ import { StripeService } from '@modules/payments/services/stripe.service';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
 import { Orders } from '../entities/orders.entity';
+import { Deliveries } from '@modules/delivery/deliveries.entity';
 
 @Injectable()
 export class TransportationOrdersService {
@@ -17,8 +18,9 @@ export class TransportationOrdersService {
     private readonly userAddressBookService: UserAddressBookService, // Inject StripeService
     private readonly stripeService: StripeService, // Inject StripeService
     @Inject(REQUEST) private readonly request: Request,
+    @InjectRepository(Deliveries)
+    private readonly deliveriesRepository: Repository<Deliveries>,
   ) {}
-
   async create(
     payment_client: string,
     createTransportationOrderDto: CreateTransportationOrderDto,
@@ -43,7 +45,18 @@ export class TransportationOrdersService {
       createTransportationOrderDto.shipping_address,
     );
 
+    const savedOrder = await this.transportationOrdersRepository.save(order);
+
+    const savedDelivery = await this.deliveriesRepository.save({
+      customer_id: customer?.id,
+      order_id: savedOrder?.id,
+      init_distance: createTransportationOrderDto?.distance,
+      init_duration: createTransportationOrderDto?.duration,
+      delivery_charge: createTransportationOrderDto?.total_cost,
+    });
+
     const processPayment = {
+      order_id: savedOrder.id,
       payable_amount: order.payable_amount,
       shipping_address: createTransportationOrderDto.shipping_address,
       pickup_address_coordinates:
@@ -66,29 +79,28 @@ export class TransportationOrdersService {
         );
     } else if (payment_client === 'app') {
       stripeClientSecret = await this.stripeService.createPaymentIntent(
-        order.payable_amount,
+        processPayment,
       );
     }
 
-    const orderSave = await this.transportationOrdersRepository.save(order);
-
     const orderInfo = {
-      id: orderSave.id,
-      customer_id: orderSave.customer_id,
+      id: savedOrder.id,
+      customer_id: savedOrder.customer_id,
       pickup_address_id: pickupAddress?.id,
       shipping_address_id: shippingAddress?.id,
-      vehicle_type_id: orderSave.vehicle_type_id,
-      total_cost: orderSave.total_cost,
-      gst: orderSave.gst,
-      payable_amount: orderSave.payable_amount,
-      payment_id: orderSave.payment_id,
-      order_status: orderSave.order_status,
-      created_at: orderSave.created_at,
-      updated_at: orderSave.updated_at,
+      vehicle_type_id: savedOrder.vehicle_type_id,
+      total_cost: savedOrder.total_cost,
+      gst: savedOrder.gst,
+      payable_amount: savedOrder.payable_amount,
+      payment_id: savedOrder.payment_id,
+      order_status: savedOrder.order_status,
+      created_at: savedOrder.created_at,
+      updated_at: savedOrder.updated_at,
     };
 
     return {
       order: orderInfo,
+      delivery: savedDelivery,
       session: stripeSession,
       client_secret: stripeClientSecret,
     };

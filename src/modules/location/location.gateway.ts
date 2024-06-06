@@ -29,19 +29,6 @@ export class LocationGateway {
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  @SubscribeMessage('updateLocation')
-  async handleLocationUpdate(
-    client: Socket,
-    payload: { riderId: number; latitude: number; longitude: number },
-  ) {
-    const location = await this.locationService.updateLocation(
-      payload.riderId,
-      payload.latitude,
-      payload.longitude,
-    );
-    this.server.emit('locationUpdated', location);
-  }
-
   @SubscribeMessage('getLocation')
   async handleGetLocation(client: Socket, riderId: number) {
     this.logger.log(`Handling getLocation for riderId: ${riderId}`);

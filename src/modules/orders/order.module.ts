@@ -17,6 +17,7 @@ import { TransportationCostCalculationService } from './services/transportation-
 import { TransportationVehiclesController } from './controllers/transportation-vehicles.controller';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
 import { TransportationOrdersController } from './controllers/transportation-orders.controller';
+import { Deliveries } from '@modules/delivery/deliveries.entity';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TransportationOrdersController } from './controllers/transportation-ord
     TypeOrmModule.forFeature([
       Orders,
       OrderDetails,
+      Deliveries,
       Cart,
       TransportationVehiclesService,
       TransportationOrdersService,

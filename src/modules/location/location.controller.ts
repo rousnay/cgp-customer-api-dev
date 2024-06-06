@@ -28,29 +28,13 @@ import {
   UpdateLocationOfRiderSwagger,
 } from './decorators/swagger-decorators';
 
-@ApiTags('Locations')
-@Controller('locations')
+@ApiTags("Riders's Locations")
+@Controller('rider-locations')
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
-  @GetLocationOfRiderSwagger()
-  @Get('rider/:riderId')
-  async getLocation(@Param('riderId') riderId: number): Promise<Location> {
-    return this.locationService.getLocation(riderId);
-  }
-
-  @UpdateLocationOfRiderSwagger()
-  @Put('rider/:riderId')
-  async updateLocation(
-    @Param('riderId') riderId: number,
-    @Body() updateLocationDto: { latitude: number; longitude: number },
-  ): Promise<Location> {
-    const { latitude, longitude } = updateLocationDto;
-    return this.locationService.updateLocation(riderId, latitude, longitude);
-  }
-
   @GetNearbyRidersSwagger()
-  @Get('nearby-riders')
+  @Get('nearby')
   async getNearbyRiders(
     @Query('latitude', ParseFloatPipe) latitude: number,
     @Query('longitude', ParseFloatPipe) longitude: number,
@@ -67,22 +51,9 @@ export class LocationController {
     return this.locationService.getNearbyRiders(latitude, longitude, radius);
   }
 
-  @SimulateLocationsSwagger()
-  @Post('start-simulation')
-  async startSimulation(
-    @Body() coordinatesAndSimulateDto: SetCoordinatesAndSimulateDto,
-  ) {
-    const result = await this.locationService.startSimulation(
-      coordinatesAndSimulateDto,
-    );
-    return result;
-  }
-
-  @Post('stop-simulation')
-  @ApiOperation({
-    summary: 'Stop currently running location simulation.',
-  })
-  stopSimulation() {
-    return this.locationService.stopSimulation();
+  @GetLocationOfRiderSwagger()
+  @Get(':riderId')
+  async getLocation(@Param('riderId') riderId: number): Promise<Location> {
+    return this.locationService.getLocation(riderId);
   }
 }

@@ -6,14 +6,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum ShippingStatus {
-  WAITING = 'waiting',
-  ACCEPTED = 'accepted',
-  PICKED_UP = 'picked_up',
-  IN_TRANSIT = 'in_transit',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-}
+import { ShippingStatus } from '@common/enums/delivery.enum';
+
 
 // export enum OrderType {
 //   PRODUCT_AND_TRANSPORT = 'product_and_transport',

@@ -11,8 +11,8 @@ export const AppConstants = {
     apiBaseUrl: 'https://api.cloudflare.com/client/v4/accounts' as const,
   },
   stripe: {
-    apiBaseUrl: 'https://api.stripe.com/v1' as const,
     apiVersion: '2024-04-10' as const,
+    apiBaseUrl: 'https://api.stripe.com/v1' as const,
     success_url: 'https://raw-bertie-wittyplex.koyeb.app/' as const,
     cancel_url: 'https://raw-bertie-wittyplex.koyeb.app/' as const,
   },

@@ -22,6 +22,9 @@ import { NotificationsModule } from '@modules/notification/notification.module';
 import { ChatModule } from '@modules/chat/chat.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { DeliveryService } from './modules/delivery/delivery.service';
+import { DeliveryController } from './modules/delivery/delivery.controller';
+import { DeliveryModule } from './modules/delivery/delivery.module';
 
 @Module({
   imports: [
@@ -38,16 +41,17 @@ import { AppController } from './app.controller';
     WishListModule,
     CartModule,
     OrderModule,
-    GeoLocationModule,
-    PaymentModule,
     LocationModule,
+    GeoLocationModule,
     NotificationsModule,
+    PaymentModule,
     ChatModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
+    DeliveryModule,
   ],
-  providers: [AppService],
-  controllers: [AppController],
+  providers: [AppService, DeliveryService],
+  controllers: [AppController, DeliveryController],
 })
 export class AppModule {}

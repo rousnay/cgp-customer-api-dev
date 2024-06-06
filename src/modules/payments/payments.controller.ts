@@ -36,7 +36,7 @@ import { StripeService } from './services/stripe.service';
 import { PaymentService } from './services/payments.service';
 
 @Controller('payment')
-@ApiTags('Payment')
+@ApiTags('Payments')
 export class PaymentController {
   constructor(
     private readonly stripeService: StripeService,
@@ -59,6 +59,8 @@ export class PaymentController {
   }
 
   @Post('tokenize')
+  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (token)' })
+  @UseGuards(JwtAuthGuard)
   async tokenizeAndStorePaymentInformation(
     @Body() createPaymentTokenDto: CreatePaymentTokenDto,
   ): Promise<string> {
@@ -68,27 +70,29 @@ export class PaymentController {
   }
 
   @Post('retrieve-method')
+  @ApiOperation({ summary: 'PLEASE IGNORE! UNDER DEVELOPMENT' })
   async retrievePaymentMethod(
     @Body() retrievePaymentMethodDto: RetrievePaymentMethodDto,
   ): Promise<any> {
     return this.paymentService.retrievePaymentMethod(retrievePaymentMethodDto);
   }
 
-  // @Post('webhook-receiver')
-  // @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
-  // async handleStripeWebhook(
-  //   @Headers('stripe-signature') signature: string,
-  //   @Req() req: any,
-  //   @Res() res: any,
-  // ): Promise<void> {
-  //   try {
-  //     const rawPayload = req.rawBody; // Access the raw request body
-  //     await this.stripeService.handleWebhookEvent(rawPayload, signature);
-  //     res.status(200).end();
-  //   } catch (error) {
-  //     // Handle any errors that occur during webhook event handling
-  //     console.error('Error handling webhook event', error.message);
-  //     throw new Error('Error handling webhook event');
-  //   }
-  // }
+  @Post('webhook-receiver')
+  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
+  async handleStripeWebhook(
+    @Headers('stripe-signature') signature: string,
+    @Req() req: any,
+    @Res() res: any,
+  ): Promise<void> {
+    console.log('signature', signature);
+    try {
+      const rawPayload = req.rawBody; // Access the raw request body
+      await this.stripeService.handleWebhookEvent(rawPayload, signature);
+      res.status(200).end();
+    } catch (error) {
+      // Handle any errors that occur during webhook event handling
+      console.error('Error handling webhook event', error.message);
+      throw new Error('Error handling webhook event');
+    }
+  }
 }

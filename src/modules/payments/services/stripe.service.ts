@@ -17,11 +17,43 @@ export class StripeService {
     });
   }
 
+  async findOrCreateCustomer(
+    email: string,
+    name: string,
+    phone: string,
+  ): Promise<Stripe.Customer> {
+    // Find existing customer by email
+    const customers = await this.stripe.customers.list({
+      email: email,
+      limit: 1,
+    });
+
+    if (customers.data.length > 0) {
+      // Customer with email exists
+      return customers.data[0];
+    } else {
+      // Customer with email does not exist, create a new customer
+      const customer = await this.stripe.customers.create({
+        email: email,
+        name: name,
+        phone: phone,
+      });
+      return customer;
+    }
+  }
+
   async createCheckoutSession(
     products: any[],
   ): Promise<Stripe.Checkout.Session> {
+    const user = this.request['user'];
+    const customer = await this.findOrCreateCustomer(
+      user.email,
+      user.name,
+      user.phone,
+    );
     try {
       const session = await this.stripe.checkout.sessions.create({
+        customer: customer?.id, // Reference the customer ID
         payment_method_types: ['card'], // Payment method types allowed (e.g., card)
         line_items: products.map((product) => ({
           price_data: {
@@ -44,11 +76,40 @@ export class StripeService {
     }
   }
 
-  async createPaymentIntent(payableAmount: number): Promise<string> {
+  async createPaymentIntent(order: any): Promise<string> {
+    const user = this.request['user'];
+    const customer = await this.findOrCreateCustomer(
+      user.email,
+      user.name,
+      user.phone,
+    );
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: payableAmount * 100,
+        amount: order.payableAmount * 100,
         currency: 'aud',
+        customer: customer?.id, // Reference the customer ID
+        metadata: {
+          order_id: order?.order_id,
+          pickup_address_coordinates: order?.pickup_address_coordinates,
+          shipping_address_coordinates: order?.shipping_address_coordinates,
+        },
+        shipping: {
+          name:
+            order?.shipping_address?.first_name +
+            ' ' +
+            order?.shipping_address?.last_name,
+          address: {
+            line1: order?.shipping_address?.line1,
+            line2: order?.shipping_address?.line2,
+            city: order?.shipping_address.address?.city,
+            state: order?.shipping_address?.state,
+            postal_code: order?.shipping_address?.postal_code,
+            country: order?.shipping_address?.country,
+          },
+          phone: order?.shipping_address?.phone,
+          carrier: 'CGP Transportation',
+          tracking_number: order?.shipping_address?.tracking_number,
+        },
       });
       return paymentIntent.client_secret;
     } catch (error) {
@@ -76,26 +137,26 @@ export class StripeService {
         // }, // Optional
         description: 'Transportation order customer', // Optional
         metadata: {
-          vehicle_type_id: order.vehicle_type_id,
-          total_cost: order.total_cost,
-          gst: order.gst,
-          payable_amount: order.payable_amount,
-          pickup_address_coordinates: order.pickup_address_coordinates,
-          shipping_address_coordinates: order.shipping_address_coordinates,
+          vehicle_type_id: order?.vehicle_type_id,
+          total_cost: order?.total_cost,
+          gst: order?.gst,
+          payable_amount: order?.payable_amount,
+          pickup_address_coordinates: order?.pickup_address_coordinates,
+          shipping_address_coordinates: order?.shipping_address_coordinates,
         }, // Optional
         shipping: {
           address: {
-            line1: order.shipping_address.address,
-            city: order.shipping_address.city,
-            state: order.shipping_address.state,
-            postal_code: order.shipping_address.postal_code,
+            line1: order?.shipping_address?.address,
+            city: order?.shipping_address?.city,
+            state: order?.shipping_address?.state,
+            postal_code: order?.shipping_address?.postal_code,
             country: 'AU',
           },
           name:
-            order.shipping_address.first_name +
+            order?.shipping_address?.first_name +
             ' ' +
-            order.shipping_address.last_name,
-          phone: order.shipping_address.phone_number_1,
+            order?.shipping_address?.last_name,
+          phone: order?.shipping_address?.phone_number_1,
         }, // Optional
         // payment_method: 'pm_1PE9VPGJkp9au0iQJj9pxwaB', // Optional: Attach an existing payment method
       });
