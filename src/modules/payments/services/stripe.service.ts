@@ -1,23 +1,20 @@
+import { AppConstants } from '@common/constants/constants';
+import { ConfigService } from '@config/config.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import Stripe from 'stripe';
-import { CreateTransportationOrderDto } from '../orders/dtos/create-transportation-order.dto';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
 
-  constructor(@Inject(REQUEST) private readonly request: Request) {
-    const stripeSecretKey =
-      process.env.STRIPE_SECRET_KEY ||
-      'sk_test_51IwUmlIl61pF9onu7EMHKhmQhSTAeMkQBdOYnRLlP1GmfIkH2KLHO0FRdFp1e3oLOcHnKzYSXRjjTRa7YIIYlgQG00e7Jr959f';
-    this.stripe = new Stripe(
-      // this.configService.get('STRIPE_CONFIG.apiKey')
-      stripeSecretKey,
-      {
-        apiVersion: '2024-04-10', // Choose the Stripe API version
-      },
-    );
+  constructor(
+    @Inject(REQUEST) private readonly request: Request,
+    private readonly configService: ConfigService,
+  ) {
+    this.stripe = new Stripe(configService.stripeSecretKey, {
+      apiVersion: AppConstants.stripe.apiVersion,
+    });
   }
 
   async createCheckoutSession(
@@ -37,8 +34,8 @@ export class StripeService {
           quantity: product.quantity,
         })),
         mode: 'payment', // Payment mode (e.g., payment, subscription)
-        success_url: 'https://raw-bertie-wittyplex.koyeb.app/',
-        cancel_url: 'https://raw-bertie-wittyplex.koyeb.app/',
+        success_url: AppConstants.stripe.success_url,
+        cancel_url: AppConstants.stripe.cancel_url,
       });
 
       return session;
@@ -138,8 +135,8 @@ export class StripeService {
         //   '{ "line1": "123 Main St", "city": "San Francisco", "state": "CA", "postal_code": "94105", "country": "US" }',
         customer: customer.id,
         customer_email: order.email,
-        success_url: 'https://raw-bertie-wittyplex.koyeb.app/', // Redirect URL after successful payment
-        cancel_url: 'https://raw-bertie-wittyplex.koyeb.app/', // Redirect URL if payment is canceled
+        success_url: AppConstants.stripe.success_url, // Redirect URL after successful payment
+        cancel_url: AppConstants.stripe.cancel_url, // Redirect URL if payment is canceled
       });
 
       // Return the session ID to redirect the user to Stripe Checkout
@@ -156,17 +153,10 @@ export class StripeService {
   ): Promise<void> {
     try {
       // Verify the webhook signature to ensure it's coming from Stripe
-      //   const webhookSecret = this.configService.get(
-      //     'STRIPE_CONFIG.webhookConfig.stripeSecrets.account',
-      //   );
-      const webhookSecret =
-        process.env.STRIPE_WEBHOOK_SECRET ||
-        'whsec_9c0f4abf9746e0a1f68e0f753a5989586ae6f135cc25699cb4af719793df8372';
-
       const event = this.stripe.webhooks.constructEvent(
         rawPayload,
         signature,
-        webhookSecret,
+        this.configService.stripeWebhookSecret,
       );
 
       // Handle the event based on its type

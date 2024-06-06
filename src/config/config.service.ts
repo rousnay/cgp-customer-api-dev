@@ -5,6 +5,7 @@ import { ConfigService as NestConfigService } from '@nestjs/config';
 export class ConfigService {
   constructor(private configService: NestConfigService) {}
 
+  //App Configurations
   get environment(): string {
     return this.configService.get<string>('environment');
   }
@@ -13,22 +14,11 @@ export class ConfigService {
     return this.configService.get<number>('port');
   }
 
-  get appName(): string {
-    return this.configService.get<string>('app.name');
-  }
-
-  get appDescription(): string {
-    return this.configService.get<string>('app.description');
-  }
-
-  get appVersion(): string {
-    return this.configService.get<string>('app.version');
-  }
-
   get jwtSecret(): string {
     return this.configService.get<string>('jwt.secret');
   }
 
+  //Database Configuration: MySQL
   get mysqlHost(): string {
     return this.configService.get<string>('mysql.host');
   }
@@ -49,10 +39,56 @@ export class ConfigService {
     return this.configService.get<string>('mysql.database');
   }
 
+  //Database Configuration: MongoDB
   get mongodbUri(): string {
     return this.configService.get<string>('mongodb.uri');
   }
 
+  //Google Maps Configuration
+  get googleMapsApiKey(): string {
+    return this.configService.get<string>('googleMapsApiKey');
+  }
+
+  //Cloudflare Configuration
+  get cloudflareAccountId(): string {
+    return this.configService.get<string>('cloudflare.accountId');
+  }
+
+  get cloudflareApiToken(): string {
+    return this.configService.get<string>('cloudflare.apiToken');
+  }
+
+  get cloudflareAccountHash(): string {
+    return this.configService.get<string>('cloudflare.accountHash');
+  }
+
+  //Firebase Configuration
+  get firebaseProjectId(): string {
+    return this.configService.get<string>('firebase.projectId');
+  }
+
+  get firebaseClientEmail(): string {
+    return this.configService.get<string>('firebase.clientEmail');
+  }
+
+  get firebasePrivateKey(): string {
+    return this.configService.get<string>('firebase.privateKey');
+  }
+
+  //Stripe Configuration
+  get stripePublishableKey(): string {
+    return this.configService.get<string>('stripe.publishableKey');
+  }
+
+  get stripeSecretKey(): string {
+    return this.configService.get<string>('stripe.secretKey');
+  }
+
+  get stripeWebhookSecret(): string {
+    return this.configService.get<string>('stripe.webhookSecret');
+  }
+
+  //Logger Configuration
   get loggerLevel(): string {
     return this.configService.get<string>('logger.level');
   }
@@ -67,40 +103,5 @@ export class ConfigService {
 
   get sentryDns(): string {
     return this.configService.get<string>('logger.sentryDns');
-  }
-
-  get stripePublishableKey(): string {
-    return this.configService.get<string>('stripe.publishableKey');
-  }
-
-  get stripeSecretKey(): string {
-    return this.configService.get<string>('stripe.secretKey');
-  }
-
-  get stripeWebhookSecret(): string {
-    return this.configService.get<string>('stripe.webhookSecret');
-  }
-  get cloudflareAccountId(): string {
-    return this.configService.get<string>('cloudflare.accountId');
-  }
-
-  get cloudflareApiToken(): string {
-    return this.configService.get<string>('cloudflare.apiToken');
-  }
-
-  get cloudflareAccountHash(): string {
-    return this.configService.get<string>('cloudflare.accountHash');
-  }
-
-  get firebaseProjectId(): string {
-    return this.configService.get<string>('firebase.projectId');
-  }
-
-  get firebaseClientEmail(): string {
-    return this.configService.get<string>('firebase.clientEmail');
-  }
-
-  get firebasePrivateKey(): string {
-    return this.configService.get<string>('firebase.privateKey');
   }
 }

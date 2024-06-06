@@ -1,15 +1,13 @@
-// payment/payment.module.ts
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { StripeService } from './stripe.service';
+import { ConfigModule } from '@config/config.module';
+import { StripeService } from './services/stripe.service';
 import { PaymentService } from './services/payments.service';
 import { PaymentToken } from './entities/payment-token.entity';
 import { PaymentController } from './payments.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PaymentToken]), ConfigModule],
+  imports: [ConfigModule, TypeOrmModule.forFeature([PaymentToken])],
   providers: [StripeService, PaymentService],
   controllers: [PaymentController],
 })

@@ -1,11 +1,12 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication } from '@nestjs/common';
+import { AppConstants } from '@common/constants/constants';
 
 export function configSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
-    .setTitle(process.env.APP_NAME)
-    .setDescription(process.env.APP_DESCRIPTION)
-    .setVersion(process.env.APP_VERSION)
+    .setTitle(AppConstants.app.name)
+    .setDescription(AppConstants.app.description)
+    .setVersion(AppConstants.app.version)
     // .addTag('The Documentation')
     // .addServer('http://localhost:3000/', 'Local environment')
     // .addServer('https://demography-api.vercel.app/', 'Staging')

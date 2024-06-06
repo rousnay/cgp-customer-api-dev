@@ -15,18 +15,22 @@ import {
 import { Orders } from '../entities/orders.entity';
 import { CalculateTransportationCostDto } from '../dtos/calculate-transportation-cost.dto';
 import { TransportationVehiclesService } from '../services/transportation-vehicles.service';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class TransportationCostCalculationService {
   private readonly googleMapsClient: Client;
+  private readonly googleMapsApiKey: string;
   constructor(
     @Inject(REQUEST) private readonly request: Request,
 
     @InjectRepository(Orders)
     private readonly transportationOrdersRepository: Repository<Orders>,
     private readonly transportationVehiclesService: TransportationVehiclesService,
+    configService: ConfigService,
   ) {
     this.googleMapsClient = new Client({});
+    this.googleMapsApiKey = configService.googleMapsApiKey;
   }
 
   async calculate(
@@ -50,7 +54,7 @@ export class TransportationCostCalculationService {
         params: {
           origins: [calculateTransportationCostDto.pickup_coordinates],
           destinations: [calculateTransportationCostDto.shipping_coordinates],
-          key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c',
+          key: this.googleMapsApiKey,
         },
       });
 

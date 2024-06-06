@@ -6,6 +6,8 @@ import Stripe from 'stripe';
 import { CreatePaymentTokenDto } from '../dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from '../dtos/retrieve-payment-method.dto';
 import { PaymentToken } from '../entities/payment-token.entity';
+import { ConfigService } from '@config/config.service';
+import { AppConstants } from '@common/constants/constants';
 
 @Injectable()
 export class PaymentService {
@@ -14,12 +16,10 @@ export class PaymentService {
   constructor(
     @InjectRepository(PaymentToken)
     private paymentTokenRepository: Repository<PaymentToken>,
+    private readonly configService: ConfigService,
   ) {
-    const stripeSecretKey =
-      process.env.STRIPE_SECRET_KEY ||
-      'sk_test_51PE2ezGJkp9au0iQvH2fEFk2YP2IXDwgMCP71xwuoem6cssGg6dKkKk8SMhsz5EzbzYkcwdpNzr7oV689IbtF0Nr00UdZYlfrE';
-    this.stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2024-04-10',
+    this.stripe = new Stripe(configService.stripeSecretKey, {
+      apiVersion: AppConstants.stripe.apiVersion,
     });
   }
 
