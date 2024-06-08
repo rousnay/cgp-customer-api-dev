@@ -23,6 +23,9 @@ import { ConfigService } from '@config/config.service';
         // entities: [join(__dirname, '**', '*.entity.{ts,js}')],
         synchronize: true,
         ssl: false,
+        extra: {
+          connectionLimit: 10, // Use connection pooling
+        },
         // ssl: {
         //   rejectUnauthorized: true,
         // },

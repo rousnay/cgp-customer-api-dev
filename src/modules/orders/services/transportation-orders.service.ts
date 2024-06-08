@@ -98,6 +98,8 @@ export class TransportationOrdersService {
       updated_at: savedOrder.updated_at,
     };
 
+    console.log('orderInfo', orderInfo);
+
     return {
       order: orderInfo,
       delivery: savedDelivery,
