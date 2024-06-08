@@ -32,31 +32,12 @@ import {
 import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
-import { StripeService } from './services/stripe.service';
-import { PaymentService } from './services/payments.service';
+import { PaymentService } from './payments.service';
 
 @Controller('payment')
 @ApiTags('Payments')
 export class PaymentController {
-  constructor(
-    private readonly stripeService: StripeService,
-    private readonly paymentService: PaymentService,
-  ) {}
-
-  @Post('create-checkout-session')
-  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (session)' })
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access_token')
-  async createCheckoutSession(@Body() products: any[]): Promise<any> {
-    try {
-      const session = await this.stripeService.createCheckoutSession(products);
-      return { sessionId: session.id };
-    } catch (error) {
-      // Handle any errors that occur during session creation
-      console.error('Error creating checkout session:', error.message);
-      throw new Error('Error creating checkout session');
-    }
-  }
+  constructor(private readonly paymentService: PaymentService) {}
 
   @Post('tokenize')
   @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (token)' })
@@ -77,6 +58,24 @@ export class PaymentController {
     return this.paymentService.retrievePaymentMethod(retrievePaymentMethodDto);
   }
 
+  @Put('update-payment-status')
+  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        stripe_id: { type: 'string', example: 'stripe_12345' },
+        payment_status: { type: 'string', example: 'succeeded' },
+      },
+    },
+  })
+  async updatePaymentStatus(
+    @Body('stripe_id') stripe_id: string,
+    @Body('payment_status') payment_status: string,
+  ): Promise<number> {
+    return this.paymentService.updatePaymentStatus(stripe_id, payment_status);
+  }
+
   @Post('webhook-receiver')
   @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
   async handleStripeWebhook(
@@ -87,7 +86,7 @@ export class PaymentController {
     console.log('signature', signature);
     try {
       const rawPayload = req.rawBody; // Access the raw request body
-      await this.stripeService.handleWebhookEvent(rawPayload, signature);
+      await this.paymentService.handleWebhookEvent(rawPayload, signature);
       res.status(200).end();
     } catch (error) {
       // Handle any errors that occur during webhook event handling

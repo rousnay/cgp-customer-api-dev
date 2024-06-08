@@ -3,9 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
 import { ConfigModule } from '@config/config.module';
-import { StripeService } from '@modules/payments/services/stripe.service';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
+import { PaymentService } from '@modules/payments/payments.service';
+import { PaymentToken } from '@modules/payments/entities/payment-token.entity';
+import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { Cart } from '@modules/cart/cart.entity';
 import { Orders } from './entities/orders.entity';
 import { OrderDetails } from './entities/order_details.entity';
@@ -17,7 +19,6 @@ import { TransportationCostCalculationService } from './services/transportation-
 import { TransportationVehiclesController } from './controllers/transportation-vehicles.controller';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
 import { TransportationOrdersController } from './controllers/transportation-orders.controller';
-import { Deliveries } from '@modules/delivery/deliveries.entity';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { Deliveries } from '@modules/delivery/deliveries.entity';
       TransportationCostCalculationService,
       UserAddressBook,
       UserAddressBookService,
-      StripeService,
+      PaymentToken,
+      PaymentService,
     ]),
   ],
   exports: [OrderService],
@@ -43,7 +45,7 @@ import { Deliveries } from '@modules/delivery/deliveries.entity';
     TransportationCostCalculationService,
     TransportationOrdersService,
     UserAddressBookService,
-    StripeService,
+    PaymentService,
   ],
   controllers: [
     OrderController,

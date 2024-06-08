@@ -3,20 +3,19 @@ import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { StripeService } from '@modules/payments/services/stripe.service';
+import { PaymentService } from '@modules/payments/payments.service';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
+import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
 import { Orders } from '../entities/orders.entity';
-import { Deliveries } from '@modules/delivery/deliveries.entity';
 
 @Injectable()
 export class TransportationOrdersService {
-  // private readonly stripeService: StripeService;
   constructor(
     @InjectRepository(Orders)
     private readonly transportationOrdersRepository: Repository<Orders>,
-    private readonly userAddressBookService: UserAddressBookService, // Inject StripeService
-    private readonly stripeService: StripeService, // Inject StripeService
+    private readonly userAddressBookService: UserAddressBookService, // Inject PaymentService
+    private readonly paymentService: PaymentService, // Inject PaymentService
     @Inject(REQUEST) private readonly request: Request,
     @InjectRepository(Deliveries)
     private readonly deliveriesRepository: Repository<Deliveries>,
@@ -27,7 +26,8 @@ export class TransportationOrdersService {
   ): Promise<any> {
     const customer = this.request['user'];
     let stripeSession;
-    let stripeClientSecret;
+    let stripePaymentIntent;
+    let stripe_id;
     const order = this.transportationOrdersRepository.create({
       customer_id: customer.id,
       ...createTransportationOrderDto,
@@ -45,18 +45,7 @@ export class TransportationOrdersService {
       createTransportationOrderDto.shipping_address,
     );
 
-    const savedOrder = await this.transportationOrdersRepository.save(order);
-
-    const savedDelivery = await this.deliveriesRepository.save({
-      customer_id: customer?.id,
-      order_id: savedOrder?.id,
-      init_distance: createTransportationOrderDto?.distance,
-      init_duration: createTransportationOrderDto?.duration,
-      delivery_charge: createTransportationOrderDto?.total_cost,
-    });
-
     const processPayment = {
-      order_id: savedOrder.id,
       payable_amount: order.payable_amount,
       shipping_address: createTransportationOrderDto.shipping_address,
       pickup_address_coordinates:
@@ -73,15 +62,36 @@ export class TransportationOrdersService {
     };
 
     if (payment_client === 'web') {
-      stripeSession =
-        await this.stripeService.processTransportationOrderPayment(
-          processPayment,
-        );
-    } else if (payment_client === 'app') {
-      stripeClientSecret = await this.stripeService.createPaymentIntent(
+      stripeSession = await this.paymentService.createCheckoutSession(
         processPayment,
       );
+      stripe_id = stripeSession?.id;
+    } else if (payment_client === 'app') {
+      stripePaymentIntent = await this.paymentService.createPaymentIntent(
+        processPayment,
+      );
+
+      // Remove secret and get only payment Intent
+      const regex = /^(.*?)_secret/;
+      const match = stripePaymentIntent?.client_secret.match(regex);
+      stripe_id = match[1];
     }
+
+    const savedOrder = await this.transportationOrdersRepository.save(order);
+
+    const savedPayment = await this.paymentService.storePaymentStatus(
+      savedOrder?.id,
+      stripe_id,
+      'Pending',
+    );
+
+    const savedDelivery = await this.deliveriesRepository.save({
+      customer_id: customer?.id,
+      order_id: savedOrder?.id,
+      init_distance: createTransportationOrderDto?.distance,
+      init_duration: createTransportationOrderDto?.duration,
+      delivery_charge: createTransportationOrderDto?.total_cost,
+    });
 
     const orderInfo = {
       id: savedOrder.id,
@@ -92,19 +102,17 @@ export class TransportationOrdersService {
       total_cost: savedOrder.total_cost,
       gst: savedOrder.gst,
       payable_amount: savedOrder.payable_amount,
-      payment_id: savedOrder.payment_id,
       order_status: savedOrder.order_status,
       created_at: savedOrder.created_at,
       updated_at: savedOrder.updated_at,
     };
 
-    console.log('orderInfo', orderInfo);
-
     return {
       order: orderInfo,
       delivery: savedDelivery,
+      payment: savedPayment,
       session: stripeSession,
-      client_secret: stripeClientSecret,
+      PaymentIntent: stripePaymentIntent,
     };
   }
 }
