@@ -34,8 +34,12 @@ export default () => ({
   stripe: {
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     secretKey: process.env.STRIPE_SECRET_KEY,
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    webhookUniqueId: process.env.STRIPE_WEBHOOK_UNIQUE_ID,
+    webhookSigningSecretLocal: process.env.STRIPE_WEBHOOK_SIGNING_SECRET_LOCAL,
+    webhookSigningSecretStaging:
+      process.env.STRIPE_WEBHOOK_SIGNING_SECRET_STAGING,
   },
+
   logger: {
     level: process.env.LOGGER_LEVEL || 'info',
     debug: process.env.DEBUG || 'info',

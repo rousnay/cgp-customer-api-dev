@@ -84,8 +84,19 @@ export class ConfigService {
     return this.configService.get<string>('stripe.secretKey');
   }
 
-  get stripeWebhookSecret(): string {
-    return this.configService.get<string>('stripe.webhookSecret');
+  get stripeWebhookUniqueId(): string {
+    return this.configService.get<string>('stripe.webhookUniqueId');
+  }
+
+  get stripeWebhookSigningSecret(): string {
+    const env = this.configService.get<string>('environment');
+    if (env === 'development') {
+      return this.configService.get<string>('stripe.webhookSigningSecretLocal');
+    } else if (env === 'staging') {
+      return this.configService.get<string>(
+        'stripe.webhookSigningSecretStaging',
+      );
+    }
   }
 
   //Logger Configuration

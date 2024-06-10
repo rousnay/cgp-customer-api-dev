@@ -313,7 +313,7 @@ export class PaymentService {
       const event = this.stripe.webhooks.constructEvent(
         rawPayload,
         signature,
-        this.configService.stripeWebhookSecret,
+        this.configService.stripeWebhookSigningSecret,
       );
 
       // Handle the event based on its type
@@ -321,27 +321,23 @@ export class PaymentService {
         case 'payment_intent.canceled':
           const canceledPaymentIntent = event.data
             .object as Stripe.PaymentIntent;
-          // Handle canceled payment event
           console.log('PaymentIntent was canceled:', canceledPaymentIntent.id);
           break;
 
         case 'payment_intent.created':
           const createdPaymentIntent = event.data
             .object as Stripe.PaymentIntent;
-          // Handle created payment event
           console.log('PaymentIntent was created:', createdPaymentIntent.id);
           break;
 
         case 'payment_intent.payment_failed':
           const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
-          // Handle failed payment event
           console.log('PaymentIntent failed:', failedPaymentIntent.id);
           break;
 
         case 'payment_intent.processing':
           const processingPaymentIntent = event.data
             .object as Stripe.PaymentIntent;
-          // Handle processing payment event
           console.log(
             'PaymentIntent is processing:',
             processingPaymentIntent.id,
@@ -350,18 +346,16 @@ export class PaymentService {
 
         case 'payment_intent.succeeded':
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
-          // Handle successful payment event
           console.log('PaymentIntent was successful:', paymentIntent.id);
+          await this.updatePaymentStatus(paymentIntent.id, 'Paid');
           break;
 
         case 'checkout.session.completed':
           const session = event.data.object as Stripe.Checkout.Session;
-          // Update your database with session payment status
           console.log('Checkout session was successful:', session.id);
           await this.updatePaymentStatus(session.id, 'Paid');
           break;
 
-        // Add more cases for other event types as needed
         default:
           console.log('Unhandled event type:', event.type);
       }
