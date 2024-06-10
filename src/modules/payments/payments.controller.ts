@@ -30,6 +30,7 @@ import {
 } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
+import { LocationService } from '@modules/location/location.service';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 import { PaymentService } from './payments.service';
@@ -37,7 +38,10 @@ import { PaymentService } from './payments.service';
 @Controller('payment')
 @ApiTags('Payments')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(
+    private readonly paymentService: PaymentService,
+    private readonly locationService: LocationService,
+  ) {}
 
   @Post('tokenize')
   @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (token)' })
@@ -83,7 +87,8 @@ export class PaymentController {
     @Req() req: any,
     @Res() res: any,
   ): Promise<void> {
-    console.log('signature', signature);
+    // console.log('signature', signature);
+    console.log('webhook-receiver called!');
     try {
       const rawPayload = req.rawBody; // Access the raw request body
       await this.paymentService.handleWebhookEvent(rawPayload, signature);

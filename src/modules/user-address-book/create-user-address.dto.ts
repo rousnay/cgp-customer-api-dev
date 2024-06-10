@@ -39,11 +39,11 @@ export class CreateUserAddressDto {
   @IsOptional()
   country_id: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 23.7995 })
   @IsOptional()
   latitude: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 90.394 })
   @IsOptional()
   longitude: number;
 

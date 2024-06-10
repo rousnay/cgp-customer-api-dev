@@ -6,6 +6,7 @@ import Stripe from 'stripe';
 
 import { ConfigService } from '@config/config.service';
 import { AppConstants } from '@common/constants/constants';
+import { DeliveryService } from '@modules/delivery/delivery.service';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 import { PaymentToken } from './entities/payment-token.entity';
@@ -20,6 +21,7 @@ export class PaymentService {
     private readonly configService: ConfigService,
     @InjectRepository(PaymentToken)
     private paymentTokenRepository: Repository<PaymentToken>,
+    private readonly deliveryService: DeliveryService,
   ) {
     this.stripe = new Stripe(configService.stripeSecretKey, {
       apiVersion: AppConstants.stripe.apiVersion,
@@ -92,11 +94,13 @@ export class PaymentService {
     payment_status: string,
   ): Promise<any> {
     try {
+      console.log('updatePaymentStatus called');
       const updateResult = await this.entityManager
         .createQueryBuilder()
         .update('payments')
         .set({ payment_status })
         .where('stripe_id = :stripe_id', { stripe_id })
+        .andWhere('payment_status != :payment_status', { payment_status })
         .execute();
 
       if (updateResult.affected > 0) {
@@ -110,6 +114,11 @@ export class PaymentService {
           .getRawOne();
 
         if (payment) {
+          console.log('updatePaymentStatus operated successfully');
+          const result = await this.deliveryService.sendDeliveryRequest(
+            stripe_id,
+          );
+          console.log(result);
           return payment;
         }
         return null;

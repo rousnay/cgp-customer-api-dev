@@ -19,6 +19,10 @@ import { TransportationCostCalculationService } from './services/transportation-
 import { TransportationVehiclesController } from './controllers/transportation-vehicles.controller';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
 import { TransportationOrdersController } from './controllers/transportation-orders.controller';
+import { DeliveryService } from '@modules/delivery/delivery.service';
+import { LocationService } from '@modules/location/location.service';
+import { LocationSchema } from '@modules/location/schemas/location.schema';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -37,6 +41,7 @@ import { TransportationOrdersController } from './controllers/transportation-ord
       PaymentToken,
       PaymentService,
     ]),
+    MongooseModule.forFeature([{ name: 'Location', schema: LocationSchema }]),
   ],
   exports: [OrderService],
   providers: [
@@ -46,6 +51,8 @@ import { TransportationOrdersController } from './controllers/transportation-ord
     TransportationOrdersService,
     UserAddressBookService,
     PaymentService,
+    DeliveryService,
+    LocationService
   ],
   controllers: [
     OrderController,

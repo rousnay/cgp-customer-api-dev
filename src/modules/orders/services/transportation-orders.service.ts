@@ -28,14 +28,6 @@ export class TransportationOrdersService {
     let stripeSession;
     let stripePaymentIntent;
     let stripe_id;
-    const order = this.transportationOrdersRepository.create({
-      customer_id: customer.id,
-      ...createTransportationOrderDto,
-    });
-
-    if (!order) {
-      throw new Error('Transportation order not created');
-    }
 
     const pickupAddress = await this.userAddressBookService.createAddress(
       createTransportationOrderDto.pickup_address,
@@ -44,6 +36,17 @@ export class TransportationOrdersService {
     const shippingAddress = await this.userAddressBookService.createAddress(
       createTransportationOrderDto.shipping_address,
     );
+
+    const order = this.transportationOrdersRepository.create({
+      customer_id: customer.id,
+      pickup_address_id: pickupAddress?.id,
+      shipping_address_id: shippingAddress?.id,
+      ...createTransportationOrderDto,
+    });
+
+    if (!order) {
+      throw new Error('Transportation order not created');
+    }
 
     const processPayment = {
       payable_amount: order.payable_amount,
@@ -95,16 +98,16 @@ export class TransportationOrdersService {
 
     const orderInfo = {
       id: savedOrder.id,
-      customer_id: savedOrder.customer_id,
-      pickup_address_id: pickupAddress?.id,
-      shipping_address_id: shippingAddress?.id,
-      vehicle_type_id: savedOrder.vehicle_type_id,
-      total_cost: savedOrder.total_cost,
-      gst: savedOrder.gst,
-      payable_amount: savedOrder.payable_amount,
-      order_status: savedOrder.order_status,
-      created_at: savedOrder.created_at,
-      updated_at: savedOrder.updated_at,
+      customer_id: savedOrder?.customer_id,
+      pickup_address_id: savedOrder?.pickup_address_id,
+      shipping_address_id: savedOrder?.shipping_address_id,
+      vehicle_type_id: savedOrder?.vehicle_type_id,
+      total_cost: savedOrder?.total_cost,
+      gst: savedOrder?.gst,
+      payable_amount: savedOrder?.payable_amount,
+      order_status: savedOrder?.order_status,
+      created_at: savedOrder?.created_at,
+      updated_at: savedOrder?.updated_at,
     };
 
     return {

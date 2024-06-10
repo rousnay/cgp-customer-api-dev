@@ -16,15 +16,13 @@ import { SearchModule } from '@modules/search/search.module';
 import { WishListModule } from '@modules/wishlist/wishlist.module';
 import { CartModule } from '@modules/cart/cart.module';
 import { OrderModule } from '@modules/orders/order.module';
+import { DeliveryModule } from '@modules/delivery/delivery.module';
 import { PaymentModule } from '@modules/payments/payments.module';
 import { LocationModule } from '@modules/location/location.module';
 import { NotificationsModule } from '@modules/notification/notification.module';
 import { ChatModule } from '@modules/chat/chat.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
-import { DeliveryService } from './modules/delivery/delivery.service';
-import { DeliveryController } from './modules/delivery/delivery.controller';
-import { DeliveryModule } from './modules/delivery/delivery.module';
 
 @Module({
   imports: [
@@ -41,6 +39,7 @@ import { DeliveryModule } from './modules/delivery/delivery.module';
     WishListModule,
     CartModule,
     OrderModule,
+    DeliveryModule,
     LocationModule,
     GeoLocationModule,
     NotificationsModule,
@@ -49,9 +48,8 @@ import { DeliveryModule } from './modules/delivery/delivery.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
-    DeliveryModule,
   ],
-  providers: [AppService, DeliveryService],
-  controllers: [AppController, DeliveryController],
+  providers: [AppService],
+  controllers: [AppController],
 })
 export class AppModule {}
