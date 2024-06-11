@@ -11,13 +11,15 @@ export class NotificationService {
   ) {}
 
   async createNotification(
-    userId: string,
+    userId: number,
+    device_tokens: string[],
     title: string,
     message: string,
-    data?: string,
+    data?: object,
   ): Promise<Notification> {
     const newNotification = new this.notificationModel({
       userId,
+      device_tokens,
       title,
       message,
       data,

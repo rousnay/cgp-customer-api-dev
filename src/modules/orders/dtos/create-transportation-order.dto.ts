@@ -10,12 +10,10 @@ export class CreateTransportationOrderDto {
   shipping_address?: CreateUserAddressDto;
 
   @IsOptional()
-  @IsNumber()
   @ApiProperty({ required: false })
   distance?: number;
 
   @IsOptional()
-  @IsNumber()
   @ApiProperty({ required: false })
   duration?: number;
 

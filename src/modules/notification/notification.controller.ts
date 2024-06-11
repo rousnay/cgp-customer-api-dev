@@ -6,7 +6,6 @@ import { SendNotificationDto } from './dtos/send-notification.dto';
 import { SendDeliveryRequestNotificationDto } from './dtos/delivery-request-notification.dto';
 import { NotificationService } from './notification.service';
 
-
 @ApiTags('Notifications')
 @Controller('notifications')
 export class NotificationsController {
@@ -28,14 +27,12 @@ export class NotificationsController {
         title: sendNotificationDto.title,
         body: sendNotificationDto.message,
       },
-      data: sendNotificationDto.data
-        ? { customData: sendNotificationDto.data }
-        : undefined,
+      data: { ...sendNotificationDto.data },
     };
 
     // Send the notification to multiple devices
     const response = await this.firebaseAdminService.sendNotification(
-      sendNotificationDto.tokens,
+      sendNotificationDto.deviceTokens,
       payload,
     );
 
@@ -45,6 +42,7 @@ export class NotificationsController {
     // Store the notification
     await this.notificationService.createNotification(
       sendNotificationDto.userId,
+      sendNotificationDto.deviceTokens,
       sendNotificationDto.title,
       sendNotificationDto.message,
       sendNotificationDto.data,
@@ -72,16 +70,15 @@ export class NotificationsController {
         title: sendDeliveryRequestNotificationDto.title,
         body: sendDeliveryRequestNotificationDto.message,
       },
-      data: sendDeliveryRequestNotificationDto.data
-        ? { customData: sendDeliveryRequestNotificationDto.data }
-        : undefined,
+      data: { ...sendDeliveryRequestNotificationDto.data },
     };
 
     // Send the notification to all riders
-    const response = await this.firebaseAdminService.sendNotification(
-      sendDeliveryRequestNotificationDto.tokens,
-      payload,
-    );
+    const response =
+      await this.firebaseAdminService.sendDeliveryRequestNotification(
+        sendDeliveryRequestNotificationDto.deviceTokens,
+        payload,
+      );
 
     // Log or handle the response if needed
     console.log('FCM Response:', response);
@@ -89,6 +86,7 @@ export class NotificationsController {
     // Store the notification
     await this.notificationService.createNotification(
       sendDeliveryRequestNotificationDto.userId,
+      sendDeliveryRequestNotificationDto.deviceTokens,
       sendDeliveryRequestNotificationDto.title,
       sendDeliveryRequestNotificationDto.message,
       sendDeliveryRequestNotificationDto.data,

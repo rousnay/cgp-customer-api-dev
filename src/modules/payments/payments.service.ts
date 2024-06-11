@@ -118,7 +118,13 @@ export class PaymentService {
           const result = await this.deliveryService.sendDeliveryRequest(
             stripe_id,
           );
-          console.log(result);
+
+
+
+
+
+
+          
           return payment;
         }
         return null;

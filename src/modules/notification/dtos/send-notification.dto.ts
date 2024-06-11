@@ -3,16 +3,16 @@ import { ApiProperty } from '@nestjs/swagger';
 export class SendNotificationDto {
   @ApiProperty({
     description: 'User ID of the recipient',
-    example: 'user123',
+    example: '123',
   })
-  userId: string;
+  userId: number;
 
   @ApiProperty({
     description: 'Device tokens to send the notification to',
     example: ['device_token1', 'device_token2'],
     type: [String],
   })
-  tokens: string[];
+  deviceTokens: string[];
 
   @ApiProperty({
     description: 'Title of the notification',
@@ -22,14 +22,15 @@ export class SendNotificationDto {
 
   @ApiProperty({
     description: 'Message body of the notification',
-    example: 'This is a personal notification just for you!',
+    example: 'Your order has been accepted by warehouse!',
   })
   message: string;
 
   @ApiProperty({
-    description: 'Additional data for the notification',
-    example: 'Some additional data',
+    description: 'Additional data as a JSON object for the notification',
+    example:
+      '{"target": "customer", "customerId": 123, "type": "order", "orderId": 123}',
     required: false,
   })
-  data?: string;
+  data?: object;
 }

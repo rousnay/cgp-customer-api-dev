@@ -12,6 +12,7 @@ export const NotificationSchema = new Schema({
 export interface Notification extends Document {
   id: string;
   userId: string;
+  device_tokens: string[];
   title: string;
   message: string;
   data?: string;

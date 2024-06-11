@@ -40,6 +40,7 @@ export class LocationService {
               $centerSphere: [[longitude, latitude], radius / 6371], // radius converted to radians
             },
           },
+          isActive: true,
         })
         .exec();
 
