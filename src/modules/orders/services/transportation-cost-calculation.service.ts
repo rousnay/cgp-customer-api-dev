@@ -2,20 +2,16 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Console } from 'console';
 
 import {
   Client,
-  LatLngLiteral,
-  GeocodeResponse,
-  Status,
   DistanceMatrixResponse,
 } from '@googlemaps/google-maps-services-js';
+import { ConfigService } from '@config/config.service';
 
 import { Orders } from '../entities/orders.entity';
 import { CalculateTransportationCostDto } from '../dtos/calculate-transportation-cost.dto';
 import { TransportationVehiclesService } from '../services/transportation-vehicles.service';
-import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class TransportationCostCalculationService {
@@ -49,6 +45,9 @@ export class TransportationCostCalculationService {
         'No location has been found with given coordinates',
       );
     }
+
+    console.log('google maps api key: ' + this.googleMapsApiKey);
+
     const response: DistanceMatrixResponse =
       await this.googleMapsClient.distancematrix({
         params: {

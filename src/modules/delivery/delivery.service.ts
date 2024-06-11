@@ -18,11 +18,14 @@ export class DeliveryService {
     `;
 
     const userMappings = await this.entityManager.query(userIdQuery);
+    console.log('userMappings', userMappings);
+
     const userIds = userMappings.map((mapping) => mapping.userId);
 
     if (userIds.length === 0) {
       return [];
     }
+    console.log('userIds', userIds);
 
     const deviceTokensQuery = `
       SELECT user_id AS userId, device_token AS deviceToken
@@ -34,18 +37,26 @@ export class DeliveryService {
       deviceTokensQuery,
     );
 
+    console.log('deviceTokensQuery', deviceTokensQuery);
+
     const userDeviceTokensMap = deviceTokensMappings.reduce((acc, token) => {
       if (!acc[token.userId]) {
         acc[token.userId] = [];
       }
-      acc[token.userId].push(token.deviceToken);
+      if (!acc[token.userId].includes(token.deviceToken)) {
+        acc[token.userId].push(token.deviceToken);
+      }
       return acc;
     }, {});
+
+    console.log('userDeviceTokensMap', userDeviceTokensMap);
 
     const riderDeviceTokens = userMappings.map((mapping) => ({
       riderId: mapping.riderId,
       deviceTokens: userDeviceTokensMap[mapping.userId] || [],
     }));
+
+    console.log('riderDeviceTokens', riderDeviceTokens);
 
     return riderDeviceTokens;
   }
@@ -69,12 +80,13 @@ export class DeliveryService {
         longitude,
         15,
       );
-      console.log(nearByRiders);
+      console.log('nearByRiders', nearByRiders);
 
       const riderIds = nearByRiders.map((rider) => rider.riderId);
-      const riderDeviceTokens = await this.getRiderDeviceTokens(riderIds);
+      console.log('riderIds', riderIds);
 
-      
+      const riderDeviceTokens = await this.getRiderDeviceTokens(riderIds);
+      console.log('riderDeviceTokens', riderDeviceTokens);
 
       return riderDeviceTokens;
 

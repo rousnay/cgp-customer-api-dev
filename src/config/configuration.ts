@@ -15,8 +15,8 @@ export default () => ({
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/test',
   },
 
-  googleMap: {
-    apiKey: process.env.GOOGLE_MAP_API_KEY,
+  google: {
+    mapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
   },
 
   cloudflare: {

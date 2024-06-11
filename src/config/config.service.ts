@@ -46,7 +46,7 @@ export class ConfigService {
 
   //Google Maps Configuration
   get googleMapsApiKey(): string {
-    return this.configService.get<string>('googleMapsApiKey');
+    return this.configService.get<string>('google.mapsApiKey');
   }
 
   //Cloudflare Configuration
