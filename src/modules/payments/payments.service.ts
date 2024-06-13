@@ -119,12 +119,6 @@ export class PaymentService {
             stripe_id,
           );
 
-
-
-
-
-
-          
           return payment;
         }
         return null;

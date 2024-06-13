@@ -1,9 +1,10 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { v4 as uuidv4 } from 'uuid';
 
 import { FirebaseAdminService } from '@services/firebase-admin.service';
 import { SendNotificationDto } from './dtos/send-notification.dto';
-import { SendDeliveryRequestNotificationDto } from './dtos/delivery-request-notification.dto';
+import { SendDeliveryRequestNotificationDto } from './dtos/send-delivery-request-notification.dto';
 import { NotificationService } from './notification.service';
 
 @ApiTags('Notifications')
@@ -27,6 +28,7 @@ export class NotificationsController {
         title: sendNotificationDto.title,
         body: sendNotificationDto.message,
       },
+      // data: JSON.stringify(sendNotificationDto.data)
       data: { ...sendNotificationDto.data },
     };
 
@@ -65,36 +67,33 @@ export class NotificationsController {
     @Body()
     sendDeliveryRequestNotificationDto: SendDeliveryRequestNotificationDto,
   ) {
-    const payload = {
-      notification: {
-        title: sendDeliveryRequestNotificationDto.title,
-        body: sendDeliveryRequestNotificationDto.message,
-      },
-      data: { ...sendDeliveryRequestNotificationDto.data },
+    const messageId = uuidv4();
+    const fcmData = {
+      ...sendDeliveryRequestNotificationDto.data,
+      messageId: messageId, // Add the message ID to the data payload
     };
-
-    // Send the notification to all riders
-    const response =
+    const fcmMessageId =
       await this.firebaseAdminService.sendDeliveryRequestNotification(
-        sendDeliveryRequestNotificationDto.deviceTokens,
-        payload,
+        sendDeliveryRequestNotificationDto.deviceToken,
+        sendDeliveryRequestNotificationDto.title,
+        sendDeliveryRequestNotificationDto.message,
+        fcmData,
       );
 
-    // Log or handle the response if needed
-    console.log('FCM Response:', response);
+    console.log('FCM Response:', fcmMessageId);
 
     // Store the notification
-    await this.notificationService.createNotification(
-      sendDeliveryRequestNotificationDto.userId,
-      sendDeliveryRequestNotificationDto.deviceTokens,
-      sendDeliveryRequestNotificationDto.title,
-      sendDeliveryRequestNotificationDto.message,
-      sendDeliveryRequestNotificationDto.data,
+    await this.notificationService.createDeliveryRequestNotification(
+      messageId,
+      sendDeliveryRequestNotificationDto.requestedByUserId,
+      sendDeliveryRequestNotificationDto.riderId,
+      sendDeliveryRequestNotificationDto.requestId,
+      sendDeliveryRequestNotificationDto.deviceToken,
     );
 
     return {
       message: 'Delivery request notifications sent and stored',
-      response,
+      fcmMessageId,
     };
   }
 }

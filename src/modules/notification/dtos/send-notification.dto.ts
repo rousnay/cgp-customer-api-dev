@@ -29,7 +29,7 @@ export class SendNotificationDto {
   @ApiProperty({
     description: 'Additional data as a JSON object for the notification',
     example:
-      '{"target": "customer", "customerId": 123, "type": "order", "orderId": 123}',
+      '{"target": "customer", "customerId": "123", "type": "order", "orderId": "123"}',
     required: false,
   })
   data?: object;

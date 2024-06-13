@@ -15,7 +15,7 @@ export interface Notification extends Document {
   device_tokens: string[];
   title: string;
   message: string;
-  data?: string;
+  data?: object;
   isRead: boolean;
   createdAt: Date;
 }

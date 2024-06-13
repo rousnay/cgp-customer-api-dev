@@ -28,6 +28,7 @@ export class FirebaseAdminService {
       tokens,
       notification: payload.notification,
       data: payload.data,
+      // data: JSON.stringify(payload.data),
     };
 
     return await this.app.messaging().sendEachForMulticast(message);
@@ -47,15 +48,31 @@ export class FirebaseAdminService {
   }
 
   async sendDeliveryRequestNotification(
-    tokens: string[],
-    payload: admin.messaging.MessagingPayload,
-  ): Promise<admin.messaging.BatchResponse> {
-    const message: admin.messaging.MulticastMessage = {
-      tokens,
-      notification: payload.notification,
-      data: payload.data,
+    token: string,
+    title: string,
+    message: string,
+    data: { [key: string]: string },
+    // payload: admin.messaging.MessagingPayload,
+  ): Promise<any> {
+    const payload = {
+      notification: {
+        title: title,
+        body: message,
+      },
+      data: data,
     };
 
-    return await this.app.messaging().sendEachForMulticast(message);
+    try {
+      const response = await admin.messaging().send({
+        token: token,
+        ...payload,
+      });
+      console.log('Successfully sent message:', response);
+      // Extract the message ID from the response
+      const messageId = response.split('/').pop();
+      return messageId;
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   }
 }
