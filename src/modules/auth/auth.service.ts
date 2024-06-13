@@ -463,7 +463,7 @@ export class AuthService {
 
         //get customer data by user_id
         const customer = await this.customerRepository.findOne({
-          where: { user_id: user?.user_id },
+          where: { user_id: user?.id },
         });
 
         return {
