@@ -2,8 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { FirebaseAdminService } from '@services/firebase-admin.service';
 import { Notification } from './notification.schema';
 import { DeliveryRequestNotification } from './delivery-request-notification.schema';
+
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class NotificationService {
@@ -11,6 +14,7 @@ export class NotificationService {
     @InjectModel('Notification') private notificationModel: Model<Notification>,
     @InjectModel('DeliveryRequestNotification')
     private deliveryRequestNotificationModel: Model<DeliveryRequestNotification>,
+    private readonly firebaseAdminService: FirebaseAdminService,
   ) {}
 
   async createNotification(
@@ -30,6 +34,42 @@ export class NotificationService {
     return await newNotification.save();
   }
 
+  async sendAndStoreDeliveryRequestNotification(
+    deviceToken: string,
+    requestedByUserId: number,
+    riderId: number,
+    requestId: number,
+    title: string,
+    message: string,
+    data: any,
+  ) {
+    const messageId = uuidv4();
+    const fcmData = {
+      ...data,
+      messageId: messageId, // Add the message ID to the data payload
+    };
+
+    const fcmMessageId =
+      await this.firebaseAdminService.sendDeliveryRequestNotification(
+        deviceToken,
+        title,
+        message,
+        fcmData,
+      );
+
+    console.log('FCM Response:', fcmMessageId);
+
+    await this.createDeliveryRequestNotification(
+      messageId,
+      requestedByUserId,
+      riderId,
+      requestId,
+      deviceToken,
+    );
+
+    return { fcmMessageId };
+  }
+
   async createDeliveryRequestNotification(
     messageId: string,
     requestedByUserId: number,
@@ -45,6 +85,7 @@ export class NotificationService {
         requestId,
         deviceToken,
       });
+
     return await newDeliveryRequestNotification.save();
   }
 
