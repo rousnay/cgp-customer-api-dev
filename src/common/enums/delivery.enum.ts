@@ -7,11 +7,11 @@ export enum ShippingStatus {
   CANCELLED = 'cancelled',
 }
 
-export enum DeliveryType {
-  PRODUCT_AND_TRANSPORT = 'product_and_transport',
-  TRANSPORTATION_ONLY = 'transportation_only',
-  WAREHOUSE_TRANSPORTATION = 'warehouse_transportation',
-}
+// export enum DeliveryType {
+//   PRODUCT_AND_TRANSPORT = 'product_and_transport',
+//   TRANSPORTATION_ONLY = 'transportation_only',
+//   WAREHOUSE_TRANSPORTATION = 'warehouse_transportation',
+// }
 
 // export const SHIPPING_STATUS = Object.values(ShippingStatus);
 

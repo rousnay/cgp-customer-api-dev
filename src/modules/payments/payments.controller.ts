@@ -15,6 +15,8 @@ import {
   Put,
   UseInterceptors,
   UploadedFile,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import {
   ApiHeader,
@@ -34,6 +36,7 @@ import { LocationService } from '@modules/location/location.service';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 import { PaymentService } from './payments.service';
+import { DeliveryRequestService } from '@modules/delivery/delivery-request.service';
 
 @Controller('payment')
 @ApiTags('Payments')
@@ -41,6 +44,7 @@ export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly locationService: LocationService,
+    private readonly deliveryRequestService: DeliveryRequestService,
   ) {}
 
   @Post('tokenize')
@@ -97,6 +101,39 @@ export class PaymentController {
       // Handle any errors that occur during webhook event handling
       console.error('Error handling webhook event', error.message);
       throw new Error('Error handling webhook event');
+    }
+  }
+
+  @Post('create-delivery-request/:stripeId')
+  @ApiOperation({ summary: 'Create a delivery request from Stripe ID' })
+  @ApiParam({
+    name: 'stripeId',
+    description: 'The Stripe ID associated with the payment',
+  })
+  async createDeliveryRequestFromStripeId(
+    @Param('stripeId') stripeId: string,
+  ): Promise<any> {
+    try {
+      console.log('createDeliveryRequestFromStripeId called!');
+      console.log('stripeId', stripeId);
+      const payload =
+        await this.paymentService.createDeliveryRequestFromStripeId(stripeId);
+      console.log('payload', payload);
+      const result = await this.deliveryRequestService.create(payload);
+      console.log('result', result);
+
+      return result;
+    } catch (error) {
+      if (error.message === 'No data found for the provided stripe_id') {
+        throw new HttpException(
+          'No data found for the provided Stripe ID.',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      throw new HttpException(
+        'Internal server error.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

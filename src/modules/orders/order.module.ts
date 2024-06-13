@@ -30,6 +30,7 @@ import { FirebaseAdminService } from '@services/firebase-admin.service';
 import { FirebaseAdminModule } from '@services/firebase-admin.module';
 import { NotificationsModule } from '@modules/notification/notification.module';
 import { LocationModule } from '@modules/location/location.module';
+import { DeliveryModule } from '@modules/delivery/delivery.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { LocationModule } from '@modules/location/location.module';
     FirebaseAdminModule,
     NotificationsModule,
     LocationModule,
+    DeliveryModule,
     TypeOrmModule.forFeature([
       Orders,
       OrderDetails,

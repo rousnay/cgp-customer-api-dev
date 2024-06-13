@@ -15,6 +15,10 @@ import { FirebaseAdminService } from '@services/firebase-admin.service';
 import { FirebaseAdminModule } from '@services/firebase-admin.module';
 import { NotificationsModule } from '@modules/notification/notification.module';
 import { LocationModule } from '@modules/location/location.module';
+import { DeliveryModule } from '@modules/delivery/delivery.module';
+import { Deliveries } from '@modules/delivery/deliveries.entity';
+import { Orders } from '@modules/orders/entities/orders.entity';
+import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 
 @Module({
   imports: [
@@ -22,7 +26,13 @@ import { LocationModule } from '@modules/location/location.module';
     FirebaseAdminModule,
     NotificationsModule,
     LocationModule,
-    TypeOrmModule.forFeature([PaymentToken]),
+    DeliveryModule,
+    TypeOrmModule.forFeature([
+      PaymentToken,
+      Deliveries,
+      Orders,
+      UserAddressBook,
+    ]),
     // MongooseModule.forFeature([
     //   { name: 'Location', schema: LocationSchema },
     //   { name: 'Notification', schema: NotificationSchema },

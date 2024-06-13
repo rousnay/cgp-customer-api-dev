@@ -1,3 +1,4 @@
+import { OrderStatus, OrderType } from '@common/enums/order.enum';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -5,32 +6,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-export enum OrderStatus {
-  PENDING = 'pending',
-  ACCEPTED = 'accepted',
-  PROCESSING = 'processing',
-  SHIPPED = 'shipped',
-  IN_TRANSIT = 'in_transit',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-}
-
-export enum OrderType {
-  PRODUCT_AND_TRANSPORT = 'product_and_transport',
-  TRANSPORTATION_ONLY = 'transportation_only',
-  WAREHOUSE_TRANSPORTATION = 'warehouse_transportation',
-}
-
-// export enum PaymentStatus {
-//   UNPAID = 'unpaid',
-//   PAID = 'paid',
-//   PARTIAL_PAID = 'partial_paid',
-//   FAILED = 'failed',
-//   CANCELLED = 'cancelled',
-//   REFUNDED = 'refunded',
-//   PARTIAL_REFUNDED = 'partial_refunded',
-// }
 
 @Entity()
 export class Orders {

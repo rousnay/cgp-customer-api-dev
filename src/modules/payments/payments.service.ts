@@ -11,6 +11,13 @@ import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 import { PaymentToken } from './entities/payment-token.entity';
 import { NotificationService } from '@modules/notification/notification.service';
+import { Deliveries } from '@modules/delivery/deliveries.entity';
+import { Orders } from '@modules/orders/entities/orders.entity';
+import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
+import { DeliveryRequestService } from '@modules/delivery/delivery-request.service';
+import { CreateDeliveryRequestDto } from '@modules/delivery/dtos/create-delivery-request.dto';
+import { OrderType } from '@common/enums/order.enum';
+import { DeliveryStatus } from '@modules/delivery/schemas/delivery-request.schema';
 
 @Injectable()
 export class PaymentService {
@@ -24,10 +31,123 @@ export class PaymentService {
     private paymentTokenRepository: Repository<PaymentToken>,
     private readonly deliveryService: DeliveryService,
     private readonly notificationService: NotificationService,
+
+    @InjectRepository(Deliveries)
+    private deliveriesRepository: Repository<Deliveries>,
+    @InjectRepository(Orders)
+    private ordersRepository: Repository<Orders>,
+    @InjectRepository(UserAddressBook)
+    private userAddressBookRepository: Repository<UserAddressBook>,
+    private deliveryRequestService: DeliveryRequestService,
   ) {
     this.stripe = new Stripe(configService.stripeSecretKey, {
       apiVersion: AppConstants.stripe.apiVersion,
     });
+  }
+
+  async getDeliveryRequestPayloadByStripeId(
+    stripeId: string,
+  ): Promise<CreateDeliveryRequestDto> {
+    console.log('getDeliveryRequestPayloadByStripeId called!');
+    const payment = await this.entityManager
+      .createQueryBuilder()
+      .select('*')
+      .from('payments', 'p')
+      .where('p.stripe_id = :stripeId', {
+        stripeId,
+      })
+      .getRawOne();
+
+    console.log('payment', payment);
+
+    const order = await this.ordersRepository.findOne({
+      where: { id: payment?.order_id },
+    });
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    console.log('order', order);
+
+    let pickupLocation, requestFrom;
+
+    if (
+      order.order_type === OrderType.PRODUCT_AND_TRANSPORT ||
+      order.order_type === OrderType.WAREHOUSE_TRANSPORTATION
+    ) {
+      const warehouseId = order.warehouse_id;
+      const warehouse = await this.entityManager
+        .createQueryBuilder()
+        .select('*')
+        .from('warehouses', 'p')
+        .where('p.id = :customerId', {
+          warehouseId,
+        })
+        .getRawOne();
+
+      requestFrom = {
+        id: warehouse.id.toString(),
+        name: warehouse.name,
+      };
+
+      pickupLocation = await this.userAddressBookRepository.findOne({
+        where: { id: order.warehouse_id },
+      });
+    } else if (order.order_type === OrderType.TRANSPORTATION_ONLY) {
+      const customerId = order.customer_id;
+      const customer = await this.entityManager
+        .createQueryBuilder()
+        .select('*')
+        .from('customers', 'p')
+        .where('p.id = :customerId', {
+          customerId,
+        })
+        .getRawOne();
+
+      requestFrom = {
+        id: customer.id.toString(),
+        name: customer.first_name + ' ' + customer.last_name,
+      };
+
+      pickupLocation = await this.userAddressBookRepository.findOne({
+        where: { id: order.pickup_address_id },
+      });
+    }
+
+    const dropOffLocation = await this.userAddressBookRepository.findOne({
+      where: { id: order.shipping_address_id },
+    });
+
+    const delivery = await this.deliveriesRepository.findOne({
+      where: { order_id: payment?.order_id },
+    });
+    if (!delivery) {
+      throw new Error('Delivery not found');
+    }
+
+    return {
+      orderId: payment.order_id,
+      stripeId: payment.stripe_id,
+      deliveryId: delivery.id.toString(),
+      requestFrom,
+      pickupLocation,
+      dropOffLocation,
+      totalDistance: delivery.init_distance.toString(),
+      totalWeight: '2 Tons', // NEED TO REWORK THIS
+      deliveryCost: delivery.delivery_charge,
+      estimatedArrivalTime: '2023-12-31T12:00:00Z', // NEED TO REWORK THIS
+      status: DeliveryStatus.Searching,
+      orderType: order.order_type,
+      assignedRider: null,
+    };
+  }
+
+  async createDeliveryRequestFromStripeId(stripeId: string): Promise<any> {
+    console.log('createDeliveryRequestFromStripeId called!');
+    console.log('stripeId', stripeId);
+    const payload = await this.getDeliveryRequestPayloadByStripeId(stripeId);
+    // await this.deliveryRequestService.create(payload);
+    return payload;
   }
 
   async findOrCreateCustomer(
@@ -122,12 +242,13 @@ export class PaymentService {
 
           const requestedByUserId = 333; // Example value, replace as needed
           const requestId = 333; // Example value, replace as needed
+
           const title = 'New Delivery Request';
           const message = 'You have a new delivery request from John Doe';
           const data = {
             target: 'rider',
             type: 'delivery_request',
-            requestId: '123',
+            requestId: requestId.toString(),
           };
 
           for (const rider of riderDeviceTokens) {
