@@ -8,15 +8,34 @@ import { DeliveryService } from '@modules/delivery/delivery.service';
 import { LocationService } from '@modules/location/location.service';
 import { LocationSchema } from '@modules/location/schemas/location.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { NotificationService } from '@modules/notification/notification.service';
+import { NotificationSchema } from '@modules/notification/notification.schema';
+import { DeliveryRequestNotificationSchema } from '@modules/notification/delivery-request-notification.schema';
+import { FirebaseAdminService } from '@services/firebase-admin.service';
+import { FirebaseAdminModule } from '@services/firebase-admin.module';
 
 @Module({
   imports: [
     ConfigModule,
+    FirebaseAdminModule,
     TypeOrmModule.forFeature([PaymentToken]),
-    MongooseModule.forFeature([{ name: 'Location', schema: LocationSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Location', schema: LocationSchema },
+      { name: 'Notification', schema: NotificationSchema },
+      {
+        name: 'DeliveryRequestNotification',
+        schema: DeliveryRequestNotificationSchema,
+      },
+    ]),
   ],
   exports: [PaymentService],
-  providers: [PaymentService, DeliveryService, LocationService],
+  providers: [
+    PaymentService,
+    DeliveryService,
+    NotificationService,
+    LocationService,
+    // FirebaseAdminService,
+  ],
   controllers: [PaymentController],
 })
 export class PaymentModule {}

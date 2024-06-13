@@ -10,6 +10,7 @@ import { DeliveryService } from '@modules/delivery/delivery.service';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 import { PaymentToken } from './entities/payment-token.entity';
+import { NotificationService } from '@modules/notification/notification.service';
 
 @Injectable()
 export class PaymentService {
@@ -22,6 +23,7 @@ export class PaymentService {
     @InjectRepository(PaymentToken)
     private paymentTokenRepository: Repository<PaymentToken>,
     private readonly deliveryService: DeliveryService,
+    private readonly notificationService: NotificationService,
   ) {
     this.stripe = new Stripe(configService.stripeSecretKey, {
       apiVersion: AppConstants.stripe.apiVersion,
@@ -115,9 +117,32 @@ export class PaymentService {
 
         if (payment) {
           console.log('updatePaymentStatus operated successfully');
-          const result = await this.deliveryService.sendDeliveryRequest(
-            stripe_id,
-          );
+          const riderDeviceTokens =
+            await this.deliveryService.sendDeliveryRequest(stripe_id);
+
+          const requestedByUserId = 333; // Example value, replace as needed
+          const requestId = 333; // Example value, replace as needed
+          const title = 'New Delivery Request';
+          const message = 'You have a new delivery request from John Doe';
+          const data = {
+            target: 'rider',
+            type: 'delivery_request',
+            requestId: '123',
+          };
+
+          for (const rider of riderDeviceTokens) {
+            for (const deviceToken of rider.deviceTokens) {
+              await this.notificationService.sendAndStoreDeliveryRequestNotification(
+                deviceToken,
+                requestedByUserId,
+                rider.riderId,
+                requestId,
+                title,
+                message,
+                { ...data, riderId: rider.riderId.toString() },
+              );
+            }
+          }
 
           return payment;
         }

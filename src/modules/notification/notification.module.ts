@@ -7,10 +7,12 @@ import { NotificationSchema } from './notification.schema';
 import { NotificationService } from './notification.service';
 import { NotificationsController } from './notification.controller';
 import { DeliveryRequestNotificationSchema } from './delivery-request-notification.schema';
+import { FirebaseAdminModule } from '@services/firebase-admin.module';
 
 @Module({
   imports: [
     ConfigModule,
+    FirebaseAdminModule,
     MongooseModule.forFeature([
       { name: 'Notification', schema: NotificationSchema },
       {
@@ -19,7 +21,7 @@ import { DeliveryRequestNotificationSchema } from './delivery-request-notificati
       },
     ]),
   ],
-  providers: [NotificationService, FirebaseAdminService],
+  providers: [NotificationService],
   controllers: [NotificationsController],
   exports: [NotificationService],
 })

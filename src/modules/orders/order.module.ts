@@ -23,11 +23,17 @@ import { DeliveryService } from '@modules/delivery/delivery.service';
 import { LocationService } from '@modules/location/location.service';
 import { LocationSchema } from '@modules/location/schemas/location.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { NotificationService } from '@modules/notification/notification.service';
+import { NotificationSchema } from '@modules/notification/notification.schema';
+import { DeliveryRequestNotificationSchema } from '@modules/notification/delivery-request-notification.schema';
+import { FirebaseAdminService } from '@services/firebase-admin.service';
+import { FirebaseAdminModule } from '@services/firebase-admin.module';
 
 @Module({
   imports: [
     ConfigModule,
     JwtModule,
+    FirebaseAdminModule,
     TypeOrmModule.forFeature([
       Orders,
       OrderDetails,
@@ -41,7 +47,14 @@ import { MongooseModule } from '@nestjs/mongoose';
       PaymentToken,
       PaymentService,
     ]),
-    MongooseModule.forFeature([{ name: 'Location', schema: LocationSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Location', schema: LocationSchema },
+      { name: 'Notification', schema: NotificationSchema },
+      {
+        name: 'DeliveryRequestNotification',
+        schema: DeliveryRequestNotificationSchema,
+      },
+    ]),
   ],
   exports: [OrderService],
   providers: [
@@ -52,7 +65,9 @@ import { MongooseModule } from '@nestjs/mongoose';
     UserAddressBookService,
     PaymentService,
     DeliveryService,
-    LocationService
+    LocationService,
+    NotificationService,
+    // FirebaseAdminService,
   ],
   controllers: [
     OrderController,
