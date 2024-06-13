@@ -28,12 +28,16 @@ import { NotificationSchema } from '@modules/notification/notification.schema';
 import { DeliveryRequestNotificationSchema } from '@modules/notification/delivery-request-notification.schema';
 import { FirebaseAdminService } from '@services/firebase-admin.service';
 import { FirebaseAdminModule } from '@services/firebase-admin.module';
+import { NotificationsModule } from '@modules/notification/notification.module';
+import { LocationModule } from '@modules/location/location.module';
 
 @Module({
   imports: [
     ConfigModule,
     JwtModule,
     FirebaseAdminModule,
+    NotificationsModule,
+    LocationModule,
     TypeOrmModule.forFeature([
       Orders,
       OrderDetails,
@@ -47,14 +51,14 @@ import { FirebaseAdminModule } from '@services/firebase-admin.module';
       PaymentToken,
       PaymentService,
     ]),
-    MongooseModule.forFeature([
-      { name: 'Location', schema: LocationSchema },
-      { name: 'Notification', schema: NotificationSchema },
-      {
-        name: 'DeliveryRequestNotification',
-        schema: DeliveryRequestNotificationSchema,
-      },
-    ]),
+    // MongooseModule.forFeature([
+    //   { name: 'Location', schema: LocationSchema },
+    //   { name: 'Notification', schema: NotificationSchema },
+    //   {
+    //     name: 'DeliveryRequestNotification',
+    //     schema: DeliveryRequestNotificationSchema,
+    //   },
+    // ]),
   ],
   exports: [OrderService],
   providers: [
@@ -65,8 +69,8 @@ import { FirebaseAdminModule } from '@services/firebase-admin.module';
     UserAddressBookService,
     PaymentService,
     DeliveryService,
-    LocationService,
-    NotificationService,
+    // LocationService,
+    // NotificationService,
     // FirebaseAdminService,
   ],
   controllers: [

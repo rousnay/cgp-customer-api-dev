@@ -117,9 +117,16 @@ export class AuthService {
         //   registration_date: userData?.created_at,
         // };
 
+        console.log('########################userData', userData);
+        console.log('###################userData_id', userData?.id);
+        console.log(
+          '########################userData_User_ID',
+          userData?.user_id,
+        );
+
         // Create a new Customers entity
         const newCustomer = Customers.create({
-          user_id: userData.user_id,
+          user_id: userData?.user_id,
           first_name: userData.first_name,
           last_name: userData.last_name,
           phone: userData.phone,
