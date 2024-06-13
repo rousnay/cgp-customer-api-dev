@@ -107,26 +107,9 @@ export class AuthService {
         // Success response
         const userData = response?.data?.data?.user;
 
-        // Create a new Customer entity based on the registration data
-        // const createCustomerDto: CreateCustomerDto = {
-        //   user_id: userData?.id,
-        //   first_name: userData?.first_name,
-        //   last_name: userData?.last_name,
-        //   phone: userData?.phone,
-        //   email: userData?.email,
-        //   registration_date: userData?.created_at,
-        // };
-
-        console.log('########################userData', userData);
-        console.log('###################userData_id', userData?.id);
-        console.log(
-          '########################userData_User_ID',
-          userData?.user_id,
-        );
-
         // Create a new Customers entity
         const newCustomer = Customers.create({
-          user_id: userData?.user_id,
+          user_id: userData?.id,
           first_name: userData.first_name,
           last_name: userData.last_name,
           phone: userData.phone,
