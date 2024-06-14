@@ -1,3 +1,4 @@
+import { AddressType } from '@common/enums/user-address-book.emun';
 import {
   Entity,
   BaseEntity,
@@ -6,12 +7,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-export enum AddressType {
-  SHIPPING = 'shipping',
-  BILLING = 'billing',
-  PICKUP = 'pickup',
-}
 
 @Entity()
 export class UserAddressBook extends BaseEntity {

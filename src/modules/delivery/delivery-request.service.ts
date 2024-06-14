@@ -10,7 +10,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Deliveries } from './deliveries.entity';
 import { EntityManager, Repository } from 'typeorm';
-import { LocationService } from '@modules/location/location.service';
 import { Orders } from '@modules/orders/entities/orders.entity';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { OrderType } from '@common/enums/order.enum';
@@ -69,7 +68,7 @@ export class DeliveryRequestService {
         .getRawOne();
 
       requestFrom = {
-        id: warehouse.id.toString(),
+        id: warehouse.id,
         name: warehouse.name,
       };
 
@@ -88,7 +87,7 @@ export class DeliveryRequestService {
         .getRawOne();
 
       requestFrom = {
-        id: customer.id.toString(),
+        id: customer.id,
         name: customer.first_name + ' ' + customer.last_name,
       };
 

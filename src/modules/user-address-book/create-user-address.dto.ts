@@ -1,6 +1,6 @@
+import { AddressType } from '@common/enums/user-address-book.emun';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional } from 'class-validator';
-import { AddressType } from './user-address-book.entity';
 
 export class CreateUserAddressDto {
   @ApiProperty()

@@ -28,7 +28,7 @@ enum DeliveryStatus {
 
 class AssignedRider {
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   id: number;
 
   @ApiProperty()

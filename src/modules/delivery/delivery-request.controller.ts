@@ -29,20 +29,20 @@ export class DeliveryRequestController {
     private readonly deliveryRequestService: DeliveryRequestService,
   ) {}
 
-  @Post('create-delivery-request/:stripeId')
+  @Post('stripe-id/:id')
   @ApiOperation({ summary: 'Create a delivery request from Stripe ID' })
   @ApiParam({
     name: 'stripeId',
     description: 'The Stripe ID associated with the payment',
   })
   async createDeliveryRequestFromStripeId(
-    @Param('stripeId') stripeId: string,
+    @Param('id') id: string,
   ): Promise<any> {
     try {
       console.log('createDeliveryRequestFromStripeId called!');
-      console.log('stripeId', stripeId);
+      console.log('stripeId', id);
       const payload =
-        await this.deliveryRequestService.createDeliveryRequestFromStripeId(stripeId);
+        await this.deliveryRequestService.createDeliveryRequestFromStripeId(id);
       console.log('payload', payload);
       const result = await this.deliveryRequestService.create(payload);
       console.log('result', result);
@@ -84,8 +84,17 @@ export class DeliveryRequestController {
     description: 'Successful retrieval of delivery requests',
     type: [DeliveryRequest],
   })
-  async findAll(): Promise<DeliveryRequest[]> {
-    return this.deliveryRequestService.findAll();
+  async findAll(): Promise<{
+    status: string;
+    message: string;
+    data: DeliveryRequest[];
+  }> {
+    const requests = await this.deliveryRequestService.findAll();
+    return {
+      status: 'success',
+      message: 'Successful retrieval of delivery requests',
+      data: requests,
+    };
   }
 
   @Get(':id')
@@ -97,8 +106,15 @@ export class DeliveryRequestController {
     type: DeliveryRequest,
   })
   @ApiResponse({ status: 404, description: 'Delivery request not found' })
-  async findOne(@Param('id') id: string): Promise<DeliveryRequest> {
-    return this.deliveryRequestService.findOne(id);
+  async findOne(
+    @Param('id') id: string,
+  ): Promise<{ status: string; message: string; data: DeliveryRequest }> {
+    const request = await this.deliveryRequestService.findOne(id);
+    return {
+      status: 'success',
+      message: 'Successful retrieval of the delivery request',
+      data: request,
+    };
   }
 
   @Put(':id')
@@ -131,7 +147,7 @@ export class DeliveryRequestController {
   async partialUpdate(
     @Param('id') id: string,
     @Body() updateDeliveryRequestDto: UpdateDeliveryRequestDto,
-  ): Promise<DeliveryRequest> {
+  ): Promise<{ status: string; message: string; data: DeliveryRequest }> {
     if (updateDeliveryRequestDto.status) {
       await this.deliveryRequestService.updateStatus(
         id,
@@ -144,7 +160,13 @@ export class DeliveryRequestController {
         updateDeliveryRequestDto.assignedRider,
       );
     }
-    return this.deliveryRequestService.findOne(id);
+    const request = await this.deliveryRequestService.findOne(id);
+
+    return {
+      status: 'success',
+      message: 'The delivery request has been successfully updated.',
+      data: request,
+    };
   }
 
   @Delete(':id')
