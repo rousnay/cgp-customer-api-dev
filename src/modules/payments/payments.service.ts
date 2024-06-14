@@ -10,10 +10,7 @@ import { DeliveryService } from '@modules/delivery/delivery.service';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 import { PaymentToken } from './entities/payment-token.entity';
-import { NotificationService } from '@modules/notification/notification.service';
-import { Deliveries } from '@modules/delivery/deliveries.entity';
-import { Orders } from '@modules/orders/entities/orders.entity';
-import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
+import { NotificationService } from '@modules/notification/notification.service'; // TODO: Remove this service
 import { DeliveryRequestService } from '@modules/delivery/delivery-request.service';
 
 @Injectable()
@@ -34,17 +31,6 @@ export class PaymentService {
       apiVersion: AppConstants.stripe.apiVersion,
     });
   }
-
-  // async createDeliveryRequestFromStripeId(stripeId: string): Promise<any> {
-  //   console.log('createDeliveryRequestFromStripeId called!');
-  //   console.log('stripeId', stripeId);
-  //   const payload =
-  //     await this.deliveryRequestService.getDeliveryRequestPayloadByStripeId(
-  //       stripeId,
-  //     );
-  //   // await this.deliveryRequestService.create(payload);
-  //   return payload;
-  // }
 
   async findOrCreateCustomer(
     email: string,
@@ -150,7 +136,8 @@ export class PaymentService {
           const requestedByUserName = getDeliveryRequestData?.requestFrom?.name;
           const requestId = getDeliveryRequestData?.id;
           const title = 'New Delivery Request';
-          const message = 'You have a new delivery request from John Doe';
+          const message =
+            'You have a new delivery request from ' + requestedByUserName;
           const data = {
             target: 'rider',
             type: 'delivery_request',
@@ -162,6 +149,7 @@ export class PaymentService {
           for (const rider of riderDeviceTokens) {
             for (const deviceToken of rider.deviceTokens) {
               await this.notificationService.sendAndStoreDeliveryRequestNotification(
+                20,
                 deviceToken,
                 title,
                 message,

@@ -5,47 +5,20 @@ import {
   Controller,
   Post,
   Body,
-  Get,
-  Patch,
-  Param,
-  Query,
-  UsePipes,
   UseGuards,
-  NotFoundException,
   Put,
-  UseInterceptors,
-  UploadedFile,
-  HttpStatus,
-  HttpException,
 } from '@nestjs/common';
-import {
-  ApiHeader,
-  ApiOperation,
-  ApiBody,
-  ApiConsumes,
-  ApiParam,
-  ApiResponse,
-  ApiOkResponse,
-  ApiTags,
-  ApiQuery,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
-import { LocationService } from '@modules/location/location.service';
 import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
 import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
 import { PaymentService } from './payments.service';
-import { DeliveryRequestService } from '@modules/delivery/delivery-request.service';
 
 @Controller('payment')
 @ApiTags('Payments')
 export class PaymentController {
-  constructor(
-    private readonly paymentService: PaymentService,
-    private readonly locationService: LocationService,
-    private readonly deliveryRequestService: DeliveryRequestService,
-  ) {}
+  constructor(private readonly paymentService: PaymentService) {}
 
   @Post('tokenize')
   @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (token)' })

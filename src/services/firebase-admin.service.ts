@@ -22,29 +22,41 @@ export class FirebaseAdminService {
 
   async sendNotification(
     tokens: string[],
-    payload: admin.messaging.MessagingPayload,
+    title: string,
+    message: string,
+    data: { [key: string]: string },
+    // payload: admin.messaging.MessagingPayload,
   ): Promise<admin.messaging.BatchResponse> {
-    const message: admin.messaging.MulticastMessage = {
-      tokens,
-      notification: payload.notification,
-      data: payload.data,
-      // data: JSON.stringify(payload.data),
+    const payload = {
+      notification: {
+        title: title,
+        body: message,
+      },
+      data: data,
     };
 
-    return await this.app.messaging().sendEachForMulticast(message);
+    try {
+      const messageData: admin.messaging.MulticastMessage = {
+        tokens,
+        ...payload,
+      };
 
-    // Mocking the response
-    // const response = {
-    //   successCount: tokens.length,
-    //   failureCount: 0,
-    //   responses: tokens.map((token) => ({
-    //     success: true,
-    //     messageId: `mock_message_id_${token}`,
-    //   })),
-    // };
+      return await this.app.messaging().sendEachForMulticast(messageData);
+      // Mocking the response
+      // const response = {
+      //   successCount: tokens.length,
+      //   failureCount: 0,
+      //   responses: tokens.map((token) => ({
+      //     success: true,
+      //     messageId: `mock_message_id_${token}`,
+      //   })),
+      // };
 
-    // console.log('Mocked FCM Response:', response);
-    // return response as admin.messaging.BatchResponse;
+      // console.log('Mocked FCM Response:', response);
+      // return response as admin.messaging.BatchResponse;
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   }
 
   async sendDeliveryRequestNotification(

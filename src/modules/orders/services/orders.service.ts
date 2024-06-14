@@ -151,7 +151,7 @@ export class OrderService {
             billing_cb.latitude AS billing_latitude,
             billing_cb.longitude AS billing_longitude,
             billing_cb.notes AS billing_notes,
-            o.total_price,
+            o.total_cost,
 
             pw.product_name,
             od.product_quantity,
@@ -197,7 +197,7 @@ export class OrderService {
 
     const orderDetails = {
       order_id: result[0].id,
-      total_price: result[0].total_price,
+      total_price: result[0].total_cost,
       discount: result[0].discount,
       vat: result[0].vat,
       delivery_charge: result[0].delivery_charge,
