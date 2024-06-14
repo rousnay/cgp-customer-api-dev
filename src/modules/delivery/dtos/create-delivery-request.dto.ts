@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { CreateUserAddressDto } from '@modules/user-address-book/create-user-address.dto';
 import { OrderType } from '@common/enums/order.enum';
+import { DeliveryStatus } from '@common/enums/delivery.enum';
 
 class RequestFrom {
   @ApiProperty()
@@ -18,12 +19,6 @@ class RequestFrom {
   @ApiProperty()
   @IsString()
   name: string;
-}
-
-enum DeliveryStatus {
-  Searching = 'searching',
-  Accepted = 'accepted',
-  Expired = 'expired',
 }
 
 class AssignedRider {

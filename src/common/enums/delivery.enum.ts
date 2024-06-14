@@ -8,9 +8,11 @@ export enum ShippingStatus {
 }
 
 export enum DeliveryStatus {
-  Searching = 'searching',
-  Accepted = 'accepted',
-  Expired = 'expired',
+  SEARCHING = 'searching',
+  ACCEPTED = 'accepted',
+  EXPIRED = 'expired',
+  DELIVERED = 'delivered',
+  CANCELLED = 'cancelled',
 }
 
 // export enum DeliveryType {

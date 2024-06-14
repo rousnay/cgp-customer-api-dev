@@ -110,10 +110,10 @@ export class DeliveryService {
       pickupLocation,
       dropOffLocation,
       totalDistance: delivery.init_distance.toString(),
-      totalWeight: '2 Tons', // NEED TO REWORK THIS
+      totalWeight: '2', // NEED TO REWORK THIS
       deliveryCost: delivery.delivery_charge,
-      estimatedArrivalTime: '2023-12-31T12:00:00Z', // NEED TO REWORK THIS
-      status: DeliveryStatus.Searching,
+      estimatedArrivalTime: '250', // NEED TO REWORK THIS
+      status: DeliveryStatus.SEARCHING,
       orderType: order.order_type,
       assignedRider: null,
     };

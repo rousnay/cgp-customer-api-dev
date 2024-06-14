@@ -62,7 +62,7 @@ export class DeliveryRequest extends Document {
   @Prop({
     enum: DeliveryStatus,
     required: true,
-    default: DeliveryStatus.Searching,
+    default: DeliveryStatus.SEARCHING,
   })
   status: DeliveryStatus;
 

@@ -118,7 +118,7 @@ export class DeliveryRequestService {
       totalWeight: '2', // NEED TO REWORK THIS
       deliveryCost: delivery.delivery_charge,
       estimatedArrivalTime: '250', // NEED TO REWORK THIS
-      status: DeliveryStatus.Searching,
+      status: DeliveryStatus.SEARCHING,
       orderType: order.order_type,
       assignedRider: null,
     };
