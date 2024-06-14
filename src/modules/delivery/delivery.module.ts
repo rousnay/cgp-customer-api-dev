@@ -13,11 +13,18 @@ import {
 } from './schemas/delivery-request.schema';
 import { DeliveryRequestService } from './delivery-request.service';
 import { DeliveryRequestController } from './delivery-request.controller';
+import { Orders } from '@modules/orders/entities/orders.entity';
+import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 
 @Module({
   imports: [
     LocationModule,
-    TypeOrmModule.forFeature([Deliveries]),
+    TypeOrmModule.forFeature([
+      Deliveries,
+      DeliveryRequest,
+      Orders,
+      UserAddressBook,
+    ]),
     MongooseModule.forFeature([
       { name: DeliveryRequest.name, schema: DeliveryRequestSchema },
     ]),

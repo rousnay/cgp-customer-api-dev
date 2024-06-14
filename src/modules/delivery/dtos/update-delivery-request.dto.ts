@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsObject } from 'class-validator';
-import {
-  DeliveryStatus,
-  AssignedRider,
-} from '../schemas/delivery-request.schema';
+import { AssignedRider } from '../schemas/delivery-request.schema';
+import { DeliveryStatus } from '@common/enums/delivery.enum';
 
 export class UpdateDeliveryRequestDto {
   @ApiProperty({ enum: DeliveryStatus, required: false })

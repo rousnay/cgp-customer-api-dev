@@ -1,12 +1,123 @@
 import { Injectable } from '@nestjs/common';
 import { LocationService } from '@modules/location/location.service';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
+
+import { CreateDeliveryRequestDto } from '@modules/delivery/dtos/create-delivery-request.dto';
+import { OrderType } from '@common/enums/order.enum';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Orders } from '@modules/orders/entities/orders.entity';
+import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
+import { Deliveries } from './deliveries.entity';
+import { DeliveryStatus } from '@common/enums/delivery.enum';
 @Injectable()
 export class DeliveryService {
   constructor(
-    private locationService: LocationService,
+    @InjectRepository(Deliveries)
+    private deliveriesRepository: Repository<Deliveries>,
     private readonly entityManager: EntityManager,
+    private locationService: LocationService,
+    @InjectRepository(Orders)
+    private ordersRepository: Repository<Orders>,
+    @InjectRepository(UserAddressBook)
+    private userAddressBookRepository: Repository<UserAddressBook>,
   ) {}
+
+  async getDeliveryRequestPayloadByStripeId(
+    stripeId: string,
+  ): Promise<CreateDeliveryRequestDto> {
+    console.log('getDeliveryRequestPayloadByStripeId called!');
+    const payment = await this.entityManager
+      .createQueryBuilder()
+      .select('*')
+      .from('payments', 'p')
+      .where('p.stripe_id = :stripeId', {
+        stripeId,
+      })
+      .getRawOne();
+
+    console.log('payment', payment);
+
+    const order = await this.ordersRepository.findOne({
+      where: { id: payment?.order_id },
+    });
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    console.log('order', order);
+
+    let pickupLocation, requestFrom;
+
+    if (
+      order.order_type === OrderType.PRODUCT_AND_TRANSPORT ||
+      order.order_type === OrderType.WAREHOUSE_TRANSPORTATION
+    ) {
+      const warehouseId = order.warehouse_id;
+      const warehouse = await this.entityManager
+        .createQueryBuilder()
+        .select('*')
+        .from('warehouses', 'p')
+        .where('p.id = :customerId', {
+          warehouseId,
+        })
+        .getRawOne();
+
+      requestFrom = {
+        id: warehouse.id.toString(),
+        name: warehouse.name,
+      };
+
+      pickupLocation = await this.userAddressBookRepository.findOne({
+        where: { id: order.warehouse_id },
+      });
+    } else if (order.order_type === OrderType.TRANSPORTATION_ONLY) {
+      const customerId = order.customer_id;
+      const customer = await this.entityManager
+        .createQueryBuilder()
+        .select('*')
+        .from('customers', 'p')
+        .where('p.id = :customerId', {
+          customerId,
+        })
+        .getRawOne();
+
+      requestFrom = {
+        id: customer.id.toString(),
+        name: customer.first_name + ' ' + customer.last_name,
+      };
+
+      pickupLocation = await this.userAddressBookRepository.findOne({
+        where: { id: order.pickup_address_id },
+      });
+    }
+
+    const dropOffLocation = await this.userAddressBookRepository.findOne({
+      where: { id: order.shipping_address_id },
+    });
+
+    const delivery = await this.deliveriesRepository.findOne({
+      where: { order_id: payment?.order_id },
+    });
+    if (!delivery) {
+      throw new Error('Delivery not found');
+    }
+
+    return {
+      orderId: payment.order_id,
+      stripeId: payment.stripe_id,
+      deliveryId: delivery.id,
+      requestFrom,
+      pickupLocation,
+      dropOffLocation,
+      totalDistance: delivery.init_distance.toString(),
+      totalWeight: '2 Tons', // NEED TO REWORK THIS
+      deliveryCost: delivery.delivery_charge,
+      estimatedArrivalTime: '2023-12-31T12:00:00Z', // NEED TO REWORK THIS
+      status: DeliveryStatus.Searching,
+      orderType: order.order_type,
+      assignedRider: null,
+    };
+  }
 
   async getRiderDeviceTokens(
     riderIds: number[],

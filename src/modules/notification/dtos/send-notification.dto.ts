@@ -32,5 +32,5 @@ export class SendNotificationDto {
       '{"target": "customer", "customerId": "123", "type": "order", "orderId": "123"}',
     required: false,
   })
-  data?: object;
+  data?: { [key: string]: string };
 }

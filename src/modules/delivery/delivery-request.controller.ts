@@ -1,5 +1,3 @@
-// src/delivery-request/delivery-request.controller.ts
-
 import {
   Controller,
   Get,
@@ -9,6 +7,8 @@ import {
   Put,
   Delete,
   Patch,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -28,6 +28,39 @@ export class DeliveryRequestController {
   constructor(
     private readonly deliveryRequestService: DeliveryRequestService,
   ) {}
+
+  @Post('create-delivery-request/:stripeId')
+  @ApiOperation({ summary: 'Create a delivery request from Stripe ID' })
+  @ApiParam({
+    name: 'stripeId',
+    description: 'The Stripe ID associated with the payment',
+  })
+  async createDeliveryRequestFromStripeId(
+    @Param('stripeId') stripeId: string,
+  ): Promise<any> {
+    try {
+      console.log('createDeliveryRequestFromStripeId called!');
+      console.log('stripeId', stripeId);
+      const payload =
+        await this.deliveryRequestService.createDeliveryRequestFromStripeId(stripeId);
+      console.log('payload', payload);
+      const result = await this.deliveryRequestService.create(payload);
+      console.log('result', result);
+
+      return result;
+    } catch (error) {
+      if (error.message === 'No data found for the provided stripe_id') {
+        throw new HttpException(
+          'No data found for the provided Stripe ID.',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      throw new HttpException(
+        'Internal server error.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create a new delivery request' })

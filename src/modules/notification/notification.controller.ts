@@ -68,9 +68,6 @@ export class NotificationsController {
     const result =
       await this.notificationService.sendAndStoreDeliveryRequestNotification(
         sendDeliveryRequestNotificationDto.deviceToken,
-        sendDeliveryRequestNotificationDto.requestedByUserId,
-        sendDeliveryRequestNotificationDto.riderId,
-        sendDeliveryRequestNotificationDto.requestId,
         sendDeliveryRequestNotificationDto.title,
         sendDeliveryRequestNotificationDto.message,
         sendDeliveryRequestNotificationDto.data,

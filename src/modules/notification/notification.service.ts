@@ -22,7 +22,7 @@ export class NotificationService {
     deviceTokens: string[],
     title: string,
     message: string,
-    data?: object,
+    data?: { [key: string]: string },
   ): Promise<Notification> {
     const newNotification = new this.notificationModel({
       userId,
@@ -36,12 +36,9 @@ export class NotificationService {
 
   async sendAndStoreDeliveryRequestNotification(
     deviceToken: string,
-    requestedByUserId: number,
-    riderId: number,
-    requestId: number,
     title: string,
     message: string,
-    data: any,
+    data: { [key: string]: string },
   ) {
     const messageId = uuidv4();
     const fcmData = {
@@ -59,31 +56,21 @@ export class NotificationService {
 
     console.log('FCM Response:', fcmMessageId);
 
-    await this.createDeliveryRequestNotification(
-      messageId,
-      requestedByUserId,
-      riderId,
-      requestId,
-      deviceToken,
-    );
+    await this.createDeliveryRequestNotification(messageId, deviceToken, data);
 
     return { fcmMessageId };
   }
 
   async createDeliveryRequestNotification(
     messageId: string,
-    requestedByUserId: number,
-    riderId: number,
-    requestId: number,
     deviceToken: string,
+    data: { [key: string]: string },
   ): Promise<DeliveryRequestNotification> {
     const newDeliveryRequestNotification =
       new this.deliveryRequestNotificationModel({
         messageId,
-        requestedByUserId,
-        riderId,
-        requestId,
         deviceToken,
+        data,
       });
 
     return await newDeliveryRequestNotification.save();

@@ -7,6 +7,12 @@ export enum ShippingStatus {
   CANCELLED = 'cancelled',
 }
 
+export enum DeliveryStatus {
+  Searching = 'searching',
+  Accepted = 'accepted',
+  Expired = 'expired',
+}
+
 // export enum DeliveryType {
 //   PRODUCT_AND_TRANSPORT = 'product_and_transport',
 //   TRANSPORTATION_ONLY = 'transportation_only',

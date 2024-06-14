@@ -12,8 +12,8 @@ import { OrderType } from '@common/enums/order.enum';
 
 class RequestFrom {
   @ApiProperty()
-  @IsString()
-  id: string;
+  @IsNumber()
+  id: number;
 
   @ApiProperty()
   @IsString()
@@ -29,7 +29,7 @@ enum DeliveryStatus {
 class AssignedRider {
   @ApiProperty()
   @IsString()
-  id: string;
+  id: number;
 
   @ApiProperty()
   @IsString()
@@ -68,7 +68,7 @@ export class CreateDeliveryRequestDto {
 
   @ApiProperty()
   @IsString()
-  orderId: string;
+  orderId: number;
 
   @ApiProperty()
   @IsString()
@@ -76,7 +76,7 @@ export class CreateDeliveryRequestDto {
 
   @ApiProperty()
   @IsString()
-  deliveryId: string;
+  deliveryId: number;
 
   @ApiProperty({ enum: OrderType })
   @IsEnum(OrderType)

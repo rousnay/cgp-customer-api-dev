@@ -1,23 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SendDeliveryRequestNotificationDto {
-  @ApiProperty({
-    description: 'User ID of the recipient',
-    example: '123',
-  })
-  requestedByUserId: number;
+  // @ApiProperty({
+  //   description: 'User ID of the recipient',
+  //   example: '123',
+  // })
+  // requestedByUserId: number;
 
-  @ApiProperty({
-    description: 'User ID of the recipient',
-    example: '123',
-  })
-  riderId: number;
+  // @ApiProperty({
+  //   description: 'User ID of the recipient',
+  //   example: '123',
+  // })
+  // riderId: number;
 
-  @ApiProperty({
-    description: 'User ID of the recipient',
-    example: '123',
-  })
-  requestId: number;
+  // @ApiProperty({
+  //   description: 'User ID of the recipient',
+  //   example: '123',
+  // })
+  // requestId: string;
 
   @ApiProperty({
     description: 'Device tokens to send the notification to',
