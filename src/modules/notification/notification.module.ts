@@ -6,7 +6,7 @@ import { FirebaseAdminService } from '@services/firebase-admin.service';
 import {
   DeliveryRequestNotificationSchema,
   NotificationSchema,
-} from './schemas/notification.schema';
+} from './notification.schema';
 import { NotificationService } from './notification.service';
 import { NotificationsController } from './notification.controller';
 import { FirebaseAdminModule } from '@services/firebase-admin.module';

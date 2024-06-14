@@ -76,11 +76,18 @@ export class NotificationsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Mark a notification as read' })
-  async markAsRead(
-    @Param('notificationId') notificationId: string,
-  ): Promise<void> {
+  async markAsRead(@Param('notificationId') notificationId: string): Promise<{
+    status: string;
+    message: string;
+    data: any;
+  }> {
     try {
-      await this.notificationService.markAsRead(notificationId);
+      const result = await this.notificationService.markAsRead(notificationId);
+      return {
+        status: 'success',
+        message: 'The notification has been marked as read successfully',
+        data: result,
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(
@@ -95,7 +102,16 @@ export class NotificationsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get notifications for logged-in the user' })
-  async getUserNotifications(): Promise<any[]> {
-    return this.notificationService.getUserNotifications();
+  async getUserNotifications(): Promise<{
+    status: string;
+    message: string;
+    data: any[];
+  }> {
+    const results = await this.notificationService.getUserNotifications();
+    return {
+      status: 'success',
+      message: 'All notifications fetched successfully',
+      data: results,
+    };
   }
 }

@@ -46,14 +46,6 @@ import { DeliveryModule } from '@modules/delivery/delivery.module';
       PaymentToken,
       PaymentService,
     ]),
-    // MongooseModule.forFeature([
-    //   { name: 'Location', schema: LocationSchema },
-    //   { name: 'Notification', schema: NotificationSchema },
-    //   {
-    //     name: 'DeliveryRequestNotification',
-    //     schema: DeliveryRequestNotificationSchema,
-    //   },
-    // ]),
   ],
   exports: [OrderService],
   providers: [
@@ -64,9 +56,6 @@ import { DeliveryModule } from '@modules/delivery/delivery.module';
     UserAddressBookService,
     PaymentService,
     DeliveryService,
-    // LocationService,
-    // NotificationService,
-    // FirebaseAdminService,
   ],
   controllers: [
     OrderController,

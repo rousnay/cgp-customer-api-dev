@@ -163,6 +163,7 @@ export class DeliveryService {
     console.log('userDeviceTokensMap', userDeviceTokensMap);
 
     const riderDeviceTokens = userMappings.map((mapping) => ({
+      userId: mapping.userId,
       riderId: mapping.riderId,
       deviceTokens: userDeviceTokensMap[mapping.userId] || [],
     }));

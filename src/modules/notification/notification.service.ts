@@ -10,7 +10,7 @@ import {
   DeliveryRequestNotification,
   NotificationModel,
   DeliveryRequestNotificationModel,
-} from './schemas/notification.schema';
+} from './notification.schema';
 
 @Injectable()
 export class NotificationService {
@@ -112,7 +112,7 @@ export class NotificationService {
 
   async getUserNotifications(): Promise<any[]> {
     const userId = this.request['user'].user_id;
-    console.log('userId', userId);
+
     // Combine the notifications from different collections
     const notificationsFromCollection1 = this.notificationModel
       .find({ userId })
@@ -147,6 +147,8 @@ export class NotificationService {
     const notification = await this.createDeliveryRequestNotification(
       userId,
       deviceToken,
+      title,
+      message,
       data,
     );
     const notificationId = notification._id.toString();
@@ -179,12 +181,16 @@ export class NotificationService {
   async createDeliveryRequestNotification(
     userId: number,
     deviceToken: string,
+    title: string,
+    message: string,
     data: { [key: string]: string },
   ): Promise<DeliveryRequestNotification> {
     const newDeliveryRequestNotification =
       new this.deliveryRequestNotificationModel({
         userId,
         deviceToken,
+        title,
+        message,
         data,
       });
 

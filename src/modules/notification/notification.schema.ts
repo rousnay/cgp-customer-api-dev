@@ -24,6 +24,8 @@ import { Schema, Document, model } from 'mongoose';
 // Base schema and interface for shared properties
 const BaseNotificationSchema = new Schema({
   userId: { type: Number, required: true },
+  title: { type: String, required: true },
+  message: { type: String, required: true },
   data: { type: Object, default: {} },
   isRead: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
@@ -32,6 +34,8 @@ const BaseNotificationSchema = new Schema({
 export interface BaseNotification extends Document {
   id: string;
   userId: number;
+  title: string;
+  message: string;
   data: { [key: string]: string };
   isRead: boolean;
   createdAt: Date;
@@ -40,15 +44,11 @@ export interface BaseNotification extends Document {
 // Notification schema and interface
 export const NotificationSchema = new Schema({
   deviceTokens: { type: [String], required: true },
-  title: { type: String, required: true },
-  message: { type: String, required: true },
 });
 NotificationSchema.add(BaseNotificationSchema);
 
 export interface Notification extends BaseNotification {
   deviceTokens: string[];
-  title: string;
-  message: string;
 }
 
 // DeliveryRequestNotification schema and interface

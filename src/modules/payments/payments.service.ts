@@ -147,9 +147,10 @@ export class PaymentService {
           };
 
           for (const rider of riderDeviceTokens) {
+            console.log('rider', rider);
             for (const deviceToken of rider.deviceTokens) {
               await this.notificationService.sendAndStoreDeliveryRequestNotification(
-                20,
+                rider.userId,
                 deviceToken,
                 title,
                 message,
