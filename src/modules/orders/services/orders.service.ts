@@ -8,6 +8,8 @@ import { Cart } from '@modules/cart/cart.entity';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { Orders } from '../entities/orders.entity';
 import { OrderDetails } from '../entities/order_details.entity';
+import { NotificationService } from '@modules/notification/notification.service';
+import { OrderNotificationService } from './order.notification.service';
 
 @Injectable()
 export class OrderService {
@@ -22,6 +24,8 @@ export class OrderService {
     // private readonly cartService: CartService,
     @InjectRepository(Cart)
     private readonly cartRepository: Repository<Cart>,
+    private readonly notificationService: NotificationService,
+    private readonly orderNotificationService: OrderNotificationService,
   ) {}
 
   async placeOrder(createOrderDto: CreateOrderDto): Promise<any> {
@@ -85,6 +89,8 @@ export class OrderService {
         });
       }),
     );
+
+    await this.orderNotificationService.sendOrderNotification(savedOrder);
 
     return { ...savedOrder, line_items: savedOrderDetails };
   }

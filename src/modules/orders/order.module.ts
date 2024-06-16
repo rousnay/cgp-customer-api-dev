@@ -24,6 +24,7 @@ import { FirebaseAdminModule } from '@services/firebase-admin.module';
 import { NotificationsModule } from '@modules/notification/notification.module';
 import { LocationModule } from '@modules/location/location.module';
 import { DeliveryModule } from '@modules/delivery/delivery.module';
+import { OrderNotificationService } from './services/order.notification.service';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { DeliveryModule } from '@modules/delivery/delivery.module';
     UserAddressBookService,
     PaymentService,
     DeliveryService,
+    OrderNotificationService
   ],
   controllers: [
     OrderController,
