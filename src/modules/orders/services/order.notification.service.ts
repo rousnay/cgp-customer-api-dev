@@ -44,10 +44,12 @@ export class OrderNotificationService {
     console.log('results', results);
 
     const customer = this.request['user'];
-    const title = 'New Order Placed';
-    const message = `'You have a new order from ' + requestedByUserName`;
     const orderByUserId = customer?.user_id;
     const orderByUserName = customer?.first_name + ' ' + customer?.last_name;
+
+    const title = 'New Order Placed';
+    const message = 'You have a new order from ' + orderByUserName;
+
     const data = {
       target: 'warehouse',
       type: 'new_order',
