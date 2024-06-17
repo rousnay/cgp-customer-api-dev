@@ -171,7 +171,7 @@ export class OrderController {
     message: string;
     data: any;
   }> {
-    const orders = this.orderService.getOrderHistory();
+    const orders = await this.orderService.getOrderHistory();
     return {
       status: 'success',
       message: 'Order has been fetched successfully',
