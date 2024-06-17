@@ -1,19 +1,22 @@
 export enum ShippingStatus {
   WAITING = 'waiting',
-  ACCEPTED = 'accepted',
-  PICKED_UP = 'picked_up',
-  IN_TRANSIT = 'in_transit',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-}
-
-export enum DeliveryStatus {
   SEARCHING = 'searching',
   ACCEPTED = 'accepted',
-  EXPIRED = 'expired',
+  PICKED_UP = 'picked_up',
   DELIVERED = 'delivered',
+  EXPIRED = 'expired',
   CANCELLED = 'cancelled',
+  // IN_TRANSIT = 'in_transit',
 }
+
+// export enum DeliveryStatus {
+//   SEARCHING = 'searching',
+//   ACCEPTED = 'accepted',
+//   PICKED_UP = 'picked_up',
+//   DELIVERED = 'delivered',
+//   EXPIRED = 'expired',
+//   CANCELLED = 'cancelled',
+// }
 
 // export enum DeliveryType {
 //   PRODUCT_AND_TRANSPORT = 'product_and_transport',

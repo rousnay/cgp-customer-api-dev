@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Orders } from '@modules/orders/entities/orders.entity';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { Deliveries } from './deliveries.entity';
-import { DeliveryStatus } from '@common/enums/delivery.enum';
+import { ShippingStatus } from '@common/enums/delivery.enum';
 @Injectable()
 export class DeliveryService {
   constructor(
@@ -113,7 +113,7 @@ export class DeliveryService {
       totalWeight: '2', // NEED TO REWORK THIS
       deliveryCost: delivery.delivery_charge,
       estimatedArrivalTime: '250', // NEED TO REWORK THIS
-      status: DeliveryStatus.SEARCHING,
+      status: ShippingStatus.SEARCHING,
       orderType: order.order_type,
       assignedRider: null,
     };

@@ -93,7 +93,7 @@ export class TransportationOrdersService {
       order_id: savedOrder?.id,
       init_distance: createTransportationOrderDto?.distance,
       init_duration: createTransportationOrderDto?.duration,
-      delivery_charge: createTransportationOrderDto?.total_cost,
+      delivery_charge: createTransportationOrderDto?.payable_amount,
     });
 
     const orderInfo = {

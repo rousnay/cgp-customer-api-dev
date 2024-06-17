@@ -8,20 +8,10 @@ import {
 
 import { ShippingStatus } from '@common/enums/delivery.enum';
 
-
-// export enum OrderType {
-//   PRODUCT_AND_TRANSPORT = 'product_and_transport',
-//   TRANSPORTATION_ONLY = 'transportation_only',
-//   OTHER = 'other',
-// }
-
 @Entity()
 export class Deliveries {
   @PrimaryGeneratedColumn()
   id: number;
-
-  // @Column({ type: 'enum', enum: OrderType, default: OrderType.OTHER })
-  // order_type: OrderType;
 
   @Column({
     type: 'enum',

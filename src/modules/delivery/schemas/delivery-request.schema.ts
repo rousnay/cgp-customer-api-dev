@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { CreateUserAddressDto } from '@modules/user-address-book/create-user-address.dto';
 import { OrderType } from '@common/enums/order.enum';
-import { DeliveryStatus } from '@common/enums/delivery.enum';
+import { ShippingStatus } from '@common/enums/delivery.enum';
 
 export class RequestFrom {
   @Prop({ required: true })
@@ -18,6 +18,9 @@ export class AssignedRider {
 
   @Prop()
   name: string;
+
+  @Prop()
+  vehicleId: number;
 }
 
 @Schema()
@@ -60,11 +63,11 @@ export class DeliveryRequest extends Document {
   orderType: OrderType;
 
   @Prop({
-    enum: DeliveryStatus,
+    enum: ShippingStatus,
     required: true,
-    default: DeliveryStatus.SEARCHING,
+    default: ShippingStatus.SEARCHING,
   })
-  status: DeliveryStatus;
+  status: ShippingStatus;
 
   @Prop({ type: AssignedRider, default: null })
   assignedRider?: AssignedRider;

@@ -13,7 +13,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { Orders } from '@modules/orders/entities/orders.entity';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { OrderType } from '@common/enums/order.enum';
-import { DeliveryStatus } from '@common/enums/delivery.enum';
+import { ShippingStatus } from '@common/enums/delivery.enum';
 
 @Injectable()
 export class DeliveryRequestService {
@@ -118,7 +118,7 @@ export class DeliveryRequestService {
       totalWeight: '2', // NEED TO REWORK THIS
       deliveryCost: delivery.delivery_charge,
       estimatedArrivalTime: '250', // NEED TO REWORK THIS
-      status: DeliveryStatus.SEARCHING,
+      status: ShippingStatus.SEARCHING,
       orderType: order.order_type,
       assignedRider: null,
     };
@@ -159,7 +159,7 @@ export class DeliveryRequestService {
 
   async updateStatus(
     id: string,
-    status: DeliveryStatus,
+    status: ShippingStatus,
   ): Promise<DeliveryRequest> {
     return this.deliveryRequestModel
       .findByIdAndUpdate(id, { status }, { new: true })

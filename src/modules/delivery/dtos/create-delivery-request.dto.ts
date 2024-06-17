@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { CreateUserAddressDto } from '@modules/user-address-book/create-user-address.dto';
 import { OrderType } from '@common/enums/order.enum';
-import { DeliveryStatus } from '@common/enums/delivery.enum';
+import { ShippingStatus } from '@common/enums/delivery.enum';
 
 class RequestFrom {
   @ApiProperty()
@@ -77,9 +77,9 @@ export class CreateDeliveryRequestDto {
   @IsEnum(OrderType)
   orderType: OrderType;
 
-  @ApiProperty({ enum: DeliveryStatus })
-  @IsEnum(DeliveryStatus)
-  status: DeliveryStatus;
+  @ApiProperty({ enum: ShippingStatus })
+  @IsEnum(ShippingStatus)
+  status: ShippingStatus;
 
   @ApiProperty({ type: AssignedRider, required: false })
   @IsOptional()
