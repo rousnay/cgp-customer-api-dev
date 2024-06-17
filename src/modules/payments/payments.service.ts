@@ -96,10 +96,12 @@ export class PaymentService {
   async updatePaymentStatus(
     stripe_id: string,
     payment_status: string,
+    isFromWarehouse: boolean,
   ): Promise<any> {
     try {
       console.log('updatePaymentStatus called');
-      const updateResult = await this.entityManager
+      // const updateResult = await this.entityManager;
+      await this.entityManager
         .createQueryBuilder()
         .update('payments')
         .set({ payment_status })
@@ -107,7 +109,21 @@ export class PaymentService {
         .andWhere('payment_status != :payment_status', { payment_status })
         .execute();
 
-      if (updateResult.affected > 0) {
+      const query = `
+        SELECT o.order_type
+        FROM payments p
+        INNER JOIN orders o ON o.id = p.order_id
+        WHERE p.stripe_id = ?
+    `;
+
+      const order_type = await this.entityManager.query(query, [stripe_id]);
+
+      // if (updateResult.affected > 0) {
+      if (
+        (payment_status === 'Paid' &&
+          order_type[0].order_type !== 'product_and_transport') ||
+        isFromWarehouse
+      ) {
         const payment = await this.entityManager
           .createQueryBuilder()
           .select('*')
@@ -131,7 +147,6 @@ export class PaymentService {
             await this.deliveryRequestService.create(
               buildDeliveryRequestPayload,
             );
-
 
           //NEED TO CHANGE DELIVERY STATUS TO SEARCHING...
 
@@ -399,13 +414,13 @@ export class PaymentService {
         case 'payment_intent.succeeded':
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
           console.log('PaymentIntent was successful:', paymentIntent.id);
-          await this.updatePaymentStatus(paymentIntent.id, 'Paid');
+          await this.updatePaymentStatus(paymentIntent.id, 'Paid', false);
           break;
 
         case 'checkout.session.completed':
           const session = event.data.object as Stripe.Checkout.Session;
           console.log('Checkout session was successful:', session.id);
-          await this.updatePaymentStatus(session.id, 'Paid');
+          await this.updatePaymentStatus(session.id, 'Paid', false);
           break;
 
         default:

@@ -7,6 +7,7 @@ import {
   Body,
   UseGuards,
   Put,
+  Param,
 } from '@nestjs/common';
 import { ApiOperation, ApiBody, ApiTags } from '@nestjs/swagger';
 
@@ -58,7 +59,19 @@ export class PaymentController {
     @Body('stripe_id') stripe_id: string,
     @Body('payment_status') payment_status: string,
   ): Promise<number> {
-    return this.paymentService.updatePaymentStatus(stripe_id, payment_status);
+    return this.paymentService.updatePaymentStatus(
+      stripe_id,
+      payment_status,
+      true,
+    );
+  }
+
+  @Put('send-transportation-request/:stripe_id')
+  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend' })
+  async requestTransportation(
+    @Param('stripe_id') stripe_id: string,
+  ): Promise<number> {
+    return this.paymentService.updatePaymentStatus(stripe_id, 'Paid', true);
   }
 
   @Post('webhook-receiver')
