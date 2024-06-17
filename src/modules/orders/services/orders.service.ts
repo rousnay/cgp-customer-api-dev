@@ -10,6 +10,8 @@ import { Orders } from '../entities/orders.entity';
 import { OrderDetails } from '../entities/order_details.entity';
 import { NotificationService } from '@modules/notification/notification.service';
 import { OrderNotificationService } from './order.notification.service';
+import { PaymentService } from '@modules/payments/payments.service';
+import { Deliveries } from '@modules/delivery/deliveries.entity';
 
 @Injectable()
 export class OrderService {
@@ -24,12 +26,21 @@ export class OrderService {
     // private readonly cartService: CartService,
     @InjectRepository(Cart)
     private readonly cartRepository: Repository<Cart>,
+    @InjectRepository(Deliveries)
+    private readonly deliveriesRepository: Repository<Deliveries>,
     private readonly notificationService: NotificationService,
     private readonly orderNotificationService: OrderNotificationService,
+    private readonly paymentService: PaymentService,
   ) {}
 
-  async placeOrder(createOrderDto: CreateOrderDto): Promise<any> {
-    const customer_id = this.request['user'].id;
+  async placeOrder(
+    payment_client: string,
+    createOrderDto: CreateOrderDto,
+  ): Promise<any> {
+    const customer = this.request['user'];
+    let stripeSession;
+    let stripePaymentIntent;
+    let stripe_id;
 
     const total_cost = createOrderDto.products.reduce((total, product) => {
       return total + product.regular_price;
@@ -41,21 +52,18 @@ export class OrderService {
       },
       0,
     );
-
     const discount = total_cost - total_sales_price;
-
     const gst = total_sales_price * 0.1;
-    const delivery_charge = 0;
-
-    const payable_amount = total_cost - discount + gst + delivery_charge;
+    const payable_amount =
+      total_sales_price + gst + createOrderDto?.delivery_charge;
 
     const newOrder = this.orderRepository.create({
       ...createOrderDto,
-      customer_id,
+      customer_id: customer?.id,
       total_cost,
       discount,
       gst,
-      delivery_charge,
+      delivery_charge: createOrderDto?.delivery_charge,
       payable_amount,
     });
     const savedOrder = await this.orderRepository.save(newOrder);
@@ -76,6 +84,58 @@ export class OrderService {
       orderDetails,
     );
 
+    if (!savedOrderDetails) {
+      throw new Error('Order not created');
+    }
+
+    const processPayment = {
+      payable_amount: payable_amount,
+      // shipping_address: createTransportationOrderDto.shipping_address,
+      // pickup_address_coordinates:
+      //   createTransportationOrderDto.pickup_address.latitude.toString() +
+      //   ',' +
+      //   createTransportationOrderDto.pickup_address.longitude.toString(),
+      // shipping_address_coordinates:
+      //   createTransportationOrderDto.shipping_address.latitude.toString() +
+      //   ',' +
+      //   createTransportationOrderDto.shipping_address.longitude.toString(),
+      // vehicle_type_id: createTransportationOrderDto.vehicle_type_id,
+      total_cost: total_cost,
+      gst: gst,
+    };
+
+    if (payment_client === 'web') {
+      stripeSession = await this.paymentService.createCheckoutSession(
+        processPayment,
+      );
+      stripe_id = stripeSession?.id;
+    } else if (payment_client === 'app') {
+      stripePaymentIntent = await this.paymentService.createPaymentIntent(
+        processPayment,
+      );
+
+      // Remove secret and get only payment Intent
+      const regex = /^(.*?)_secret/;
+      const match = stripePaymentIntent?.client_secret.match(regex);
+      stripe_id = match[1];
+    }
+
+    const savedPayment = await this.paymentService.storePaymentStatus(
+      savedOrder?.id,
+      stripe_id,
+      'Pending',
+    );
+
+    //Handle delivery
+    const savedDelivery = await this.deliveriesRepository.save({
+      customer_id: customer?.id,
+      order_id: savedOrder?.id,
+      init_distance: createOrderDto?.distance,
+      init_duration: createOrderDto?.duration,
+      delivery_charge: createOrderDto?.delivery_charge,
+    });
+
+    //Handle cart products
     const productIdsToRemove = createOrderDto.products.map(
       (product) => product.product_id,
     );
@@ -85,14 +145,21 @@ export class OrderService {
       productIdsToRemove.map(async (productId) => {
         await this.cartRepository.delete({
           product_id: productId,
-          customer_id,
+          customer_id: customer?.id,
         });
       }),
     );
 
     await this.orderNotificationService.sendOrderNotification(savedOrder);
 
-    return { ...savedOrder, line_items: savedOrderDetails };
+    return {
+      ...savedOrder,
+      line_items: savedOrderDetails,
+      delivery: savedDelivery,
+      payment: savedPayment,
+      session: stripeSession,
+      PaymentIntent: stripePaymentIntent,
+    };
   }
 
   async cancelOrder(orderId: number): Promise<void> {

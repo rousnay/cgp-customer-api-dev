@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 
 export class OrderProductDto {
   @ApiProperty()
@@ -24,12 +25,31 @@ export class CreateOrderDto {
   @ApiProperty()
   warehouse_id: number;
 
+  @IsOptional()
   @ApiProperty({ required: false })
-  shipping_address_id?: number | null; // Nullable shipping_address_id
+  shipping_address_id?: number | null;
 
+  @IsOptional()
   @ApiProperty({ required: false })
-  billing_address_id?: number | null; // Nullable billing_address_id
+  billing_address_id?: number | null;
 
+  @IsOptional()
+  @ApiProperty({ required: false })
+  distance?: number;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  duration?: number;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  vehicle_type_id?: number;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  delivery_charge?: number | 0;
+
+  @IsOptional()
   @ApiProperty({ type: [OrderProductDto] })
   products: OrderProductDto[];
 }

@@ -12,13 +12,13 @@ import { Orders } from '../entities/orders.entity';
 @Injectable()
 export class TransportationOrdersService {
   constructor(
+    @Inject(REQUEST) private readonly request: Request,
     @InjectRepository(Orders)
     private readonly transportationOrdersRepository: Repository<Orders>,
-    private readonly userAddressBookService: UserAddressBookService, // Inject PaymentService
-    private readonly paymentService: PaymentService, // Inject PaymentService
-    @Inject(REQUEST) private readonly request: Request,
     @InjectRepository(Deliveries)
     private readonly deliveriesRepository: Repository<Deliveries>,
+    private readonly userAddressBookService: UserAddressBookService,
+    private readonly paymentService: PaymentService,
   ) {}
   async create(
     payment_client: string,
