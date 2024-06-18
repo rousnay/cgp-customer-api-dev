@@ -12,6 +12,8 @@ import { NotificationService } from '@modules/notification/notification.service'
 import { OrderNotificationService } from './order.notification.service';
 import { PaymentService } from '@modules/payments/payments.service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
+import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
+import { OrderType } from '@common/enums/order.enum';
 
 @Injectable()
 export class OrderService {
@@ -30,6 +32,7 @@ export class OrderService {
     private readonly deliveriesRepository: Repository<Deliveries>,
     private readonly notificationService: NotificationService,
     private readonly orderNotificationService: OrderNotificationService,
+    private readonly userAddressBookService: UserAddressBookService,
     private readonly paymentService: PaymentService,
   ) {}
 
@@ -38,20 +41,42 @@ export class OrderService {
     createOrderDto: CreateOrderDto,
   ): Promise<any> {
     const customer = this.request['user'];
-    let stripeSession;
-    let stripePaymentIntent;
-    let stripe_id;
+    let shipping_address_id: number;
+    let stripeSession: any;
+    let stripePaymentIntent: any;
+    let stripe_id: any;
+
+    // const addressQuery = `
+    //   SELECT wb.latitude, wb.longitude
+    //   FROM warehouse_branches as wb
+    //   WHERE wb.id = ?
+    // `;
+
+    // const warehouseBranchCoordinates = await this.entityManager.query(
+    //   addressQuery,
+    //   [createOrderDto.warehouse_id],
+    // );
+
+    if (createOrderDto.shipping_address_id) {
+      shipping_address_id = createOrderDto.shipping_address_id;
+    } else {
+      const shippingAddress = await this.userAddressBookService.createAddress(
+        createOrderDto.shipping_address,
+      );
+      shipping_address_id = shippingAddress?.id;
+    }
 
     const total_cost = createOrderDto.products.reduce((total, product) => {
-      return total + product.regular_price;
+      return total + product.regular_price * product.quantity;
     }, 0);
 
     const total_sales_price = createOrderDto.products.reduce(
       (total, product) => {
-        return total + product.sales_price;
+        return total + product.sales_price * product.quantity;
       },
       0,
     );
+
     const discount = total_cost - total_sales_price;
     const gst = total_sales_price * 0.1;
     const payable_amount =
@@ -59,7 +84,9 @@ export class OrderService {
 
     const newOrder = this.orderRepository.create({
       ...createOrderDto,
+      order_type: OrderType.PRODUCT_AND_TRANSPORT,
       customer_id: customer?.id,
+      shipping_address_id,
       total_cost,
       discount,
       gst,
@@ -153,6 +180,7 @@ export class OrderService {
     await this.orderNotificationService.sendOrderNotification(savedOrder);
 
     return {
+      warehouse_branch_id: createOrderDto?.warehouse_branch_id,
       ...savedOrder,
       line_items: savedOrderDetails,
       delivery: savedDelivery,

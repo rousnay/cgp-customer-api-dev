@@ -25,22 +25,34 @@ export class TransportationOrdersService {
     createTransportationOrderDto: CreateTransportationOrderDto,
   ): Promise<any> {
     const customer = this.request['user'];
-    let stripeSession;
-    let stripePaymentIntent;
-    let stripe_id;
+    let pickup_address_id: number;
+    let shipping_address_id: number;
+    let stripeSession: any;
+    let stripePaymentIntent: any;
+    let stripe_id: any;
 
-    const pickupAddress = await this.userAddressBookService.createAddress(
-      createTransportationOrderDto.pickup_address,
-    );
+    if (createTransportationOrderDto.pickup_address_id) {
+      pickup_address_id = createTransportationOrderDto.pickup_address_id;
+    } else {
+      const pickupAddress = await this.userAddressBookService.createAddress(
+        createTransportationOrderDto.pickup_address,
+      );
+      pickup_address_id = pickupAddress?.id;
+    }
 
-    const shippingAddress = await this.userAddressBookService.createAddress(
-      createTransportationOrderDto.shipping_address,
-    );
+    if (createTransportationOrderDto.shipping_address_id) {
+      shipping_address_id = createTransportationOrderDto.shipping_address_id;
+    } else {
+      const shippingAddress = await this.userAddressBookService.createAddress(
+        createTransportationOrderDto.shipping_address,
+      );
+      shipping_address_id = shippingAddress?.id;
+    }
 
     const order = this.transportationOrdersRepository.create({
       customer_id: customer.id,
-      pickup_address_id: pickupAddress?.id,
-      shipping_address_id: shippingAddress?.id,
+      pickup_address_id,
+      shipping_address_id,
       ...createTransportationOrderDto,
     });
 
@@ -50,16 +62,16 @@ export class TransportationOrdersService {
 
     const processPayment = {
       payable_amount: order.payable_amount,
-      shipping_address: createTransportationOrderDto.shipping_address,
-      pickup_address_coordinates:
-        createTransportationOrderDto.pickup_address.latitude.toString() +
-        ',' +
-        createTransportationOrderDto.pickup_address.longitude.toString(),
-      shipping_address_coordinates:
-        createTransportationOrderDto.shipping_address.latitude.toString() +
-        ',' +
-        createTransportationOrderDto.shipping_address.longitude.toString(),
-      vehicle_type_id: createTransportationOrderDto.vehicle_type_id,
+      // shipping_address: createTransportationOrderDto.shipping_address,
+      // pickup_address_coordinates:
+      //   createTransportationOrderDto.pickup_address.latitude.toString() +
+      //   ',' +
+      //   createTransportationOrderDto.pickup_address.longitude.toString(),
+      // shipping_address_coordinates:
+      //   createTransportationOrderDto.shipping_address.latitude.toString() +
+      //   ',' +
+      //   createTransportationOrderDto.shipping_address.longitude.toString(),
+      // vehicle_type_id: createTransportationOrderDto.vehicle_type_id,
       total_cost: createTransportationOrderDto.total_cost,
       gst: createTransportationOrderDto.gst,
     };

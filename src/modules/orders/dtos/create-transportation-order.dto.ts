@@ -3,9 +3,21 @@ import { CreateUserAddressDto } from '@modules/user-address-book/create-user-add
 import { IsNumber, IsOptional } from 'class-validator';
 
 export class CreateTransportationOrderDto {
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({ required: false })
+  pickup_address_id?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({ required: false })
+  shipping_address_id?: number;
+
+  @IsOptional()
   @ApiProperty({ type: CreateUserAddressDto, required: false })
   pickup_address?: CreateUserAddressDto;
 
+  @IsOptional()
   @ApiProperty({ type: CreateUserAddressDto, required: false })
   shipping_address?: CreateUserAddressDto;
 

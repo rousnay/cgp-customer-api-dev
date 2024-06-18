@@ -1,3 +1,4 @@
+import { CreateUserAddressDto } from '@modules/user-address-book/create-user-address.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 
@@ -27,11 +28,19 @@ export class CreateOrderDto {
 
   @IsOptional()
   @ApiProperty({ required: false })
-  shipping_address_id?: number | null;
+  warehouse_branch_id: number;
 
   @IsOptional()
   @ApiProperty({ required: false })
-  billing_address_id?: number | null;
+  billing_address_id?: number;
+
+  @IsOptional()
+  @ApiProperty({ required: false })
+  shipping_address_id?: number;
+
+  @IsOptional()
+  @ApiProperty({ type: CreateUserAddressDto, required: false })
+  shipping_address?: CreateUserAddressDto;
 
   @IsOptional()
   @ApiProperty({ required: false })

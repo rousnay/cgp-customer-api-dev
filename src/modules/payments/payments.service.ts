@@ -224,10 +224,10 @@ export class PaymentService {
         // },
         // customer_name: "John Doe",
         // customer_phone: '01234567890',
+        // customer_email: customer.email,
         // customer_address:
         //   '{ "line1": "123 Main St", "city": "San Francisco", "state": "CA", "postal_code": "94105", "country": "US" }',
         customer: customer.id,
-        customer_email: order.email,
         success_url: AppConstants.stripe.success_url, // Redirect URL after successful payment
         cancel_url: AppConstants.stripe.cancel_url, // Redirect URL if payment is canceled
       });
@@ -253,28 +253,28 @@ export class PaymentService {
         amount: order?.payable_amount * 100,
         currency: 'aud',
         customer: customer?.id, // Reference the customer ID
-        metadata: {
-          order_id: order?.order_id,
-          pickup_address_coordinates: order?.pickup_address_coordinates,
-          shipping_address_coordinates: order?.shipping_address_coordinates,
-        },
-        shipping: {
-          name:
-            order?.shipping_address?.first_name +
-            ' ' +
-            order?.shipping_address?.last_name,
-          address: {
-            line1: order?.shipping_address?.line1,
-            line2: order?.shipping_address?.line2,
-            city: order?.shipping_address.address?.city,
-            state: order?.shipping_address?.state,
-            postal_code: order?.shipping_address?.postal_code,
-            country: order?.shipping_address?.country,
-          },
-          phone: order?.shipping_address?.phone,
-          carrier: 'CGP Transportation',
-          tracking_number: order?.shipping_address?.tracking_number,
-        },
+        // metadata: {
+        //   order_id: order?.order_id,
+        //   pickup_address_coordinates: order?.pickup_address_coordinates,
+        //   shipping_address_coordinates: order?.shipping_address_coordinates,
+        // },
+        // shipping: {
+        //   name:
+        //     order?.shipping_address?.first_name +
+        //     ' ' +
+        //     order?.shipping_address?.last_name,
+        //   address: {
+        //     line1: order?.shipping_address?.line1,
+        //     line2: order?.shipping_address?.line2,
+        //     city: order?.shipping_address.address?.city,
+        //     state: order?.shipping_address?.state,
+        //     postal_code: order?.shipping_address?.postal_code,
+        //     country: order?.shipping_address?.country,
+        //   },
+        //   phone: order?.shipping_address?.phone,
+        //   carrier: 'CGP Transportation',
+        //   tracking_number: order?.shipping_address?.tracking_number,
+        // },
       });
 
       // Return the payment intent
