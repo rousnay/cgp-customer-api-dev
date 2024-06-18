@@ -43,6 +43,14 @@ export class OrderNotificationService {
 
     console.log('results', results);
 
+    if (results === null) {
+      return (
+        'No device tokens found for warehouse with id ' +
+        warehouseId +
+        'to send notification'
+      );
+    }
+
     const customer = this.request['user'];
     const orderByUserId = customer?.user_id;
     const orderByUserName = customer?.first_name + ' ' + customer?.last_name;
