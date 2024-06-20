@@ -224,77 +224,192 @@ export class OrderService {
   async getOrderById(orderId: number): Promise<any> {
     const userId = this.request['user'].id;
     const query = `
-        SELECT
-            o.*,
-            w.name AS warehouse_name,
-            shipping_cb.first_name AS shipping_first_name,
-            shipping_cb.last_name AS shipping_last_name,
-            shipping_cb.phone_number_1 AS shipping_phone_number_1,
-            shipping_cb.phone_number_2 AS shipping_phone_number_2,
-            shipping_cb.address AS shipping_address,
-            shipping_cb.city AS shipping_city,
-            shipping_cb.state AS shipping_state,
-            shipping_cb.postal_code AS shipping_postal_code,
-            shipping_cb.country_id AS shipping_country_id,
-            shipping_cb.latitude AS shipping_latitude,
-            shipping_cb.longitude AS shipping_longitude,
-            shipping_cb.notes AS shipping_notes,
+    SELECT
+        o.*,
+        w.id AS warehouse_id,
+        w.name AS warehouse_name,
 
-            billing_cb.first_name AS billing_first_name,
-            billing_cb.last_name AS billing_last_name,
-            billing_cb.phone_number_1 AS billing_phone_number_1,
-            billing_cb.phone_number_2 AS billing_phone_number_2,
-            billing_cb.address AS billing_address,
-            billing_cb.city AS billing_city,
-            billing_cb.state AS billing_state,
-            billing_cb.postal_code AS billing_postal_code,
-            billing_cb.country_id AS billing_country_id,
-            billing_cb.latitude AS billing_latitude,
-            billing_cb.longitude AS billing_longitude,
-            billing_cb.notes AS billing_notes,
-            o.total_cost,
+        wb.id AS branch_id,
+        wb.name AS branch_name,
+        wb.branch_type,
+        wb.phone AS branch_phone,
+        wb.address AS branch_address,
+        wb.postal_code AS branch_postal_code,
+        wb.latitude AS branch_latitude,
+        wb.longitude AS branch_longitude,
+        wb.contact_person_name,
+        wb.contact_person_email,
 
-            pw.product_name,
-            od.product_quantity,
-            od.regular_price,
-            od.sales_price,
-            pw.active,
-            pw.has_own_product_img,
-            p.unit,
-            p.size_height,
-            p.size_width,
-            p.size_length,
-            p.weight,
-            c.name AS category_name,
-            b.name AS brand_name
+        billing_cb.first_name AS billing_first_name,
+        billing_cb.last_name AS billing_last_name,
+        billing_cb.phone_number_1 AS billing_phone_number_1,
+        billing_cb.phone_number_2 AS billing_phone_number_2,
+        billing_cb.address AS billing_address,
+        billing_cb.city AS billing_city,
+        billing_cb.state AS billing_state,
+        billing_cb.postal_code AS billing_postal_code,
+        billing_cb.country_id AS billing_country_id,
+        billing_cb.latitude AS billing_latitude,
+        billing_cb.longitude AS billing_longitude,
+        billing_cb.notes AS billing_notes,
+        o.total_cost,
 
-        FROM
-            orders o
-        LEFT JOIN
-            order_details od ON o.id = od.order_id
-        LEFT JOIN
-            user_address_book shipping_cb ON o.shipping_address_id = shipping_cb.id
-        LEFT JOIN
-            user_address_book billing_cb ON o.billing_address_id = billing_cb.id
-        LEFT JOIN
-            product_warehouse_branch pw ON od.product_id = pw.id
-        LEFT JOIN
-            products p ON od.product_id = p.id
-        LEFT JOIN
-            brands b ON p.brand_id = b.id
-        LEFT JOIN
-            categories c ON p.category_id = c.id
-        LEFT JOIN
-            warehouses w ON pw.warehouse_id = w.id
-        WHERE
-            o.id = ?
-            AND o.customer_id = ?`;
+        pickup_cb.first_name AS pickup_first_name,
+        pickup_cb.last_name AS pickup_last_name,
+        pickup_cb.phone_number_1 AS pickup_phone_number_1,
+        pickup_cb.phone_number_2 AS pickup_phone_number_2,
+        pickup_cb.address AS pickup_address,
+        pickup_cb.city AS pickup_city,
+        pickup_cb.state AS pickup_state,
+        pickup_cb.postal_code AS pickup_postal_code,
+        pickup_cb.country_id AS pickup_country_id,
+        pickup_cb.latitude AS pickup_latitude,
+        pickup_cb.longitude AS pickup_longitude,
+        pickup_cb.notes AS pickup_notes,
+
+        shipping_cb.first_name AS shipping_first_name,
+        shipping_cb.last_name AS shipping_last_name,
+        shipping_cb.phone_number_1 AS shipping_phone_number_1,
+        shipping_cb.phone_number_2 AS shipping_phone_number_2,
+        shipping_cb.address AS shipping_address,
+        shipping_cb.city AS shipping_city,
+        shipping_cb.state AS shipping_state,
+        shipping_cb.postal_code AS shipping_postal_code,
+        shipping_cb.country_id AS shipping_country_id,
+        shipping_cb.latitude AS shipping_latitude,
+        shipping_cb.longitude AS shipping_longitude,
+        shipping_cb.notes AS shipping_notes,
+
+        pw.product_name,
+        od.product_quantity,
+        od.regular_price,
+        od.sales_price,
+        pw.active,
+        pw.has_own_product_img,
+        p.unit,
+        p.size_height,
+        p.size_width,
+        p.size_length,
+        p.weight,
+        c.name AS category_name,
+        b.name AS brand_name,
+
+        d.shipping_status,
+        d.rider_id,
+        d.init_distance,
+        d.init_duration,
+        d.accepted_at,
+        d.picked_up_at,
+        d.delivered_at,
+        d.cancelled_at,
+        d.updated_at,
+
+        r.first_name AS rider_first_name,
+        r.last_name AS rider_last_name,
+        r.email AS rider_email,
+        r.phone AS rider_phone
+
+    FROM
+        orders o
+    LEFT JOIN
+        order_details od ON o.id = od.order_id
+    LEFT JOIN
+        user_address_book billing_cb ON o.billing_address_id = billing_cb.id
+    LEFT JOIN
+        user_address_book pickup_cb ON o.pickup_address_id = pickup_cb.id
+    LEFT JOIN
+        user_address_book shipping_cb ON o.shipping_address_id = shipping_cb.id
+    LEFT JOIN
+        product_warehouse_branch pw ON od.product_id = pw.id
+    LEFT JOIN
+        products p ON od.product_id = p.id
+    LEFT JOIN
+        brands b ON p.brand_id = b.id
+    LEFT JOIN
+        categories c ON p.category_id = c.id
+    LEFT JOIN
+        warehouses w ON pw.warehouse_id = w.id
+    LEFT JOIN
+        warehouse_branches wb ON pw.warehouse_branch_id = wb.id
+    LEFT JOIN
+        deliveries d ON o.id = d.order_id
+    LEFT JOIN
+        riders r ON d.rider_id = r.id
+    WHERE
+        o.id = ?
+        AND o.customer_id = ?`;
 
     const result = await this.entityManager.query(query, [orderId, userId]);
 
     if (result.length === 0) {
       throw new NotFoundException('Order not found');
     }
+
+    const warehouse = {
+      id: result[0].warehouse_id,
+      name: result[0].warehouse_name,
+      warehouse_branch: {
+        id: result[0].branch_id,
+        name: result[0].branch_name,
+        type: result[0].branch_type,
+        phone: result[0].branch_phone,
+        address: result[0].branch_address,
+        postal_code: result[0].branch_postal_code,
+        latitude: Number(result[0].branch_latitude),
+        longitude: Number(result[0].branch_longitude),
+        contact_person_name: result[0].contact_person_name,
+        contact_person_email: result[0].contact_person_email,
+      },
+    };
+
+    const pickup_address = {
+      first_name: result[0].pickup_first_name,
+      last_name: result[0].pickup_last_name,
+      phone_number_1: result[0].pickup_phone_number_1,
+      phone_number_2: result[0].pickup_phone_number_2,
+      address: result[0].pickup_address,
+      city: result[0].pickup_city,
+      state: result[0].pickup_state,
+      postal_code: result[0].pickup_postal_code,
+      country_id: result[0].pickup_country_id,
+      latitude: result[0].pickup_latitude,
+      longitude: result[0].pickup_longitude,
+      notes: result[0].pickup_notes,
+    };
+
+    const line_items = result.map((row: any) => ({
+      name: row.product_name,
+      quantity: row.product_quantity,
+      regular_price: row.regular_price,
+      sales_price: row.sales_price,
+      active: row.active,
+      has_own_product_img: row.has_own_product_img,
+      unit: row.unit,
+      size_height: row.size_height,
+      size_width: row.size_width,
+      size_length: row.size_length,
+      weight: row.weight,
+      category_name: row.category_name,
+      brand_name: row.brand_name,
+    }));
+
+    const delivery_info = {
+      shipping_status: result[0].shipping_status,
+      init_distance: result[0].init_distance,
+      init_duration: result[0].init_duration,
+      accepted_at: result[0].accepted_at,
+      picked_up_at: result[0].picked_up_at,
+      delivered_at: result[0].delivered_at,
+      cancelled_at: result[0].cancelled_at,
+      updated_at: result[0].updated_at,
+
+      rider: {
+        id: result[0].rider_id,
+        name: result[0].rider_first_name + ' ' + result[0].rider_last_name,
+        email: result[0].rider_email,
+        phone: result[0].rider_phone,
+      },
+    };
 
     const orderDetails = {
       order_id: result[0].id,
@@ -307,20 +422,7 @@ export class OrderService {
       order_status: result[0].order_status,
       created_at: result[0].created_at,
       updated_at: result[0].updated_at,
-      shipping_address: {
-        first_name: result[0].shipping_first_name,
-        last_name: result[0].shipping_last_name,
-        phone_number_1: result[0].shipping_phone_number_1,
-        phone_number_2: result[0].shipping_phone_number_2,
-        address: result[0].shipping_address,
-        city: result[0].shipping_city,
-        state: result[0].shipping_state,
-        postal_code: result[0].shipping_postal_code,
-        country_id: result[0].shipping_country_id,
-        latitude: result[0].shipping_latitude,
-        longitude: result[0].shipping_longitude,
-        notes: result[0].shipping_notes,
-      },
+      warehouse: null,
       billing_address: {
         first_name: result[0].billing_first_name,
         last_name: result[0].billing_last_name,
@@ -335,23 +437,31 @@ export class OrderService {
         longitude: result[0].billing_longitude,
         notes: result[0].billing_notes,
       },
-
-      line_items: result.map((row: any) => ({
-        name: row.product_name,
-        quantity: row.product_quantity,
-        regular_price: row.regular_price,
-        sales_price: row.sales_price,
-        active: row.active,
-        has_own_product_img: row.has_own_product_img,
-        unit: row.unit,
-        size_height: row.size_height,
-        size_width: row.size_width,
-        size_length: row.size_length,
-        weight: row.weight,
-        category_name: row.category_name,
-        brand_name: row.brand_name,
-      })),
+      pickup_address: null,
+      shipping_address: {
+        first_name: result[0].shipping_first_name,
+        last_name: result[0].shipping_last_name,
+        phone_number_1: result[0].shipping_phone_number_1,
+        phone_number_2: result[0].shipping_phone_number_2,
+        address: result[0].shipping_address,
+        city: result[0].shipping_city,
+        state: result[0].shipping_state,
+        postal_code: result[0].shipping_postal_code,
+        country_id: result[0].shipping_country_id,
+        latitude: result[0].shipping_latitude,
+        longitude: result[0].shipping_longitude,
+        notes: result[0].shipping_notes,
+      },
+      line_items: null,
+      delivery_info: delivery_info,
     };
+
+    if (result[0].order_type === OrderType.PRODUCT_AND_TRANSPORT) {
+      orderDetails.warehouse = warehouse;
+      orderDetails.line_items = line_items;
+    } else {
+      orderDetails.pickup_address = pickup_address;
+    }
 
     return orderDetails;
   }
