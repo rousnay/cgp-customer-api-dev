@@ -71,7 +71,7 @@ export class DeliveryRequestService {
         .createQueryBuilder()
         .select('*')
         .from('warehouse_branches', 'wb')
-        .where('wb.id = :warehouseId', {
+        .where('wb.warehouse_id = :warehouseId', {
           warehouseId,
         })
         .getRawMany();
@@ -97,7 +97,7 @@ export class DeliveryRequestService {
       // pickupLocation = await this.userAddressBookRepository.findOne({
       //   where: { id: order.warehouse_id },
       // });
-    } else if (order.order_type === OrderType.TRANSPORTATION_ONLY) {
+    } else {
       const customerId = order.customer_id;
       const customer = await this.entityManager
         .createQueryBuilder()
