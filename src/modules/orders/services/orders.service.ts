@@ -14,6 +14,7 @@ import { PaymentService } from '@modules/payments/payments.service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { OrderType } from '@common/enums/order.enum';
+import { LocationService } from '@modules/location/location.service';
 
 @Injectable()
 export class OrderService {
@@ -33,6 +34,7 @@ export class OrderService {
     private readonly notificationService: NotificationService,
     private readonly orderNotificationService: OrderNotificationService,
     private readonly userAddressBookService: UserAddressBookService,
+    private readonly locationService: LocationService,
     private readonly paymentService: PaymentService,
   ) {}
 
@@ -408,8 +410,21 @@ export class OrderService {
         name: result[0].rider_first_name + ' ' + result[0].rider_last_name,
         email: result[0].rider_email,
         phone: result[0].rider_phone,
+        location: null,
       },
     };
+
+    if (result[0].rider_id) {
+      const rider_location = await this.locationService.getLocation(
+        result[0].rider_id,
+      );
+
+      delivery_info.rider.location = {
+        latitude: rider_location.location.coordinates[1],
+        longitude: rider_location.location.coordinates[0],
+        updated_at: rider_location.updatedAt,
+      };
+    }
 
     const orderDetails = {
       order_id: result[0].id,
