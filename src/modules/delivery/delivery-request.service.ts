@@ -58,23 +58,45 @@ export class DeliveryRequestService {
       order.order_type === OrderType.WAREHOUSE_TRANSPORTATION
     ) {
       const warehouseId = order.warehouse_id;
-      const warehouse = await this.entityManager
+      // const warehouse = await this.entityManager
+      //   .createQueryBuilder()
+      //   .select('*')
+      //   .from('warehouses', 'w')
+      //   .where('w.id = :warehouseId', {
+      //     warehouseId,
+      //   })
+      //   .getRawOne();
+
+      const warehouseBranches = await this.entityManager
         .createQueryBuilder()
         .select('*')
-        .from('warehouses', 'p')
-        .where('p.id = :customerId', {
+        .from('warehouse_branches', 'wb')
+        .where('wb.id = :warehouseId', {
           warehouseId,
         })
-        .getRawOne();
+        .getRawMany();
 
       requestFrom = {
-        id: warehouse.id,
-        name: warehouse.name,
+        id: warehouseBranches[0].id,
+        name: warehouseBranches[0].name,
       };
 
-      pickupLocation = await this.userAddressBookRepository.findOne({
-        where: { id: order.warehouse_id },
-      });
+      pickupLocation = {
+        warehouse_branch_id: warehouseBranches[0].id,
+        warehouse_branch_name: warehouseBranches[0].name,
+        phone: warehouseBranches[0].phone,
+        email: warehouseBranches[0].email,
+        address: warehouseBranches[0].address,
+        contact_person_name: warehouseBranches[0].contact_person_name,
+        contact_person_email: warehouseBranches[0].contact_person_email,
+        postal_code: warehouseBranches[0].postal_code,
+        latitude: Number(warehouseBranches[0].latitude),
+        longitude: Number(warehouseBranches[0].longitude),
+      };
+
+      // pickupLocation = await this.userAddressBookRepository.findOne({
+      //   where: { id: order.warehouse_id },
+      // });
     } else if (order.order_type === OrderType.TRANSPORTATION_ONLY) {
       const customerId = order.customer_id;
       const customer = await this.entityManager
