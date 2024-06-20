@@ -2,6 +2,10 @@ import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
+import {
+  Client,
+  DistanceMatrixResponse,
+} from '@googlemaps/google-maps-services-js';
 
 // import { CartService } from '@modules/cart/cart.service';
 import { Cart } from '@modules/cart/cart.entity';
@@ -15,10 +19,14 @@ import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { OrderType } from '@common/enums/order.enum';
 import { LocationService } from '@modules/location/location.service';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class OrderService {
+  private readonly googleMapsClient: Client;
+  private readonly googleMapsApiKey: string;
   constructor(
+    configService: ConfigService,
     @Inject(REQUEST) private readonly request: Request,
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
@@ -36,7 +44,10 @@ export class OrderService {
     private readonly userAddressBookService: UserAddressBookService,
     private readonly locationService: LocationService,
     private readonly paymentService: PaymentService,
-  ) {}
+  ) {
+    this.googleMapsClient = new Client({});
+    this.googleMapsApiKey = configService.googleMapsApiKey;
+  }
 
   async placeOrder(
     payment_client: string,
@@ -300,6 +311,8 @@ export class OrderService {
         d.rider_id,
         d.init_distance,
         d.init_duration,
+        d.final_distance,
+        d.final_duration,
         d.accepted_at,
         d.picked_up_at,
         d.delivered_at,
@@ -399,6 +412,10 @@ export class OrderService {
       shipping_status: result[0].shipping_status,
       init_distance: result[0].init_distance,
       init_duration: result[0].init_duration,
+      final_distance: result[0].final_distance,
+      final_duration: result[0].final_duration,
+      estimated_remaining_distance: null,
+      estimated_remaining_time: null,
       accepted_at: result[0].accepted_at,
       picked_up_at: result[0].picked_up_at,
       delivered_at: result[0].delivered_at,
@@ -424,6 +441,41 @@ export class OrderService {
         longitude: rider_location.location.coordinates[0],
         updated_at: rider_location.updatedAt,
       };
+
+      const response: DistanceMatrixResponse =
+        await this.googleMapsClient.distancematrix({
+          params: {
+            origins: [
+              rider_location.location.coordinates[1] +
+                ',' +
+                rider_location.location.coordinates[0],
+            ],
+            destinations: [
+              result[0].shipping_latitude.toString() +
+                ',' +
+                result[0].shipping_longitude.toString(),
+            ],
+            key: this.googleMapsApiKey,
+          },
+        });
+
+      if (
+        response.status === 200 &&
+        response.data.rows[0].elements[0].status !== 'ZERO_RESULTS'
+      ) {
+        // console.log(response.data.rows[0].elements[0].status !== 'ZERO_RESULTS');
+        const estimated_distance =
+          response.data.rows[0].elements[0].distance.value / 1000;
+        const estimated_duration =
+          response.data.rows[0].elements[0].duration.value / 60;
+
+        delivery_info.estimated_remaining_distance = estimated_distance;
+        delivery_info.estimated_remaining_time = estimated_duration;
+      } else {
+        throw new NotFoundException(
+          'No location has been found with given coordinates',
+        );
+      }
     }
 
     const orderDetails = {
