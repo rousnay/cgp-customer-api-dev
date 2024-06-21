@@ -21,7 +21,8 @@ export class GeoLocationService {
       const response: GeocodeResponse = await this.googleMapsClient.geocode({
         params: {
           address,
-          key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c',
+          // key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c',
+          key: 'AIzaSyCUqRnsyjWiluojL3z2-9VRoZ7ABubgbpE',
         },
       });
 

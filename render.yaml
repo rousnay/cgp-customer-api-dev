@@ -1,0 +1,5 @@
+buildCommand: npm run build
+startCommand: npm run start:dev
+env:
+  NODE_ENV: production
+  PORT: 3000
