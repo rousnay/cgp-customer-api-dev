@@ -60,7 +60,7 @@ export class OrderNotificationService {
 
     const data = {
       target: 'warehouse',
-      type: 'new_order',
+      type: 'order',
       warehouseId: warehouseId.toString(),
       orderId: order?.id.toString(),
       orderByUserId: orderByUserId.toString(),

@@ -35,26 +35,13 @@ export class OrderController {
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Place an order' })
   @ApiBody({ type: CreateOrderDto })
-  @ApiQuery({
-    name: 'payment_client',
-    type: 'string',
-    required: true,
-    description: 'Payment client type',
-    enum: ['web', 'app'],
-  })
-  async placeOrder(
-    @Query('payment_client') payment_client: string,
-    @Body() createOrderDto: CreateOrderDto,
-  ): Promise<{
+  async placeOrder(@Body() createOrderDto: CreateOrderDto): Promise<{
     status: string;
     message: string;
     data: Orders;
   }> {
     try {
-      const order = await this.orderService.placeOrder(
-        payment_client,
-        createOrderDto,
-      );
+      const order = await this.orderService.placeOrder(createOrderDto);
       return {
         status: 'success',
         message: 'Order placed successfully',

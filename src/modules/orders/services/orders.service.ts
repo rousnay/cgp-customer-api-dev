@@ -39,36 +39,17 @@ export class OrderService {
     private readonly cartRepository: Repository<Cart>,
     @InjectRepository(Deliveries)
     private readonly deliveriesRepository: Repository<Deliveries>,
-    private readonly notificationService: NotificationService,
     private readonly orderNotificationService: OrderNotificationService,
     private readonly userAddressBookService: UserAddressBookService,
     private readonly locationService: LocationService,
-    private readonly paymentService: PaymentService,
   ) {
     this.googleMapsClient = new Client({});
     this.googleMapsApiKey = configService.googleMapsApiKey;
   }
 
-  async placeOrder(
-    payment_client: string,
-    createOrderDto: CreateOrderDto,
-  ): Promise<any> {
+  async placeOrder(createOrderDto: CreateOrderDto): Promise<any> {
     const customer = this.request['user'];
     let shipping_address_id: number;
-    let stripeSession: any;
-    let stripePaymentIntent: any;
-    let stripe_id: any;
-
-    // const addressQuery = `
-    //   SELECT wb.latitude, wb.longitude
-    //   FROM warehouse_branches as wb
-    //   WHERE wb.id = ?
-    // `;
-
-    // const warehouseBranchCoordinates = await this.entityManager.query(
-    //   addressQuery,
-    //   [createOrderDto.warehouse_id],
-    // );
 
     if (createOrderDto.shipping_address_id) {
       shipping_address_id = createOrderDto.shipping_address_id;
@@ -92,8 +73,7 @@ export class OrderService {
 
     const discount = total_cost - total_sales_price;
     const gst = total_sales_price * 0.1;
-    const payable_amount =
-      total_sales_price + gst + createOrderDto?.delivery_charge;
+    const payable_amount = total_sales_price + gst;
 
     const newOrder = this.orderRepository.create({
       ...createOrderDto,
@@ -103,7 +83,6 @@ export class OrderService {
       total_cost,
       discount,
       gst,
-      delivery_charge: createOrderDto?.delivery_charge,
       payable_amount,
     });
     const savedOrder = await this.orderRepository.save(newOrder);
@@ -128,51 +107,10 @@ export class OrderService {
       throw new Error('Order not created');
     }
 
-    const processPayment = {
-      payable_amount: payable_amount,
-      // shipping_address: createTransportationOrderDto.shipping_address,
-      // pickup_address_coordinates:
-      //   createTransportationOrderDto.pickup_address.latitude.toString() +
-      //   ',' +
-      //   createTransportationOrderDto.pickup_address.longitude.toString(),
-      // shipping_address_coordinates:
-      //   createTransportationOrderDto.shipping_address.latitude.toString() +
-      //   ',' +
-      //   createTransportationOrderDto.shipping_address.longitude.toString(),
-      // vehicle_type_id: createTransportationOrderDto.vehicle_type_id,
-      total_cost: total_cost,
-      gst: gst,
-    };
-
-    if (payment_client === 'web') {
-      stripeSession = await this.paymentService.createCheckoutSession(
-        processPayment,
-      );
-      stripe_id = stripeSession?.id;
-    } else if (payment_client === 'app') {
-      stripePaymentIntent = await this.paymentService.createPaymentIntent(
-        processPayment,
-      );
-
-      // Remove secret and get only payment Intent
-      const regex = /^(.*?)_secret/;
-      const match = stripePaymentIntent?.client_secret.match(regex);
-      stripe_id = match[1];
-    }
-
-    const savedPayment = await this.paymentService.storePaymentStatus(
-      savedOrder?.id,
-      stripe_id,
-      'Pending',
-    );
-
     //Handle delivery
     const savedDelivery = await this.deliveriesRepository.save({
       customer_id: customer?.id,
       order_id: savedOrder?.id,
-      init_distance: createOrderDto?.distance,
-      init_duration: createOrderDto?.duration,
-      delivery_charge: createOrderDto?.delivery_charge,
     });
 
     //Handle cart products
@@ -197,9 +135,6 @@ export class OrderService {
       ...savedOrder,
       line_items: savedOrderDetails,
       delivery: savedDelivery,
-      payment: savedPayment,
-      session: stripeSession,
-      PaymentIntent: stripePaymentIntent,
     };
   }
 

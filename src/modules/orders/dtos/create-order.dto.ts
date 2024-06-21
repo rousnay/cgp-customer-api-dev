@@ -32,31 +32,31 @@ export class CreateOrderDto {
 
   @IsOptional()
   @ApiProperty({ required: false })
-  billing_address_id?: number;
-
-  @IsOptional()
-  @ApiProperty({ required: false })
   shipping_address_id?: number;
 
   @IsOptional()
   @ApiProperty({ type: CreateUserAddressDto, required: false })
   shipping_address?: CreateUserAddressDto;
 
-  @IsOptional()
-  @ApiProperty({ required: false })
-  distance?: number;
+  // @IsOptional()
+  // @ApiProperty({ required: false })
+  // billing_address_id?: number;
 
-  @IsOptional()
-  @ApiProperty({ required: false })
-  duration?: number;
+  // @IsOptional()
+  // @ApiProperty({ required: false })
+  // distance?: number;
 
-  @IsOptional()
-  @ApiProperty({ required: false })
-  vehicle_type_id?: number;
+  // @IsOptional()
+  // @ApiProperty({ required: false })
+  // duration?: number;
 
-  @IsOptional()
-  @ApiProperty({ required: false })
-  delivery_charge?: number | 0;
+  // @IsOptional()
+  // @ApiProperty({ required: false })
+  // vehicle_type_id?: number;
+
+  // @IsOptional()
+  // @ApiProperty({ required: false })
+  // delivery_charge?: number | 0;
 
   @IsOptional()
   @ApiProperty({ type: [OrderProductDto] })
