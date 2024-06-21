@@ -58,9 +58,14 @@ export class OrderController {
   @ApiOperation({ summary: 'Cancel an order' })
   async cancelOrder(
     @Param('orderId', ParseIntPipe) orderId: number,
-  ): Promise<void> {
+  ): Promise<any> {
     try {
       await this.orderService.cancelOrder(orderId);
+      return {
+        status: 'success',
+        message: 'Order has been cancelled successfully',
+        data: { id: orderId },
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException('Order not found');

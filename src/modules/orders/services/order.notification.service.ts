@@ -35,7 +35,7 @@ export class OrderNotificationService {
     }));
   }
 
-  async sendOrderNotification(order: any) {
+  async sendOrderNotification(order: any, status: string) {
     // console.log(order);
     const warehouseId = order?.warehouse_id;
     console.log('warehouseId', warehouseId);
@@ -55,8 +55,16 @@ export class OrderNotificationService {
     const orderByUserId = customer?.user_id;
     const orderByUserName = customer?.first_name + ' ' + customer?.last_name;
 
-    const title = 'New Order Placed';
-    const message = 'You have a new order from ' + orderByUserName;
+    let title: string;
+    let message: string;
+
+    if (status === 'order_placed') {
+      title = 'New Order Placed';
+      message = 'You have a new order from ' + orderByUserName;
+    } else if (status === 'order_cancelled') {
+      title = 'Order Cancelled';
+      message = 'Your order has been cancelled by ' + orderByUserName;
+    }
 
     const data = {
       target: 'warehouse',

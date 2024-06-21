@@ -17,7 +17,7 @@ import { OrderNotificationService } from './order.notification.service';
 import { PaymentService } from '@modules/payments/payments.service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
-import { OrderType } from '@common/enums/order.enum';
+import { OrderStatus, OrderType } from '@common/enums/order.enum';
 import { LocationService } from '@modules/location/location.service';
 import { ConfigService } from '@config/config.service';
 
@@ -128,7 +128,10 @@ export class OrderService {
       }),
     );
 
-    await this.orderNotificationService.sendOrderNotification(savedOrder);
+    await this.orderNotificationService.sendOrderNotification(
+      savedOrder,
+      'order_placed',
+    );
 
     return {
       warehouse_branch_id: createOrderDto?.warehouse_branch_id,
@@ -145,7 +148,12 @@ export class OrderService {
     if (!order) {
       throw new NotFoundException('Order not found');
     }
-    await this.orderRepository.remove(order);
+    order.order_status = OrderStatus.CANCELLED;
+    await this.orderRepository.save(order);
+    await this.orderNotificationService.sendOrderNotification(
+      order,
+      'order_cancelled',
+    );
   }
 
   async deleteOrder(orderId: number): Promise<void> {
