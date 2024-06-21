@@ -478,8 +478,12 @@ export class OrderService {
 
   async getOrderHistory(): Promise<Orders[]> {
     const customer_id = this.request['user'].id;
+    console.log(customer_id);
     return await this.orderRepository.find({
       where: { customer_id: customer_id },
+      order: {
+        created_at: 'DESC',
+      },
     });
   }
 }
