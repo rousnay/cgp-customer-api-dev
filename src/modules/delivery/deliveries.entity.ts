@@ -54,22 +54,34 @@ export class Deliveries {
     type: 'timestamp',
     nullable: true,
   })
-  accepted_at: Date;
+  created_at: Date;
 
   @CreateDateColumn({
-    type: 'timestamp',
+    nullable: true,
+  })
+  accepted_at: Date;
+
+  @Column({
+    nullable: true,
+  })
+  reached_pickup_point_at: Date;
+
+  @Column({
     nullable: true,
   })
   picked_up_at: Date;
 
-  @CreateDateColumn({
-    type: 'timestamp',
+  @Column({
+    nullable: true,
+  })
+  reached_delivery_point_at: Date;
+
+  @Column({
     nullable: true,
   })
   delivered_at: Date;
 
-  @CreateDateColumn({
-    type: 'timestamp',
+  @Column({
     nullable: true,
   })
   cancelled_at: Date;
