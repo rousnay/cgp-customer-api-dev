@@ -70,14 +70,12 @@ export class Orders {
   })
   created_at: Date;
 
-  @CreateDateColumn({
-    type: 'timestamp',
+  @Column({
     nullable: true,
   })
   accepted_at: Date;
 
-  @CreateDateColumn({
-    type: 'timestamp',
+  @Column({
     nullable: true,
   })
   cancelled_at: Date;

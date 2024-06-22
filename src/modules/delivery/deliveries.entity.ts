@@ -56,7 +56,7 @@ export class Deliveries {
   })
   created_at: Date;
 
-  @CreateDateColumn({
+  @Column({
     nullable: true,
   })
   accepted_at: Date;
