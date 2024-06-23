@@ -119,11 +119,14 @@ export class PaymentService {
       const order_type = await this.entityManager.query(query, [stripe_id]);
 
       // if (updateResult.affected > 0) {
-      if (
-        (payment_status === 'Paid' &&
-          order_type[0].order_type !== 'product_and_transport') ||
-        isFromWarehouse
-      ) {
+
+      // if (
+      //   (payment_status === 'Paid' &&
+      //     order_type[0].order_type !== 'product_and_transport') ||
+      //   isFromWarehouse
+      // ) {
+
+      if (payment_status === 'Paid') {
         const payment = await this.entityManager
           .createQueryBuilder()
           .select('*')
