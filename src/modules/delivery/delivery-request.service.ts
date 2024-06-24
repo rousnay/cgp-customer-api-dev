@@ -83,7 +83,6 @@ export class DeliveryRequestService {
 
       pickupLocation = {
         id: Number(warehouseBranches[0].id),
-        customer_id: Number(warehouseId),
         warehouse_branch_id: warehouseBranches[0].id,
         warehouse_branch_name: warehouseBranches[0].name,
         phone: warehouseBranches[0].phone,
@@ -144,7 +143,7 @@ export class DeliveryRequestService {
       deliveryCost: delivery.delivery_charge,
       estimatedArrivalTime: '250', // NEED TO REWORK THIS
       status: ShippingStatus.SEARCHING,
-      orderType: 'transportation_only',
+      orderType: order.order_type,
       assignedRider: null,
     };
   }
