@@ -141,7 +141,7 @@ export class DeliveryRequestService {
       deliveryCost: delivery.delivery_charge,
       estimatedArrivalTime: '250', // NEED TO REWORK THIS
       status: ShippingStatus.SEARCHING,
-      orderType: order.order_type,
+      orderType: 'transportation_only',
       assignedRider: null,
     };
   }
