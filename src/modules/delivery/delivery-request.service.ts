@@ -94,6 +94,7 @@ export class DeliveryRequestService {
         postal_code: warehouseBranches[0].postal_code,
         latitude: Number(warehouseBranches[0].latitude),
         longitude: Number(warehouseBranches[0].longitude),
+        address_type: 'pickup',
       };
 
       // pickupLocation = await this.userAddressBookRepository.findOne({
