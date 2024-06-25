@@ -103,6 +103,7 @@ export class TransportationOrdersService {
     const savedDelivery = await this.deliveriesRepository.save({
       customer_id: customer?.id,
       order_id: savedOrder?.id,
+      // vehicle_type_id: createTransportationOrderDto?.vehicle_type_id,
       init_distance: createTransportationOrderDto?.distance,
       init_duration: createTransportationOrderDto?.duration,
       delivery_charge: createTransportationOrderDto?.payable_amount,

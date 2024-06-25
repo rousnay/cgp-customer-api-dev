@@ -51,7 +51,7 @@ export class DeliveryRequestService {
 
     console.log('order', order);
 
-    let pickupLocation, requestFrom;
+    let requestFrom, pickupLocation, dropOffLocation;
 
     if (
       order.order_type === OrderType.PRODUCT_AND_TRANSPORT ||
@@ -77,14 +77,13 @@ export class DeliveryRequestService {
         .getRawMany();
 
       requestFrom = {
-        id: warehouseBranches[0].id,
+        id: Number(warehouseBranches[0].id),
         name: warehouseBranches[0].name,
       };
 
       pickupLocation = {
         id: Number(warehouseBranches[0].id),
-        warehouse_branch_id: warehouseBranches[0].id,
-        warehouse_branch_name: warehouseBranches[0].name,
+        name: warehouseBranches[0].name,
         phone: warehouseBranches[0].phone,
         email: warehouseBranches[0].email,
         address: warehouseBranches[0].address,
@@ -115,14 +114,38 @@ export class DeliveryRequestService {
         name: customer.first_name + ' ' + customer.last_name,
       };
 
-      pickupLocation = await this.userAddressBookRepository.findOne({
+      const pickupLocationRaw = await this.userAddressBookRepository.findOne({
         where: { id: order.pickup_address_id },
       });
+
+      if (pickupLocationRaw) {
+        const { id, first_name, last_name, phone_number_1, ...rest } =
+          pickupLocationRaw;
+
+        pickupLocation = {
+          id: id,
+          name: first_name + ' ' + last_name,
+          phone: phone_number_1,
+          ...rest,
+        };
+      }
     }
 
-    const dropOffLocation = await this.userAddressBookRepository.findOne({
+    const dropOffLocationRaw = await this.userAddressBookRepository.findOne({
       where: { id: order.shipping_address_id },
     });
+
+    if (dropOffLocationRaw) {
+      const { id, first_name, last_name, phone_number_1, ...rest } =
+        dropOffLocationRaw;
+
+      dropOffLocation = {
+        id: id,
+        name: first_name + ' ' + last_name,
+        phone: phone_number_1,
+        ...rest,
+      };
+    }
 
     const delivery = await this.deliveriesRepository.findOne({
       where: { order_id: payment?.order_id },
@@ -135,6 +158,7 @@ export class DeliveryRequestService {
       orderId: payment.order_id,
       stripeId: payment.stripe_id,
       deliveryId: delivery.id.toString(),
+      // targetedVehicleTypeId: delivery.vehicle_type_id.toString(),
       requestFrom,
       pickupLocation,
       dropOffLocation,
