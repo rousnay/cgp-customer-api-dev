@@ -83,6 +83,7 @@ export class DeliveryRequestService {
 
       pickupLocation = {
         id: Number(warehouseBranches[0].id),
+        warehouse_id: Number(warehouseId),
         name: warehouseBranches[0].name,
         phone: warehouseBranches[0].phone,
         email: warehouseBranches[0].email,
