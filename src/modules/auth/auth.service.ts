@@ -620,6 +620,36 @@ export class AuthService {
     }
   }
 
+  async removeDeviceToken(
+    req: any,
+    device_token: string,
+  ): Promise<{ message: string }> {
+    const userId = req.user.user_id;
+
+    console.log(userId, device_token);
+
+    const sql = `
+    DELETE FROM user_device_tokens
+    WHERE user_id = ? AND device_token = ?
+  `;
+
+    try {
+      const result = await this.entityManager.query(sql, [
+        userId,
+        device_token,
+      ]);
+
+      if (result.affectedRows === 0) {
+        return { message: 'No matching device token found for the user.' };
+      }
+
+      return { message: 'Device token removed successfully.' };
+    } catch (error) {
+      console.error('Error removing device token:', error);
+      throw new Error('Failed to remove device token');
+    }
+  }
+
   async getLoggedInCustomerInfo(authorizationHeader: string): Promise<any> {
     if (!authorizationHeader) {
       throw new Error('Authorization header is missing');

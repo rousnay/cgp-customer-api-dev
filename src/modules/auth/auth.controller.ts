@@ -6,6 +6,8 @@ import {
   Request,
   UseGuards,
   Req,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 
 import {
@@ -136,7 +138,8 @@ export class AuthController {
           session_id: 'r4m17y4p1vpaens2zj86lscguxqhxynvf',
           password: '12345678',
           password_confirmation: '12345678',
-          device_token: 'df345nngf8dfgu',
+          device_token:
+            'fq-Gq6wxTJqb-luPyicKRo:APA91bGhzPf1nRz_DYQA3M5WFGQfoD9ufPlMlwK4yay',
         },
       },
     },
@@ -241,7 +244,8 @@ export class AuthController {
         value: {
           session_id: 'r4m17y4p1vpaens2zj86lscguxqhxynvf',
           otp: '567809',
-          device_token: 'df345nngf8dfgu',
+          device_token:
+            'fq-Gq6wxTJqb-luPyicKRo:APA91bGhzPf1nRz_DYQA3M5WFGQfoD9ufPlMlwK4yay',
         },
       },
     },
@@ -425,6 +429,41 @@ export class AuthController {
     },
   ) {
     return this.authService.resentOTP(data.session_id);
+  }
+
+  @Post('logout')
+  @ApiOperation({ summary: 'Logout user & remove device token' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiBody({
+    description: 'Logout data',
+    examples: {
+      credentials: {
+        summary: 'Example of valid data',
+        value: {
+          device_token:
+            'fq-Gq6wxTJqb-luPyicKRo:APA91bGhzPf1nRz_DYQA3M5WFGQfoD9ufPlMlwK4yay',
+        },
+      },
+    },
+  })
+  async logout(@Request() req, @Body('device_token') device_token: string) {
+    try {
+      const result = await this.authService.removeDeviceToken(
+        req,
+        device_token,
+      );
+      return {
+        status: 'success',
+        message: result.message,
+        // data: result,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Logout failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Get('customer')
