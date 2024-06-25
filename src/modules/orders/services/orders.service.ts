@@ -196,6 +196,7 @@ export class OrderService {
         wb.contact_person_name,
         wb.contact_person_email,
 
+        billing_cb.id AS billing_id,
         billing_cb.first_name AS billing_first_name,
         billing_cb.last_name AS billing_last_name,
         billing_cb.phone_number_1 AS billing_phone_number_1,
@@ -223,6 +224,7 @@ export class OrderService {
         pickup_cb.longitude AS pickup_longitude,
         pickup_cb.notes AS pickup_notes,
 
+        shipping_cb.id AS shipping_id,
         shipping_cb.first_name AS shipping_first_name,
         shipping_cb.last_name AS shipping_last_name,
         shipping_cb.phone_number_1 AS shipping_phone_number_1,
@@ -311,10 +313,41 @@ export class OrderService {
     }
 
     const warehouse = {
-      id: result[0].warehouse_id,
+      id: Number(result[0].warehouse_id),
       name: result[0].warehouse_name,
-      warehouse_branch: {
-        id: result[0].branch_id,
+      // warehouse_branch: {
+      //   id: result[0].branch_id,
+      //   name: result[0].branch_name,
+      //   type: result[0].branch_type,
+      //   phone: result[0].branch_phone,
+      //   address: result[0].branch_address,
+      //   postal_code: result[0].branch_postal_code,
+      //   latitude: Number(result[0].branch_latitude),
+      //   longitude: Number(result[0].branch_longitude),
+      //   contact_person_name: result[0].contact_person_name,
+      //   contact_person_email: result[0].contact_person_email,
+      // },
+    };
+
+    let pickup_address;
+
+    if (result[0].order_type === OrderType.TRANSPORTATION_ONLY) {
+      pickup_address = {
+        name: result[0].pickup_first_name + ' ' + result[0].pickup_last_name,
+        phone: result[0].pickup_phone_number_1,
+        phone_number_2: result[0].pickup_phone_number_2,
+        address: result[0].pickup_address,
+        city: result[0].pickup_city,
+        state: result[0].pickup_state,
+        postal_code: result[0].pickup_postal_code,
+        country_id: result[0].pickup_country_id,
+        latitude: result[0].pickup_latitude,
+        longitude: result[0].pickup_longitude,
+        notes: result[0].pickup_notes,
+      };
+    } else {
+      pickup_address = {
+        id: Number(result[0].branch_id),
         name: result[0].branch_name,
         type: result[0].branch_type,
         phone: result[0].branch_phone,
@@ -324,23 +357,8 @@ export class OrderService {
         longitude: Number(result[0].branch_longitude),
         contact_person_name: result[0].contact_person_name,
         contact_person_email: result[0].contact_person_email,
-      },
-    };
-
-    const pickup_address = {
-      first_name: result[0].pickup_first_name,
-      last_name: result[0].pickup_last_name,
-      phone_number_1: result[0].pickup_phone_number_1,
-      phone_number_2: result[0].pickup_phone_number_2,
-      address: result[0].pickup_address,
-      city: result[0].pickup_city,
-      state: result[0].pickup_state,
-      postal_code: result[0].pickup_postal_code,
-      country_id: result[0].pickup_country_id,
-      latitude: result[0].pickup_latitude,
-      longitude: result[0].pickup_longitude,
-      notes: result[0].pickup_notes,
-    };
+      };
+    }
 
     const line_items = result.map((row: any) => ({
       name: row.product_name,
@@ -446,9 +464,9 @@ export class OrderService {
       updated_at: result[0].updated_at,
       warehouse: null,
       billing_address: {
-        first_name: result[0].billing_first_name,
-        last_name: result[0].billing_last_name,
-        phone_number_1: result[0].billing_phone_number_1,
+        id: result[0].billing_address_id,
+        name: result[0].billing_first_name + ' ' + result[0].billing_last_name,
+        phone: result[0].billing_phone_number_1,
         phone_number_2: result[0].billing_phone_number_2,
         address: result[0].billing_address,
         city: result[0].billing_city,
@@ -459,11 +477,12 @@ export class OrderService {
         longitude: result[0].billing_longitude,
         notes: result[0].billing_notes,
       },
-      pickup_address: null,
+      pickup_address: pickup_address,
       shipping_address: {
-        first_name: result[0].shipping_first_name,
-        last_name: result[0].shipping_last_name,
-        phone_number_1: result[0].shipping_phone_number_1,
+        id: result[0].shipping_address_id,
+        name:
+          result[0].shipping_first_name + ' ' + result[0].shipping_last_name,
+        phone: result[0].shipping_phone_number_1,
         phone_number_2: result[0].shipping_phone_number_2,
         address: result[0].shipping_address,
         city: result[0].shipping_city,
