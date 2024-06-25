@@ -7,7 +7,7 @@ import { configSwagger } from '@config/swagger.config';
 import { LoggerFactory } from '@config/winston.config';
 import { SentryFilter } from '@core/filters/sentry.filter';
 import { CustomValidationPipe } from '@core/pipes/custom-validation.pipe';
-import { SocketAdapter } from '@core/adapters/socket.adapter';
+// import { SocketAdapter } from '@core/adapters/socket.adapter';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -31,7 +31,7 @@ async function bootstrap() {
   app.useGlobalPipes(new CustomValidationPipe());
 
   // use the custom socket adapter
-  app.useWebSocketAdapter(new SocketAdapter(app));
+  // app.useWebSocketAdapter(new SocketAdapter(app));
 
   // Import the filter globally, capturing all exceptions on all routes
   const { httpAdapter } = app.get(HttpAdapterHost);

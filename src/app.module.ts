@@ -20,7 +20,7 @@ import { DeliveryModule } from '@modules/delivery/delivery.module';
 import { PaymentModule } from '@modules/payments/payments.module';
 import { LocationModule } from '@modules/location/location.module';
 import { NotificationsModule } from '@modules/notification/notification.module';
-import { ChatModule } from '@modules/chat/chat.module';
+// import { ChatModule } from '@modules/chat/chat.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 
@@ -44,10 +44,10 @@ import { AppController } from './app.controller';
     GeoLocationModule,
     NotificationsModule,
     PaymentModule,
-    ChatModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    // ChatModule,
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
   ],
   providers: [AppService],
   controllers: [AppController],
