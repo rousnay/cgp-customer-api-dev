@@ -268,7 +268,9 @@ export class OrderService {
         r.first_name AS rider_first_name,
         r.last_name AS rider_last_name,
         r.email AS rider_email,
-        r.phone AS rider_phone
+        r.phone AS rider_phone,
+
+        v.license_plate AS vehicle_license_plate
 
     FROM
         orders o
@@ -296,6 +298,8 @@ export class OrderService {
         deliveries d ON o.id = d.order_id
     LEFT JOIN
         riders r ON d.rider_id = r.id
+    LEFT JOIN
+        vehicles v ON d.vehicle_id = v.id
     WHERE
         o.id = ?
         AND o.customer_id = ?`;
@@ -374,6 +378,8 @@ export class OrderService {
       rider: {
         id: result[0].rider_id,
         name: result[0].rider_first_name + ' ' + result[0].rider_last_name,
+        vehicle_license_plate: result[0].vehicle_license_plate,
+        // media_url: ,
         email: result[0].rider_email,
         phone: result[0].rider_phone,
         location: null,
