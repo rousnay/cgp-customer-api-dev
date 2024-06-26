@@ -96,12 +96,15 @@ export class AuthService {
           'Content-Type': 'multipart/form-data',
         },
       };
+
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
         'https://cgp.studypress.org/api/v1/user/auth/validate-otp',
         formData,
         config,
       );
+
+      console.log('Email OTP response: ', response?.data);
       // return response?.data;
       if (response.status === 200 || response.status === 201) {
         // Success response
@@ -320,6 +323,8 @@ export class AuthService {
         formData,
         config,
       );
+
+      console.log('Login OTP response: ', response?.data);
 
       // return response?.data;
       if (response.status === 200 || response.status === 201) {
@@ -626,7 +631,7 @@ export class AuthService {
   ): Promise<{ message: string }> {
     const userId = req.user.user_id;
 
-    console.log(userId, device_token);
+    // console.log(userId, device_token);
 
     const sql = `
     DELETE FROM user_device_tokens
