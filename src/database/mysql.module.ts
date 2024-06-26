@@ -23,13 +23,22 @@ import { ConfigService } from '@config/config.service';
         // entities: [join(__dirname, '**', '*.entity.{ts,js}')],
         synchronize: true,
         ssl: false,
-        extra: {
-          connectionLimit: 10, // Use connection pooling
-        },
         // ssl: {
         //   rejectUnauthorized: true,
         // },
-        // logging: ['query', 'error', 'schema', 'warn', 'info', 'log', 'migration'],
+        extra: {
+          connectionLimit: 10, // Use connection pooling
+          keepAliveInitialDelay: 10000, // Adjust the initial delay
+        },
+        logging: [
+          // 'query',
+          'error',
+          // 'schema',
+          'warn',
+          // 'info',
+          'log',
+          // 'migration',
+        ],
       }),
     }),
   ],
