@@ -390,6 +390,7 @@ export class AuthService {
     try {
       const formData = new FormData();
       formData.append('identity', identity);
+      formData.append('user_type', 'customer');
 
       const config = {
         headers: {
