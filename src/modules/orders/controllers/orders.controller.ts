@@ -52,7 +52,7 @@ export class OrderController {
     }
   }
 
-  @Put(':orderId')
+  @Put('/cancel/:orderId/:orderCancelReasonId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Cancel an order' })
@@ -60,12 +60,17 @@ export class OrderController {
     @Param('orderId', ParseIntPipe) orderId: number,
     @Param('orderCancelReasonId', ParseIntPipe) orderCancelReasonId: number,
   ): Promise<any> {
+    console.log('orderCancelReasonId', orderCancelReasonId);
+    console.log('orderId', orderId);
     try {
-      await this.orderService.cancelOrder(orderId, orderCancelReasonId);
+      const order_id = await this.orderService.cancelOrder(
+        orderId,
+        orderCancelReasonId,
+      );
       return {
         status: 'success',
         message: 'Order has been cancelled successfully',
-        data: { id: orderId },
+        data: { id: order_id },
       };
     } catch (error) {
       if (error instanceof NotFoundException) {

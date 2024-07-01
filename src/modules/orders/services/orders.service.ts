@@ -160,7 +160,7 @@ export class OrderService {
   async cancelOrder(
     orderId: number,
     orderCancelReasonId: number,
-  ): Promise<void> {
+  ): Promise<any> {
     // Check if the order exists
     const order = await this.entityManager.query(
       'SELECT * FROM orders WHERE id = ?',
@@ -184,7 +184,7 @@ export class OrderService {
     // Update the orders table
     await this.entityManager.query(
       `UPDATE orders
-       SET order_status = ?, canceled_at = ?, cancel_reason_id = ?
+       SET order_status = ?, cancelled_at = ?, cancel_reason_id = ?
        WHERE id = ?`,
       [OrderStatus.CANCELLED, new Date(), orderCancelReasonId, orderId],
     );
@@ -192,10 +192,12 @@ export class OrderService {
     // Update the deliveries table
     await this.entityManager.query(
       `UPDATE deliveries
-       SET shipping_status =?, canceled_at = ?, cancel_reason_id = ?
+       SET shipping_status =?, cancelled_at = ?, cancel_reason_id = ?
        WHERE order_id = ?`,
       [ShippingStatus.CANCELLED, new Date(), orderCancelReasonId, orderId],
     );
+
+    return orderId;
   }
 
   async deleteOrder(orderId: number): Promise<void> {
