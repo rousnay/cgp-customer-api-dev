@@ -44,6 +44,24 @@ export class ConfigService {
     return this.configService.get<string>('mongodb.uri');
   }
 
+  //Mail Configuration
+
+  get mailHost(): string {
+    return this.configService.get<string>('mail.host');
+  }
+
+  get mailPort(): number {
+    return this.configService.get<number>('mail.port');
+  }
+
+  get mailUsername(): string {
+    return this.configService.get<string>('mail.username');
+  }
+
+  get mailPassword(): string {
+    return this.configService.get<string>('mail.password');
+  }
+
   //Google Maps Configuration
   get googleMapsApiKey(): string {
     return this.configService.get<string>('google.mapsApiKey');

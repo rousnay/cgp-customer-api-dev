@@ -25,6 +25,9 @@ import { NotificationsModule } from '@modules/notification/notification.module';
 import { LocationModule } from '@modules/location/location.module';
 import { DeliveryModule } from '@modules/delivery/delivery.module';
 import { OrderNotificationService } from './services/order.notification.service';
+import { OrderCancelReasonService } from './services/order-cancel-reason.service';
+import { OrderCancelReason } from './entities/order-cancel-reason.entity';
+import { OrderCancelReasonController } from './controllers/order-cancel-reason.controller';
 
 @Module({
   imports: [
@@ -42,6 +45,7 @@ import { OrderNotificationService } from './services/order.notification.service'
       TransportationVehiclesService,
       TransportationOrdersService,
       TransportationCostCalculationService,
+      OrderCancelReason,
       UserAddressBook,
       UserAddressBookService,
       PaymentToken,
@@ -57,13 +61,15 @@ import { OrderNotificationService } from './services/order.notification.service'
     UserAddressBookService,
     PaymentService,
     DeliveryService,
-    OrderNotificationService
+    OrderCancelReasonService,
+    OrderNotificationService,
   ],
   controllers: [
     OrderController,
     TransportationVehiclesController,
     TransportationCostCalculationController,
     TransportationOrdersController,
+    OrderCancelReasonController,
   ],
 })
 export class OrderModule {}

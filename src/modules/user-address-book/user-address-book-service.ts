@@ -164,6 +164,7 @@ export class UserAddressBookService {
       {
         customer_id,
         address_type: address.address_type,
+        id: Not(id),
       },
       { is_default: false },
     );

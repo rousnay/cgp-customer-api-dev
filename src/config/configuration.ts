@@ -15,6 +15,13 @@ export default () => ({
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/test',
   },
 
+  mail: {
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT, 10) || 587,
+    username: process.env.SMTP_USERNAME,
+    password: process.env.SMTP_PASSWORD,
+  },
+
   google: {
     mapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
   },
