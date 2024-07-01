@@ -15,7 +15,7 @@ export class OrderCancelReason {
   @Column({
     type: 'enum',
     enum: OrderCancelReasonType,
-    // default: OrderCancelReasonType.TRANSPORTATION_ORDER_CANCELLED_BY_USER,
+    default: OrderCancelReasonType.TRANSPORTATION_ORDER_CANCELLED_BY_USER,
   })
   reason_type: OrderCancelReasonType;
 

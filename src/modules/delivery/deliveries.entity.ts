@@ -53,6 +53,9 @@ export class Deliveries {
   @Column({ nullable: true })
   final_duration: number;
 
+  @Column({ nullable: true })
+  cancel_reason_id: number;
+
   @CreateDateColumn({
     type: 'timestamp',
     nullable: true,

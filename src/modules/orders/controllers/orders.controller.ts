@@ -58,9 +58,10 @@ export class OrderController {
   @ApiOperation({ summary: 'Cancel an order' })
   async cancelOrder(
     @Param('orderId', ParseIntPipe) orderId: number,
+    @Param('orderCancelReasonId', ParseIntPipe) orderCancelReasonId: number,
   ): Promise<any> {
     try {
-      await this.orderService.cancelOrder(orderId);
+      await this.orderService.cancelOrder(orderId, orderCancelReasonId);
       return {
         status: 'success',
         message: 'Order has been cancelled successfully',

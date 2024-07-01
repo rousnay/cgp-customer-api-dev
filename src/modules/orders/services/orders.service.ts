@@ -20,6 +20,7 @@ import { UserAddressBookService } from '@modules/user-address-book/user-address-
 import { OrderStatus, OrderType } from '@common/enums/order.enum';
 import { LocationService } from '@modules/location/location.service';
 import { ConfigService } from '@config/config.service';
+import { ShippingStatus } from '@common/enums/delivery.enum';
 
 @Injectable()
 export class OrderService {
@@ -141,18 +142,59 @@ export class OrderService {
     };
   }
 
-  async cancelOrder(orderId: number): Promise<void> {
-    const order = await this.orderRepository.findOne({
-      where: { id: orderId, customer_id: this.request['user'].id },
-    });
-    if (!order) {
-      throw new NotFoundException('Order not found');
+  // async cancelOrder(orderId: number): Promise<void> {
+  //   const order = await this.orderRepository.findOne({
+  //     where: { id: orderId, customer_id: this.request['user'].id },
+  //   });
+  //   if (!order) {
+  //     throw new NotFoundException('Order not found');
+  //   }
+  //   order.order_status = OrderStatus.CANCELLED;
+  //   await this.orderRepository.save(order);
+  //   await this.orderNotificationService.sendOrderNotification(
+  //     order,
+  //     'order_cancelled',
+  //   );
+  // }
+
+  async cancelOrder(
+    orderId: number,
+    orderCancelReasonId: number,
+  ): Promise<void> {
+    // Check if the order exists
+    const order = await this.entityManager.query(
+      'SELECT * FROM orders WHERE id = ?',
+      [orderId],
+    );
+    if (!order.length) {
+      throw new NotFoundException(`Order with ID ${orderId} not found.`);
     }
-    order.order_status = OrderStatus.CANCELLED;
-    await this.orderRepository.save(order);
-    await this.orderNotificationService.sendOrderNotification(
-      order,
-      'order_cancelled',
+
+    // Check if the cancel reason exists
+    const cancelReason = await this.entityManager.query(
+      'SELECT * FROM order_cancel_reasons WHERE id = ?',
+      [orderCancelReasonId],
+    );
+    if (!cancelReason.length) {
+      throw new NotFoundException(
+        `Order cancel reason with ID ${orderCancelReasonId} not found.`,
+      );
+    }
+
+    // Update the orders table
+    await this.entityManager.query(
+      `UPDATE orders
+       SET order_status = ?, canceled_at = ?, cancel_reason_id = ?
+       WHERE id = ?`,
+      [OrderStatus.CANCELLED, new Date(), orderCancelReasonId, orderId],
+    );
+
+    // Update the deliveries table
+    await this.entityManager.query(
+      `UPDATE deliveries
+       SET shipping_status =?, canceled_at = ?, cancel_reason_id = ?
+       WHERE order_id = ?`,
+      [ShippingStatus.CANCELLED, new Date(), orderCancelReasonId, orderId],
     );
   }
 

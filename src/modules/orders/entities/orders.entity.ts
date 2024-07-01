@@ -64,6 +64,9 @@ export class Orders {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   payable_amount: number;
 
+  @Column({ nullable: true })
+  cancel_reason_id: number;
+
   @CreateDateColumn({
     type: 'timestamp',
     nullable: true,

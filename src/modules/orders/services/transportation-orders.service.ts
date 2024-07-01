@@ -1,7 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 import { PaymentService } from '@modules/payments/payments.service';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
@@ -13,6 +13,7 @@ import { Orders } from '../entities/orders.entity';
 export class TransportationOrdersService {
   constructor(
     @Inject(REQUEST) private readonly request: Request,
+    @InjectEntityManager() private readonly entityManager: EntityManager,
     @InjectRepository(Orders)
     private readonly transportationOrdersRepository: Repository<Orders>,
     @InjectRepository(Deliveries)
