@@ -15,10 +15,11 @@ export enum OrderType {
 }
 
 export enum OrderCancelReasonType {
-  TRANSPORTATION_ORDER_CANCELLED_BY_USER = 'transportation_order_cancelled_by_user',
   TRANSPORTATION_ORDER_CANCELLED_BY_CUSTOMER = 'transportation_order_cancelled_by_customer',
   TRANSPORTATION_ORDER_CANCELLED_BY_WAREHOUSE = 'transportation_order_cancelled_by_warehouse',
   TRANSPORTATION_ORDER_CANCELLED_BY_RIDER = 'transportation_order_cancelled_by_rider',
+  TRANSPORTATION_ORDER_CANCELLED_BY_ADMIN = 'transportation_order_cancelled_by_admin',
   PRODUCT_ORDER_CANCELLED_BY_CUSTOMER = 'product_order_cancelled_by_customer',
   PRODUCT_ORDER_CANCELLED_BY_WAREHOUSE = 'product_order_cancelled_by_warehouse',
+  PRODUCT_ORDER_CANCELLED_BY_ADMIN = 'product_order_cancelled_by_admin',
 }
