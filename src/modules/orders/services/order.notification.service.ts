@@ -127,7 +127,7 @@ export class OrderNotificationService {
 
   async sendOrderCancellationNotification(
     updatedOrder: any,
-    updatedDelivery: any,
+    // updatedDelivery: any,
     deliveryRequest: any,
   ): Promise<any> {
     // console.log('From notification - updatedOrder', updatedOrder);

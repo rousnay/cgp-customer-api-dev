@@ -237,15 +237,15 @@ export class OrderService {
       where: { id: orderId },
     });
 
-    const updatedDelivery = await this.deliveriesRepository.findOne({
-      where: { order_id: orderId },
-    });
+    // const updatedDelivery = await this.deliveriesRepository.findOne({
+    //   where: { order_id: orderId },
+    // });
 
     //sent notifications
     const notificationSentToDeviceTokens =
       await this.deliveryNotificationService.sendOrderCancellationNotification(
         updatedOrder,
-        updatedDelivery,
+        // updatedDelivery,
         updatedDeliveryRequest,
       );
 
