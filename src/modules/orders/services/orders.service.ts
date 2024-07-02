@@ -222,26 +222,37 @@ export class OrderService {
       .findOne(filter)
       .exec();
 
+    let updatedDeliveryRequest = null;
+
     if (existingDeliveryRequest) {
       // Document exists, proceed with update
-      const updatedDeliveryRequest = await this.deliveryRequestModel
+      updatedDeliveryRequest = await this.deliveryRequestModel
         .findOneAndUpdate(filter, updateFields, { new: true })
         .exec();
 
       console.log('updatedDeliveryRequest', updatedDeliveryRequest);
     }
 
-    //sent notifications
-    // const notificationSentToDeviceTokens =
-    //   await this.deliveryNotificationService.sendDeliveryStatusNotification(
-    //     updatedDeliveryRequest,
-    //     ShippingStatus.ACCEPTED,
-    //   );
+    const updatedOrder = await this.orderRepository.findOne({
+      where: { id: orderId },
+    });
 
-    // console.log(
-    //   'Delivery Status - ACCEPTED, notificationSentToDeviceTokens',
-    //   JSON.stringify(notificationSentToDeviceTokens, null, 2),
-    // );
+    const updatedDelivery = await this.deliveriesRepository.findOne({
+      where: { order_id: orderId },
+    });
+
+    //sent notifications
+    const notificationSentToDeviceTokens =
+      await this.deliveryNotificationService.sendOrderCancellationNotification(
+        updatedOrder,
+        updatedDelivery,
+        updatedDeliveryRequest,
+      );
+
+    console.log(
+      'Delivery Status - ACCEPTED, notificationSentToDeviceTokens',
+      JSON.stringify(notificationSentToDeviceTokens, null, 2),
+    );
 
     return orderId;
   }
