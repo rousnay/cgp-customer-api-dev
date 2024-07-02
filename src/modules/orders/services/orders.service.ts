@@ -21,6 +21,13 @@ import { OrderStatus, OrderType } from '@common/enums/order.enum';
 import { LocationService } from '@modules/location/location.service';
 import { ConfigService } from '@config/config.service';
 import { ShippingStatus } from '@common/enums/delivery.enum';
+import { DeliveryRequest } from '@modules/delivery/schemas/delivery-request.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import {
+  DeliveryRequestNotification,
+  DeliveryRequestNotificationModel,
+} from '@modules/notification/notification.schema';
 
 @Injectable()
 export class OrderService {
@@ -43,6 +50,12 @@ export class OrderService {
     private readonly orderNotificationService: OrderNotificationService,
     private readonly userAddressBookService: UserAddressBookService,
     private readonly locationService: LocationService,
+
+    @InjectModel(DeliveryRequest.name)
+    private deliveryRequestModel: Model<DeliveryRequest>,
+    @InjectModel(DeliveryRequestNotificationModel.modelName)
+    private deliveryRequestNotificationModel: Model<DeliveryRequestNotification>,
+    private deliveryNotificationService: OrderNotificationService,
   ) {
     this.googleMapsClient = new Client({});
     this.googleMapsApiKey = configService.googleMapsApiKey;
@@ -196,6 +209,39 @@ export class OrderService {
        WHERE order_id = ?`,
       [ShippingStatus.CANCELLED, new Date(), orderCancelReasonId, orderId],
     );
+
+    // Update the delivery requests collection in mongoDB
+    const updateFields = {
+      status: ShippingStatus.CANCELLED,
+    };
+
+    const filter = { orderId };
+
+    // Check if the document exists
+    const existingDeliveryRequest = await this.deliveryRequestModel
+      .findOne(filter)
+      .exec();
+
+    if (existingDeliveryRequest) {
+      // Document exists, proceed with update
+      const updatedDeliveryRequest = await this.deliveryRequestModel
+        .findOneAndUpdate(filter, updateFields, { new: true })
+        .exec();
+
+      console.log('updatedDeliveryRequest', updatedDeliveryRequest);
+    }
+
+    //sent notifications
+    // const notificationSentToDeviceTokens =
+    //   await this.deliveryNotificationService.sendDeliveryStatusNotification(
+    //     updatedDeliveryRequest,
+    //     ShippingStatus.ACCEPTED,
+    //   );
+
+    // console.log(
+    //   'Delivery Status - ACCEPTED, notificationSentToDeviceTokens',
+    //   JSON.stringify(notificationSentToDeviceTokens, null, 2),
+    // );
 
     return orderId;
   }

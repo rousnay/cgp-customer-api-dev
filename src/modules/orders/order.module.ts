@@ -28,6 +28,12 @@ import { OrderNotificationService } from './services/order.notification.service'
 import { OrderCancelReasonService } from './services/order-cancel-reason.service';
 import { OrderCancelReason } from './entities/order-cancel-reason.entity';
 import { OrderCancelReasonController } from './controllers/order-cancel-reason.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import {
+  DeliveryRequest,
+  DeliveryRequestSchema,
+} from '@modules/delivery/schemas/delivery-request.schema';
+import { DeliveryRequestNotificationSchema } from '@modules/notification/notification.schema';
 
 @Module({
   imports: [
@@ -50,6 +56,13 @@ import { OrderCancelReasonController } from './controllers/order-cancel-reason.c
       UserAddressBookService,
       PaymentToken,
       PaymentService,
+    ]),
+    MongooseModule.forFeature([
+      { name: DeliveryRequest.name, schema: DeliveryRequestSchema },
+      {
+        name: 'DeliveryRequestNotification',
+        schema: DeliveryRequestNotificationSchema,
+      },
     ]),
   ],
   exports: [OrderService],
