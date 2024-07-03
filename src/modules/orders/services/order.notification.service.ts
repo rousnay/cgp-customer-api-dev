@@ -4,8 +4,7 @@ import { InjectEntityManager } from '@nestjs/typeorm';
 import { NotificationService } from '@modules/notification/notification.service';
 import { REQUEST } from '@nestjs/core';
 import { AppConstants } from '@common/constants/constants';
-import { OrderStatus, OrderType } from '@common/enums/order.enum';
-import { ShippingStatus } from '@common/enums/delivery.enum';
+import { OrderType } from '@common/enums/order.enum';
 
 @Injectable()
 export class OrderNotificationService {

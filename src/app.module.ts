@@ -23,6 +23,7 @@ import { NotificationsModule } from '@modules/notification/notification.module';
 // import { ChatModule } from '@modules/chat/chat.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { ReviewModule } from '@modules/review/review.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AppController } from './app.controller';
     GeoLocationModule,
     NotificationsModule,
     PaymentModule,
+    ReviewModule,
     // ChatModule,
     // ServeStaticModule.forRoot({
     //   rootPath: join(__dirname, '..', 'public'),

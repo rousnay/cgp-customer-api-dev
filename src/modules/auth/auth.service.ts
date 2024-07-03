@@ -13,6 +13,8 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 
 import { Customers } from '@modules/customers/entities/customers.entity';
 
+import { ReviewService } from '@modules/review/review.service';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,6 +24,7 @@ export class AuthService {
     private readonly entityManager: EntityManager,
     @InjectRepository(Customers)
     private customerRepository: Repository<Customers>,
+    private reviewService: ReviewService,
   ) {}
 
   async registration(
@@ -201,12 +204,17 @@ export class AuthService {
           const payload = { username: customer.email, sub: customer.id };
           const access_token = this.jwtService.sign(payload);
 
+          //get customer's overall review
+          const avg_rating = await this.reviewService.getAverageRating(
+            customer?.id,
+          );
+
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
               // user: user,
-              customer: customer,
+              customer: { ...customer, avg_rating },
               access_token: access_token,
               // auth_token: response?.data?.data?.auth_token,
             },
@@ -341,12 +349,17 @@ export class AuthService {
           const payload = { username: customer.email, sub: customer.id };
           const access_token = this.jwtService.sign(payload);
 
+          //get customer's overall review
+          const avg_rating = await this.reviewService.getAverageRating(
+            customer?.id,
+          );
+
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
               // user: user,
-              customer: customer,
+              customer: { ...customer, avg_rating },
               access_token: access_token,
               // auth_token: response?.data?.data?.auth_token,
             },

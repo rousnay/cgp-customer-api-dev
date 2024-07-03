@@ -11,6 +11,7 @@ import { JwtStrategy } from '@core/guards/jwt.strategy';
 import { Customers } from '@modules/customers/entities/customers.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { ReviewService } from '@modules/review/review.service';
 
 @Module({
   imports: [
@@ -27,7 +28,13 @@ import { AuthController } from './auth.controller';
     }),
   ],
   exports: [AuthService, JwtStrategy],
-  providers: [AuthService, LocalStrategy, JwtStrategy, PasswordService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    PasswordService,
+    ReviewService,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

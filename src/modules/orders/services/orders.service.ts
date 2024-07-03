@@ -373,6 +373,18 @@ export class OrderService {
         r.email AS rider_email,
         r.phone AS rider_phone,
 
+        ors.id AS order_review_id,
+        ors.model_id AS order_review_model_id,
+        ors.given_by_id AS order_review_given_by_id,
+        ors.given_by_type_id AS order_review_given_by_type_id,
+        ors.given_to_id AS order_review_given_to_id,
+        ors.given_to_type_id AS order_review_given_to_type_id,
+        ors.rating AS order_review_rating,
+        ors.review AS order_review_review,
+        ors.reply AS order_review_reply,
+        ors.created_at AS order_review_created_at,
+        ors.updated_at AS order_review_updated_at,
+
         v.license_plate AS vehicle_license_plate
 
     FROM
@@ -403,6 +415,8 @@ export class OrderService {
         riders r ON d.rider_id = r.id
     LEFT JOIN
         vehicles v ON d.vehicle_id = v.id
+    LEFT JOIN
+        overall_reviews ors ON o.id = ors.model_id AND ors.model = 'App\\\\Models\\\\Order'
     WHERE
         o.id = ?
         AND o.customer_id = ?`;
@@ -552,6 +566,50 @@ export class OrderService {
       }
     }
 
+    let givenReview = null;
+    let receivedReview = null;
+
+    result.map((row) => {
+      const review = {
+        id: row.order_review_id,
+        model_id: row.order_review_model_id,
+        given_by_id: row.order_review_given_by_id,
+        given_by_type_id: row.order_review_given_by_type_id,
+        given_to_id: row.order_review_given_to_id,
+        given_to_type_id: row.order_review_given_to_type_id,
+        rating: row.order_review_rating,
+        review: row.order_review_review,
+        reply: row.order_review_reply,
+        created_at: row.order_review_created_at,
+        updated_at: row.order_review_updated_at,
+      };
+
+      if (Number(row.order_review_given_by_id) === userId) {
+        givenReview = {
+          id: Number(review.id),
+          rating: review.rating,
+          review: review.review,
+          created_at: review.created_at,
+          updated_at: review.updated_at,
+        };
+      } else if (Number(row.order_review_given_to_id) === userId) {
+        receivedReview = {
+          id: Number(review.id),
+          rating: review.rating,
+          review: review.review,
+          created_at: review.created_at,
+          updated_at: review.updated_at,
+        };
+      }
+
+      return review;
+    });
+
+    const reviews = {
+      given: givenReview,
+      received: receivedReview,
+    };
+
     const orderDetails = {
       order_id: result[0].id,
       total_price: result[0].total_cost,
@@ -596,6 +654,7 @@ export class OrderService {
       },
       line_items: null,
       delivery_info: delivery_info,
+      reviews: reviews,
     };
 
     if (result[0].order_type === OrderType.PRODUCT_AND_TRANSPORT) {
@@ -608,14 +667,111 @@ export class OrderService {
     return orderDetails;
   }
 
-  async getOrderHistory(): Promise<Orders[]> {
+  async getOrderHistory(): Promise<any> {
     const customer_id = this.request['user'].id;
-    console.log(customer_id);
-    return await this.orderRepository.find({
-      where: { customer_id: customer_id },
-      order: {
-        created_at: 'DESC',
-      },
-    });
+
+    const query = `
+    SELECT
+        o.*,
+
+        ors.id AS order_review_id,
+        ors.model_id AS order_review_model_id,
+        ors.given_by_id AS order_review_given_by_id,
+        ors.given_by_type_id AS order_review_given_by_type_id,
+        ors.given_to_id AS order_review_given_to_id,
+        ors.given_to_type_id AS order_review_given_to_type_id,
+        ors.rating AS order_review_rating,
+        ors.review AS order_review_review,
+        ors.reply AS order_review_reply,
+        ors.created_at AS order_review_created_at,
+        ors.updated_at AS order_review_updated_at
+
+    FROM
+        orders o
+    LEFT JOIN
+        overall_reviews ors ON o.id = ors.model_id AND ors.model = 'App\\\\Models\\\\Order'
+    WHERE
+        o.customer_id = ?
+    ORDER BY
+        o.created_at DESC`;
+
+    const result = await this.entityManager.query(query, [customer_id]);
+
+    if (result.length === 0) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const orders = result.reduce((acc, row) => {
+      let order = acc.find((o) => o.id === row.id);
+      if (!order) {
+        order = {
+          id: row.id,
+          order_type: row.order_type,
+          order_status: row.order_status,
+          customer_id: row.customer_id,
+          warehouse_id: row.warehouse_id,
+          billing_address_id: row.billing_address_id,
+          pickup_address_id: row.pickup_address_id,
+          shipping_address_id: row.shipping_address_id,
+          vehicle_type_id: row.vehicle_type_id,
+          payment_id: row.payment_id,
+          distance_in_km: row.distance_in_km,
+          duration_in_min: row.duration_in_min,
+          total_cost: row.total_cost,
+          discount: row.discount,
+          gst: row.gst,
+          delivery_charge: row.delivery_charge,
+          payable_amount: row.payable_amount,
+          cancel_reason_id: row.cancel_reason_id,
+          created_at: row.created_at,
+          accepted_at: row.accepted_at,
+          cancelled_at: row.cancelled_at,
+          updated_at: row.updated_at,
+          reviews: {
+            given: null,
+            received: null,
+          },
+        };
+        acc.push(order);
+      }
+
+      if (row.order_review_id) {
+        const review = {
+          id: row.order_review_id,
+          model_id: row.order_review_model_id,
+          given_by_id: row.order_review_given_by_id,
+          given_by_type_id: row.order_review_given_by_type_id,
+          given_to_id: row.order_review_given_to_id,
+          given_to_type_id: row.order_review_given_to_type_id,
+          rating: row.order_review_rating,
+          review: row.order_review_review,
+          reply: row.order_review_reply,
+          created_at: row.order_review_created_at,
+          updated_at: row.order_review_updated_at,
+        };
+
+        if (Number(row.order_review_given_by_id) === customer_id) {
+          order.reviews.given = {
+            id: Number(review.id),
+            rating: review.rating,
+            review: review.review,
+            created_at: review.created_at,
+            updated_at: review.updated_at,
+          };
+        } else if (Number(row.order_review_given_to_id) === customer_id) {
+          order.reviews.received = {
+            id: Number(review.id),
+            rating: review.rating,
+            review: review.review,
+            created_at: review.created_at,
+            updated_at: review.updated_at,
+          };
+        }
+      }
+
+      return acc;
+    }, []);
+
+    return orders;
   }
 }
