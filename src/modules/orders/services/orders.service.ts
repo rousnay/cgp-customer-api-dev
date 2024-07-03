@@ -697,9 +697,9 @@ export class OrderService {
 
     const result = await this.entityManager.query(query, [customer_id]);
 
-    if (result.length === 0) {
-      throw new NotFoundException('Order not found');
-    }
+    // if (result.length === 0) {
+    //   throw new NotFoundException('Order not found');
+    // }
 
     const orders = result.reduce((acc, row) => {
       let order = acc.find((o) => o.id === row.id);
