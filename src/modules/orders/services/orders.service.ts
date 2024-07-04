@@ -353,6 +353,7 @@ export class OrderService {
         c.name AS category_name,
         b.name AS brand_name,
 
+        d.id AS delivery_id,
         d.shipping_status,
         d.rider_id,
         d.init_distance,
@@ -492,6 +493,7 @@ export class OrderService {
     }));
 
     const delivery_info = {
+      id: result[0].delivery_id,
       shipping_status: result[0].shipping_status,
       init_distance: result[0].init_distance,
       init_duration: result[0].init_duration,
@@ -697,9 +699,9 @@ export class OrderService {
 
     const result = await this.entityManager.query(query, [customer_id]);
 
-    if (result.length === 0) {
-      throw new NotFoundException('Order not found');
-    }
+    // if (result.length === 0) {
+    //   throw new NotFoundException('Order not found');
+    // }
 
     const orders = result.reduce((acc, row) => {
       let order = acc.find((o) => o.id === row.id);

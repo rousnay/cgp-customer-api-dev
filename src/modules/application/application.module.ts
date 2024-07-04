@@ -15,9 +15,11 @@ import { BrandsController } from './controllers/brands.controller';
 import { BrandsService } from './services/brands.service';
 import { PreferencesController } from './controllers/preferences.controller';
 import { HomeController } from './controllers/home.controller';
+import { ConfigModule } from '@config/config.module';
 
 @Module({
   imports: [
+    ConfigModule,
     TypeOrmModule.forFeature([Preferences]),
     WarehouseModule,
     ProductsModule,

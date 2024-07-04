@@ -71,6 +71,18 @@ export class DeliveryRequest extends Document {
 
   @Prop({ type: AssignedRider, default: null })
   assignedRider?: AssignedRider;
+
+  @Prop({ default: null })
+  createdAt?: Date;
+
+  @Prop({ default: null })
+  acceptedAt?: number;
+
+  @Prop({ default: null })
+  cancelledAt?: Date;
+
+  @Prop({ default: null })
+  updatedAt?: Date;
 }
 
 export const DeliveryRequestSchema =

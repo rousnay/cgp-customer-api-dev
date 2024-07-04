@@ -170,6 +170,7 @@ export class DeliveryRequestService {
       status: ShippingStatus.SEARCHING,
       orderType: order.order_type,
       assignedRider: null,
+      createdAt: new Date(),
     };
   }
 
