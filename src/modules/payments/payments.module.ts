@@ -12,6 +12,8 @@ import { DeliveryModule } from '@modules/delivery/delivery.module';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { Orders } from '@modules/orders/entities/orders.entity';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
+import { PaymentMethodService } from './services/payment-method.service';
+import { PaymentMethodController } from './controllers/payment-method.controller';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { UserAddressBook } from '@modules/user-address-book/user-address-book.en
     ]),
   ],
   exports: [PaymentService],
-  providers: [PaymentService, DeliveryService],
-  controllers: [PaymentController],
+  providers: [PaymentService, DeliveryService, PaymentMethodService],
+  controllers: [PaymentController, PaymentMethodController],
 })
 export class PaymentModule {}
