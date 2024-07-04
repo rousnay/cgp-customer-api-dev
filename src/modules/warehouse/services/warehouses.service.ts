@@ -209,11 +209,6 @@ export class WarehousesService {
       [id],
     );
 
-    console.log(
-      'thumbnail_cloudflare_id_result',
-      thumbnail_cloudflare_id_result[0].cloudflare_id,
-    );
-
     const logo_cloudflare_id_query = `SELECT cf.cloudflare_id
       FROM cf_media cf
       WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'logo' AND cf.model_id = ?`;
@@ -223,28 +218,31 @@ export class WarehousesService {
       [id],
     );
 
-    console.log(
-      'logo_cloudflare_id_result',
-      logo_cloudflare_id_result[0].cloudflare_id,
-    );
+    let thumbnail_url = null;
+    let logo_url = null;
 
-    const thumbnail_url =
-      this.cfMediaBaseUrl +
-      '/' +
-      this.cfAccountHash +
-      '/' +
-      thumbnail_cloudflare_id_result[0].cloudflare_id +
-      '/' +
-      this.cfMediaVariant;
+    if(thumbnail_cloudflare_id_result.length != 0 && thumbnail_cloudflare_id_result[0].cloudflare_id != null){
+      thumbnail_url =
+        this.cfMediaBaseUrl +
+        '/' +
+        this.cfAccountHash +
+        '/' +
+        thumbnail_cloudflare_id_result[0].cloudflare_id +
+        '/' +
+        this.cfMediaVariant;
+    }
 
-    const logo_url =
-      this.cfMediaBaseUrl +
-      '/' +
-      this.cfAccountHash +
-      '/' +
-      logo_cloudflare_id_result[0].cloudflare_id +
-      '/' +
-      this.cfMediaVariant;
+    if(logo_cloudflare_id_result.length != 0 && logo_cloudflare_id_result[0].cloudflare_id != null){
+      logo_url =
+        this.cfMediaBaseUrl +
+        '/' +
+        this.cfAccountHash +
+        '/' +
+        logo_cloudflare_id_result[0].cloudflare_id +
+        '/' +
+        this.cfMediaVariant;
+    }
+
 
     return {
       data: {
