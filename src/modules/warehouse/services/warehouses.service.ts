@@ -3,16 +3,24 @@ import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
 
 import { WarehousesDto } from '../dtos/warehouses.dto';
+import { AppConstants } from '@common/constants/constants';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class WarehousesService {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   findWarehousesByCategoryId(categoryId: number) {
     throw new Error('Method not implemented.');
   }
   constructor(
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.cfAccountHash = configService.cloudflareAccountHash;
+  }
 
   async findAll(): Promise<any> {
     // Fetch all warehouses with unique categories and brands
@@ -136,9 +144,67 @@ export class WarehousesService {
 
     const brandsResult = await this.entityManager.query(brandsQuery, [id]);
 
+    // let thumbnail_url = null;
+
+    // if (vehicle.vehicle_image_cf_media_id != null) {
+    // const cloudflare_id = await this.entityManager
+    //   .createQueryBuilder()
+    //   .select(['cf.cloudflare_id'])
+    //   .from('cf_media', 'cf')
+    //   .where('cf.id = :id', { id: vehicle.vehicle_image_cf_media_id })
+    //   .getRawOne();
+
+    const thumbnail_cloudflare_id_query = `SELECT cf.cloudflare_id
+      FROM cf_media cf
+      WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'thumbnail' AND cf.model_id = ?`;
+
+    const thumbnail_cloudflare_id_result = await this.entityManager.query(
+      thumbnail_cloudflare_id_query,
+      [id],
+    );
+
+    console.log(
+      'thumbnail_cloudflare_id_result',
+      thumbnail_cloudflare_id_result[0].cloudflare_id,
+    );
+
+    const logo_cloudflare_id_query = `SELECT cf.cloudflare_id
+      FROM cf_media cf
+      WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'logo' AND cf.model_id = ?`;
+
+    const logo_cloudflare_id_result = await this.entityManager.query(
+      logo_cloudflare_id_query,
+      [id],
+    );
+
+    console.log(
+      'logo_cloudflare_id_result',
+      logo_cloudflare_id_result[0].cloudflare_id,
+    );
+
+    const thumbnail_url =
+      this.cfMediaBaseUrl +
+      '/' +
+      this.cfAccountHash +
+      '/' +
+      thumbnail_cloudflare_id_result[0].cloudflare_id +
+      '/' +
+      this.cfMediaVariant;
+
+    const logo_url =
+      this.cfMediaBaseUrl +
+      '/' +
+      this.cfAccountHash +
+      '/' +
+      logo_cloudflare_id_result[0].cloudflare_id +
+      '/' +
+      this.cfMediaVariant;
+
     return {
       data: {
         ...warehouseResult[0],
+        thumbnail_url,
+        logo_url,
         main_branch: mainBranchResult[0],
         branches: branchesResults,
         categories: categoriesResult,
