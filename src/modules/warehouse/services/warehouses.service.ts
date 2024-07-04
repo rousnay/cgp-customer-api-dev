@@ -70,6 +70,51 @@ export class WarehousesService {
           ]);
         }
 
+        const logo_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'logo' AND cf.model_id = ?`;
+
+        const thumbnail_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'thumbnail' AND cf.model_id = ?`;
+
+        const logo = await this.entityManager.query(logo_cloudflare_id_query,[
+          warehouse.id
+        ]);
+
+        const thumbnail = await this.entityManager.query(thumbnail_cloudflare_id_query,[
+          warehouse.id
+        ]);
+
+        let logo_url = null;
+
+        if(logo.length != 0){
+          logo_url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          logo[0].cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+        }
+
+        let thumbnail_url = null;
+
+        if(thumbnail.length != 0){
+          thumbnail_url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          thumbnail[0].cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+        }
+
+
+        // console.log('logo_url',logo_url);
+
         // Exclude extra fields from the main object
         delete warehouse.branch_ids;
         delete warehouse.branch_types;
@@ -78,8 +123,9 @@ export class WarehousesService {
 
         return {
           ...warehouse,
-          main_branch:
-            mainBranch && mainBranch.length > 0 ? mainBranch[0] : null,
+          logo_url:logo_url,
+          thumbnail_url:thumbnail_url,
+          main_branch:mainBranch && mainBranch.length > 0 ? mainBranch[0] : null,
           categories: categoryNames,
           brands: brandNames,
         };
