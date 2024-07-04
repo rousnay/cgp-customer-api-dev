@@ -6,6 +6,7 @@ import {
   IsObject,
   IsOptional,
   IsEnum,
+  IsDateString,
 } from 'class-validator';
 import { CreateUserAddressDto } from '@modules/user-address-book/create-user-address.dto';
 import { OrderType } from '@common/enums/order.enum';
@@ -85,4 +86,8 @@ export class CreateDeliveryRequestDto {
   @IsOptional()
   @IsObject()
   assignedRider?: AssignedRider;
+
+  @IsOptional()
+  @IsDateString()
+  createdAt?: Date;
 }
