@@ -88,7 +88,7 @@ export class WarehousesService {
 
         let logo_url = null;
 
-        if(logo.length != 0){
+        if(logo.length != 0 && logo[0].cloudflare_id != null){
           logo_url =
           this.cfMediaBaseUrl +
           '/' +
@@ -101,7 +101,7 @@ export class WarehousesService {
 
         let thumbnail_url = null;
 
-        if(thumbnail.length != 0){
+        if(thumbnail.length != 0 && thumbnail[0].cloudflare_id != null){
           thumbnail_url =
           this.cfMediaBaseUrl +
           '/' +
