@@ -20,8 +20,14 @@ export class PaymentMethodService {
   }
   async addPaymentMethod({ pmID, isDefault }: AddPaymentMethodDto): Promise<
     | {
-        attachPaymentMethodResult: Stripe.PaymentMethod;
-        setDefaultResult: Stripe.PaymentMethod | null;
+        status: string;
+        message: string;
+        data:
+          | {
+              attachPaymentMethodResult: Stripe.PaymentMethod;
+              setDefaultResult: Stripe.PaymentMethod | null;
+            }
+          | any;
       }
     | HttpException
   > {
@@ -29,7 +35,11 @@ export class PaymentMethodService {
     const { email, name } = this.request['user'];
 
     if (!email) {
-      throw new HttpException('User email not found', 404);
+      return {
+        status: 'error',
+        message: 'Email not found',
+        data: null,
+      };
     }
 
     const customerDetails = await this.entityManager.query(
@@ -38,7 +48,11 @@ export class PaymentMethodService {
     );
     try {
       if (!customerDetails.length) {
-        throw new HttpException('Customer not found', 404);
+        return {
+          status: 'error',
+          message: 'Customer not found',
+          data: null,
+        };
       }
 
       const { stripe_id: customerStripeId } = customerDetails[0];
@@ -47,11 +61,16 @@ export class PaymentMethodService {
         const customer = await this.createCustomer(email, name);
         newCustomerId = customer.id;
         await this.updateUserStipeId(email, customer.id);
-        return await this.attachAndSetDefaultPaymentMethod(
+        const _resultData = await this.attachAndSetDefaultPaymentMethod(
           pmID,
           customer.id,
           isDefault,
         );
+        return {
+          status: 'success',
+          message: 'Payment method attached successfully',
+          data: _resultData,
+        };
       }
 
       const customer = await this.stripe.customers.retrieve(customerStripeId);
@@ -66,23 +85,36 @@ export class PaymentMethodService {
         );
 
         await this.updateUserStipeId(email, customer.id);
-        return _resultData;
+
+        return {
+          status: 'success',
+          message: 'Payment method attached successfully',
+          data: _resultData,
+        };
       }
 
-      return await this.attachAndSetDefaultPaymentMethod(
+      const _resultData = await this.attachAndSetDefaultPaymentMethod(
         pmID,
         customerStripeId,
         isDefault,
       );
+
+      return {
+        status: 'success',
+        message: 'Payment method attached successfully',
+        data: _resultData,
+      };
     } catch (e) {
       if (newCustomerId) {
         await this.stripe.customers.del(newCustomerId);
       }
 
-      throw new HttpException(
-        'Payment method attach failed, You can not add this payment method.',
-        404,
-      );
+      return {
+        status: 'error',
+        message:
+          'Payment method attach failed, You can not add this payment method.',
+        data: null,
+      };
     }
   }
   private async createCustomer(
@@ -133,35 +165,55 @@ export class PaymentMethodService {
   }
 
   async setDefaultPaymentMethod(pmID: string): Promise<any> {
-    const user = this.request['user'];
-    const userEmail = user.email;
-    if (!userEmail) {
-      throw new HttpException('User email not found', 404);
-    }
-    // find customer stripe id from database
-    const customerDetails = await this.entityManager.query(
-      'SELECT * FROM users WHERE email = ? LIMIT 1',
-      [userEmail],
-    );
-    if (customerDetails.length === 0) {
-      throw new HttpException('Customer not found', 404);
-    }
-    const customerStripeId = customerDetails[0]?.stripe_id;
-    // if customer stripe id exists, set default payment method
-    if (customerStripeId) {
-      // set default payment method
-      const setDefaultResult = await this.stripe.customers.update(
-        customerStripeId,
-        {
-          invoice_settings: {
-            default_payment_method: pmID,
-          },
-        },
+    try {
+      const user = this.request['user'];
+      const userEmail = user.email;
+      if (!userEmail) {
+        return {
+          status: 'error',
+          message: 'User email not found',
+          data: null,
+        };
+      }
+      // find customer stripe id from database
+      const customerDetails = await this.entityManager.query(
+        'SELECT * FROM users WHERE email = ? LIMIT 1',
+        [userEmail],
       );
-      return setDefaultResult;
-    } else {
-      // if customer stripe id does not exist, throw error
-      throw new HttpException('Customer not found', 404);
+      if (customerDetails.length === 0) {
+        return {
+          status: 'error',
+          message: 'Customer not found',
+          data: null,
+        };
+      }
+      const customerStripeId = customerDetails[0]?.stripe_id;
+      // if customer stripe id exists, set default payment method
+      if (customerStripeId) {
+        // set default payment method
+        const setDefaultResult = await this.stripe.customers.update(
+          customerStripeId,
+          {
+            invoice_settings: {
+              default_payment_method: pmID,
+            },
+          },
+        );
+        return setDefaultResult;
+      } else {
+        // if customer stripe id does not exist, throw error
+        return {
+          status: 'error',
+          message: 'Customer not found',
+          data: null,
+        };
+      }
+    } catch (e) {
+      return {
+        status: 'error',
+        message: e.message || 'Failed to set default payment method',
+        data: null,
+      };
     }
   }
 
@@ -170,7 +222,11 @@ export class PaymentMethodService {
     const user = this.request['user'];
     const userEmail = user.email;
     if (!userEmail) {
-      throw new HttpException('User not found', 404);
+      return {
+        status: 'error',
+        message: 'User email not found',
+        data: null,
+      };
     }
     // find customer stripe id from database
     const customerDetails = await this.entityManager.query(
@@ -178,7 +234,14 @@ export class PaymentMethodService {
       [userEmail],
     );
     if (customerDetails.length === 0) {
-      throw new HttpException('Customer not found', 404);
+      return {
+        status: 'error',
+        message: 'Customer not found',
+        data: {
+          paymentMethodList: [],
+          customer: null,
+        },
+      };
     }
     const customerStripeId = customerDetails[0]?.stripe_id;
 
@@ -194,8 +257,12 @@ export class PaymentMethodService {
       const customer = await this.stripe.customers.retrieve(customerStripeId);
       if (customer.deleted) {
         return {
-          paymentMethodList: [],
-          customer: null,
+          status: 'success',
+          message: 'Customer not found',
+          data: {
+            paymentMethodList: [],
+            customer: null,
+          },
         };
       } else {
         const paymentMethodList =
@@ -204,14 +271,22 @@ export class PaymentMethodService {
             limit: 100,
           });
         return {
-          paymentMethodList,
-          customer,
+          status: 'success',
+          message: 'Customer found',
+          data: {
+            paymentMethodList,
+            customer,
+          },
         };
       }
     } catch (e) {
       return {
-        paymentMethodList: [],
-        customer: null,
+        status: 'success',
+        message: 'Can not get any payment methods',
+        data: {
+          paymentMethodList: [],
+          customer: null,
+        },
       };
     }
   }
@@ -221,7 +296,11 @@ export class PaymentMethodService {
     const user = this.request['user'];
     const userEmail = user.email;
     if (!userEmail) {
-      throw new HttpException('User email not found', 404);
+      return {
+        status: 'error',
+        message: 'User email not found',
+        data: null,
+      };
     }
     // find customer stripe id from database
     const customerDetails = await this.entityManager.query(
@@ -229,12 +308,20 @@ export class PaymentMethodService {
       [userEmail],
     );
     if (customerDetails.length === 0) {
-      throw new HttpException('Customer not found', 404);
+      return {
+        status: 'error',
+        message: 'Customer not found',
+        data: null,
+      };
     }
     const customerStripeId = customerDetails[0]?.stripe_id;
     // if not find this customer stripe id
     if (!customerStripeId) {
-      throw new HttpException('Customer stripe id not found', 404);
+      return {
+        status: 'error',
+        message: 'Customer stripe data not found',
+        data: null,
+      };
     }
     // if find this customer stripe id
     const getPaymentMethodResult = await this.stripe.paymentMethods.retrieve(
@@ -242,16 +329,28 @@ export class PaymentMethodService {
     );
     // if not find this payment method
     if (!getPaymentMethodResult) {
-      throw new HttpException('Payment method not found', 404);
+      return {
+        status: 'error',
+        message: 'Payment method not found',
+        data: null,
+      };
     }
     // if the payment method not belong to this customer
     if (getPaymentMethodResult.customer !== customerStripeId) {
-      throw new HttpException('You cannot delete this payment method', 404);
+      return {
+        status: 'error',
+        message: 'Payment method not belong to this customer',
+        data: null,
+      };
     }
     // if the payment method belong to this customer, then delete this payment method
     const deletePaymentMethodResult = await this.stripe.paymentMethods.detach(
       pmID,
     );
-    return deletePaymentMethodResult;
+    return {
+      status: 'success',
+      message: 'Payment method deleted successfully',
+      data: deletePaymentMethodResult,
+    };
   }
 }

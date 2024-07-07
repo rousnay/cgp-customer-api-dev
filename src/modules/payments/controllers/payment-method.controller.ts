@@ -49,17 +49,17 @@ export class PaymentMethodController {
   async addPaymentMethod(
     @Res() res: Response,
     @Body() body: AddPaymentMethodDto,
-  ) {
+  ): Promise<any> {
     const { pmID, isDefault } = body;
-    const result = await this.paymentMethodService.addPaymentMethod({
+    const result: any = await this.paymentMethodService.addPaymentMethod({
       pmID,
       isDefault,
     });
 
     return res.status(200).json({
-      status: 'success',
-      message: 'Payment method added successfully',
-      data: result,
+      status: result.status,
+      message: result.message,
+      data: result.data,
     });
   }
   //! set default payment method
@@ -81,11 +81,11 @@ export class PaymentMethodController {
       pmID,
     );
     return res.status(200).json({
-      status: 'success',
-      message: result
-        ? 'Default payment method set successfully'
-        : 'Failed to set default payment method',
-      data: result,
+      status: result.status,
+      message: result.message
+        ? result.message
+        : 'Something went wrong, please try again',
+      data: result.data,
     });
   }
   //! get all payment method by user
@@ -96,9 +96,9 @@ export class PaymentMethodController {
   async getAllPaymentMethodByUser(@Res() res: Response) {
     const result = await this.paymentMethodService.getAllPaymentMethodByUser();
     return res.status(200).json({
-      status: 'success',
-      message: 'Payment methods retrieved successfully',
-      data: result,
+      status: result.status,
+      message: result.message,
+      data: result.data,
     });
   }
   //! delete payment method
@@ -113,9 +113,9 @@ export class PaymentMethodController {
   async deletePaymentMethod(@Res() res: Response, @Param('pmID') pmID: string) {
     const result = await this.paymentMethodService.deletePaymentMethod(pmID);
     return res.json({
-      status: 'success',
-      message: 'Payment method deleted successfully',
-      data: result,
+      status: result.status,
+      message: result.message,
+      data: result.data,
     });
   }
 }
