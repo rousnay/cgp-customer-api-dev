@@ -18,112 +18,118 @@ export class PaymentMethodService {
       apiVersion: AppConstants.stripe.apiVersion,
     });
   }
-  async addPaymentMethod(
-    addPaymentMethodData: AddPaymentMethodDto,
-  ): Promise<any> {
-    const { pmID, isDefault } = addPaymentMethodData;
-    // find customer stripe id from database
-    const user = this.request['user'];
-    const name = user.name;
-    const userEmail = user.email;
+  async addPaymentMethod({ pmID, isDefault }: AddPaymentMethodDto): Promise<
+    | {
+        attachPaymentMethodResult: Stripe.PaymentMethod;
+        setDefaultResult: Stripe.PaymentMethod | null;
+      }
+    | HttpException
+  > {
+    let newCustomerId: string = null;
+    const { email, name } = this.request['user'];
 
-    if (!userEmail) {
+    if (!email) {
       throw new HttpException('User email not found', 404);
     }
-    // find customer stripe id from database
+
     const customerDetails = await this.entityManager.query(
       'SELECT * FROM users WHERE email = ? LIMIT 1',
-      [userEmail],
+      [email],
+    );
+    try {
+      if (!customerDetails.length) {
+        throw new HttpException('Customer not found', 404);
+      }
+
+      const { stripe_id: customerStripeId } = customerDetails[0];
+
+      if (!customerStripeId) {
+        const customer = await this.createCustomer(email, name);
+        newCustomerId = customer.id;
+        await this.updateUserStipeId(email, customer.id);
+        return await this.attachAndSetDefaultPaymentMethod(
+          pmID,
+          customer.id,
+          isDefault,
+        );
+      }
+
+      const customer = await this.stripe.customers.retrieve(customerStripeId);
+
+      if (customer.deleted) {
+        const customer = await this.createCustomer(email, name);
+        newCustomerId = customer.id;
+        const _resultData = await this.attachAndSetDefaultPaymentMethod(
+          pmID,
+          customer.id,
+          isDefault,
+        );
+
+        await this.updateUserStipeId(email, customer.id);
+        return _resultData;
+      }
+
+      return await this.attachAndSetDefaultPaymentMethod(
+        pmID,
+        customerStripeId,
+        isDefault,
+      );
+    } catch (e) {
+      if (newCustomerId) {
+        await this.stripe.customers.del(newCustomerId);
+      }
+
+      throw new HttpException(
+        'Payment method attach failed, You can not add this payment method.',
+        404,
+      );
+    }
+  }
+  private async createCustomer(
+    email: string,
+    name: string,
+  ): Promise<Stripe.Customer> {
+    return await this.stripe.customers.create({ email, name });
+  }
+
+  private async updateUserStipeId(
+    email: string,
+    stripeId: string,
+  ): Promise<void> {
+    await this.entityManager.query(
+      'UPDATE users SET stripe_id = ? WHERE email = ?',
+      [stripeId, email],
+    );
+  }
+
+  private async attachAndSetDefaultPaymentMethod(
+    pmID: string,
+    customerStripeId: string,
+    isDefault: boolean,
+  ): Promise<{
+    attachPaymentMethodResult: Stripe.PaymentMethod;
+    setDefaultResult: any | null;
+  }> {
+    const attachPaymentMethodResult = await this.stripe.paymentMethods.attach(
+      pmID,
+      { customer: customerStripeId },
     );
 
-    if (customerDetails.length === 0) {
-      throw new HttpException('Customer not found', 404);
-    }
-    let customerStripeId = customerDetails[0]?.stripe_id;
-    // if customer stripe id exists, attach payment method
-    if (customerStripeId) {
-      // attach payment method
-      try {
-        customerStripeId = await this.stripe.customers
-          .retrieve(customerStripeId)
-          .then((res) => res.id);
-      } catch (e) {
-        customerStripeId = await this.stripe.customers
-          .create({
-            email: userEmail,
-            name: name,
-          })
-          .then((res) => res.id);
-      }
-      console.log('gg');
-      const attachPaymentMethodResult = await this.stripe.paymentMethods.attach(
-        pmID,
-        {
-          customer: customerStripeId,
-        },
-      );
-
-      // set default payment method
-      if (isDefault) {
-        const setDefaultResult = await this.stripe.customers.update(
-          customerStripeId,
-          {
-            invoice_settings: {
-              default_payment_method: pmID,
-            },
-          },
-        );
-
-        return {
-          attachPaymentMethodResult,
-          setDefaultResult,
-        };
-      }
+    if (isDefault) {
       return {
         attachPaymentMethodResult,
-        setDefaultResult: null,
-      };
-    } else {
-      // if customer stripe id does not exist, create customer and attach payment method
-      const createCustomerResult = await this.stripe.customers.create({
-        email: userEmail,
-        name: name,
-      });
-
-      // update user stripe id
-      await this.entityManager.query(
-        'UPDATE users SET stripe_id = ? WHERE email = ?',
-        [createCustomerResult.id, userEmail],
-      );
-
-      // attach payment method
-      const attachPaymentMethodResult = await this.stripe.paymentMethods.attach(
-        pmID,
-        {
-          customer: createCustomerResult.id,
-        },
-      );
-
-      // set default payment method
-      if (isDefault) {
-        const setDefaultResult = await this.stripe.customers.update(
-          createCustomerResult.id,
-          {
-            invoice_settings: {
-              default_payment_method: pmID,
-            },
+        setDefaultResult: await this.stripe.customers.update(customerStripeId, {
+          invoice_settings: {
+            default_payment_method: pmID,
           },
-        );
-        return {
-          attachPaymentMethodResult,
-          setDefaultResult,
-        };
-      }
-      return {
-        attachPaymentMethodResult,
-        setDefaultResult: null,
+        }),
       };
     }
+
+    return {
+      attachPaymentMethodResult,
+      setDefaultResult: null,
+    };
   }
 
   async setDefaultPaymentMethod(pmID: string): Promise<any> {
@@ -184,19 +190,30 @@ export class PaymentMethodService {
       };
     }
     // find this customer
-    const customer = await this.stripe.customers.retrieve(customerStripeId);
-    // find this customer all payment methods
-    const paymentMethodList = await this.stripe.customers.listPaymentMethods(
-      customerStripeId,
-      {
-        type: 'card',
-        limit: 100,
-      },
-    );
-    return {
-      paymentMethodList,
-      customer,
-    };
+    try {
+      const customer = await this.stripe.customers.retrieve(customerStripeId);
+      if (customer.deleted) {
+        return {
+          paymentMethodList: [],
+          customer: null,
+        };
+      } else {
+        const paymentMethodList =
+          await this.stripe.customers.listPaymentMethods(customerStripeId, {
+            type: 'card',
+            limit: 100,
+          });
+        return {
+          paymentMethodList,
+          customer,
+        };
+      }
+    } catch (e) {
+      return {
+        paymentMethodList: [],
+        customer: null,
+      };
+    }
   }
 
   async deletePaymentMethod(pmID: string): Promise<any> {
