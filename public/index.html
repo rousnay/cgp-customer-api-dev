@@ -24,48 +24,94 @@
   <script>
     const socket = io('http://localhost:8000');
 
-    let map = L.map('map').setView([51.505, -0.09], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    let marker;
-
     socket.on('connect', () => {
       console.log('Connected to WebSocket server');
     });
 
-    socket.on('locationUpdated', (location) => {
-      if (marker) {
-        marker.setLatLng([location.latitude, location.longitude]);
-      } else {
-        marker = L.marker([location.latitude, location.longitude]).addTo(map);
-      }
-      map.setView([location.latitude, location.longitude], 13);
-    });
+    // Variable to store the ID of the rider we are tracking
+    let trackedRiderId = null;
 
-    function getRiderLocation() {
-      const riderIdInput = document.getElementById('riderIdInput');
-      const riderId = riderIdInput.value;
-      if (riderId) {
-        socket.emit('getLocation', riderId);
-      } else {
-        alert('Please enter a valid Rider ID.');
-      }
+    // Function to request the location of a specific rider initially
+    function requestRiderLocation(riderId) {
+      trackedRiderId = riderId;
+      socket.emit('getRiderLocation', { riderId });
     }
 
-    socket.on('locationData', (location) => {
+    // Event listener to handle the initial response for the rider's location
+    socket.on('riderLocation', (location) => {
       if (location) {
-        if (marker) {
-          marker.setLatLng([location.latitude, location.longitude]);
-        } else {
-          marker = L.marker([location.latitude, location.longitude]).addTo(map);
-        }
-        map.setView([location.latitude, location.longitude], 13);
+        console.log('Initial location:', location);
+        updateMapPosition(location.latitude, location.longitude);
       } else {
-        alert('Location not found for the given Rider ID.');
+        console.log('Location not found for rider:', trackedRiderId);
       }
     });
+
+    // Event listener for real-time location updates
+    socket.on('locationUpdated', (location) => {
+      console.log('Received locationUpdated event:', location);
+      if (location.riderId === trackedRiderId) {
+        console.log('Real-time location update:', location);
+        updateMapPosition(location.latitude, location.longitude);
+      }
+    });
+
+    // Example usage: request location for rider with ID 1
+    requestRiderLocation(3);
+
+    // Function to update the map position
+    function updateMapPosition(latitude, longitude) {
+      // Your code to update the map position
+      console.log(`Updating map position to Latitude: ${latitude}, Longitude: ${longitude}`);
+    }
+
+
+    // Debug logs to verify connection
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+
+
+  //   let map = L.map('map').setView([51.505, -0.09], 13);
+  //   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  //     attribution: '© OpenStreetMap contributors'
+  //   }).addTo(map);
+
+  //   let marker;
+
+  //   socket.on('connect', () => {
+  //     console.log('Connected to WebSocket server');
+  //   });
+
+
+  //   function getRiderLocation() {
+  //     const riderIdInput = document.getElementById('riderIdInput');
+  //     const riderId = riderIdInput.value || 3;
+  //     if (riderId) {
+  //       console.log('Rider ID:', riderId);
+  //       socket.emit('getLocation', Number(riderId));
+  //     } else {
+  //       alert('Please enter a valid Rider ID.');
+  //     }
+  //   }
+
+  //   socket.on('locationData', (location) => {
+  //     if (location) {
+  //       if (marker) {
+  //         marker.setLatLng([location.location.coordinates[1], location.location.coordinates[0]]);
+  //       } else {
+  //         marker = L.marker([location.location.coordinates[1], location.location.coordinates[0]]).addTo(map);
+  //       }
+  //       map.setView([location.location.coordinates[1], location.location.coordinates[0]], 13);
+  //     } else {
+  //       alert('Location not found for the given Rider ID.');
+  //     }
+  //   });
+  //
   </script>
 </body>
 </html>

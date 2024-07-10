@@ -6,9 +6,13 @@ import { EntityManager, Repository } from 'typeorm';
 
 import { ConfigService } from '@config/config.service';
 import { Customers } from '@modules/customers/entities/customers.entity';
+import { AppConstants } from '@common/constants/constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   constructor(
     @InjectRepository(Customers)
     private customerRepository: Repository<Customers>,
@@ -20,6 +24,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ignoreExpiration: false,
       secretOrKey: configService.jwtSecret,
     });
+
+    this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
   async validate(payload: any) {
@@ -54,7 +60,28 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       total_ratings: Number(totalRatings),
     };
 
-    const addReview = { ...user, avg_rating };
+    //url
+    let url = null;
+
+    if (user.profile_image_cf_media_id != null) {
+      const cloudflare_id = await this.entityManager
+        .createQueryBuilder()
+        .select(['cf.cloudflare_id'])
+        .from('cf_media', 'cf')
+        .where('cf.id = :id', { id: user.profile_image_cf_media_id })
+        .getRawOne();
+
+      url =
+        this.cfMediaBaseUrl +
+        '/' +
+        this.cfAccountHash +
+        '/' +
+        cloudflare_id.cloudflare_id +
+        '/' +
+        this.cfMediaVariant;
+    }
+
+    const addReview = { ...user, avg_rating, url };
 
     // If user is found, return the user, otherwise return null
     if (user) {

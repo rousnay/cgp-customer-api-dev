@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { LocationService } from './location.service';
 import { LocationController } from './location.controller';
-// import { LocationGateway } from './location.gateway';
+import { LocationGateway } from './location.gateway';
 import { LocationSchema } from './schemas/location.schema';
 
 @Module({
@@ -12,6 +12,6 @@ import { LocationSchema } from './schemas/location.schema';
   ],
   exports: [LocationService],
   controllers: [LocationController],
-  providers: [LocationService],
+  providers: [LocationService, LocationGateway],
 })
 export class LocationModule {}
