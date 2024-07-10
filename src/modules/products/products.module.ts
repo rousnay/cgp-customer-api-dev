@@ -11,9 +11,10 @@ import { ProductCategoryService } from './services/product-category.service';
 import { ProductCategoryController } from './controllers/product-category.controller';
 import { SimilarProductsService } from './services/product-similar.service';
 import { SimilarProductsController } from './controllers/product-similar.controller';
+import { ConfigModule } from '@config/config.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature()],
+  imports: [ConfigModule, TypeOrmModule.forFeature()],
   providers: [
     ProductsService,
     ProductWarehouseService,
