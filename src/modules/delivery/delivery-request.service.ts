@@ -79,6 +79,8 @@ export class DeliveryRequestService {
       requestFrom = {
         id: Number(warehouseBranches[0].id),
         name: warehouseBranches[0].name,
+        // url: customer.url,
+        // avg_rating: customer.avg_rating,
       };
 
       pickupLocation = {
@@ -113,6 +115,8 @@ export class DeliveryRequestService {
       requestFrom = {
         id: customer.id,
         name: customer.first_name + ' ' + customer.last_name,
+        url: customer.url,
+        avg_rating: customer.avg_rating,
       };
 
       const pickupLocationRaw = await this.userAddressBookRepository.findOne({

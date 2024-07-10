@@ -9,9 +9,14 @@ import { CreateCustomerDto } from '../dtos/create-customer.dto';
 import { UpdateCustomerDto } from '../dtos/update-customer.dto';
 import { ApiResponseDto } from '../dtos/api-response.dto';
 import { Customers } from '../entities/customers.entity';
+import { AppConstants } from '@common/constants/constants';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class CustomersService {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   constructor(
     @Inject(REQUEST) private readonly request: Request,
     private jwtService: JwtService,
@@ -21,7 +26,10 @@ export class CustomersService {
     private customersRepository: Repository<Customers>,
     @InjectRepository(Preferences)
     private readonly preferencesRepository: Repository<Preferences>,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.cfAccountHash = configService.cloudflareAccountHash;
+  }
 
   public async getCustomers({
     page = 1,
@@ -51,8 +59,30 @@ export class CustomersService {
   public async getLoggedInCustomerProfile(): Promise<{ data: Customers }> {
     try {
       const customer = this.request['user'];
+
+      console.log('customer', customer);
+
+      let url = null;
+
+      if (customer.profile_image_cf_media_id != null) {
+        const cloudflare_id = await this.entityManager
+          .createQueryBuilder()
+          .select(['cf.cloudflare_id'])
+          .from('cf_media', 'cf')
+          .where('cf.id = :id', { id: customer.profile_image_cf_media_id })
+          .getRawOne();
+
+        url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          cloudflare_id.cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+      }
       return {
-        data: customer,
+        data: { ...customer, url },
       };
     } catch (error) {
       throw new Error(`Error fetching customer: ${error.message}`);

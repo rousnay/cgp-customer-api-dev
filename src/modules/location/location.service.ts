@@ -61,7 +61,4 @@ export class LocationService {
       .sort({ updatedAt: -1 })
       .exec();
   }
-
-
-  
 }
