@@ -110,6 +110,7 @@ export class DeliveryRequestController {
     @Param('id') id: string,
   ): Promise<{ status: string; message: string; data: DeliveryRequest }> {
     const request = await this.deliveryRequestService.findOne(id);
+    console.log(request);
     return {
       status: 'success',
       message: 'Successful retrieval of the delivery request',

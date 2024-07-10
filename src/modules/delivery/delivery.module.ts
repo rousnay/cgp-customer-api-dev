@@ -15,9 +15,11 @@ import { DeliveryRequestService } from './delivery-request.service';
 import { DeliveryRequestController } from './delivery-request.controller';
 import { Orders } from '@modules/orders/entities/orders.entity';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
+import { ConfigModule } from '@config/config.module';
 
 @Module({
   imports: [
+    ConfigModule,
     LocationModule,
     TypeOrmModule.forFeature([
       Deliveries,

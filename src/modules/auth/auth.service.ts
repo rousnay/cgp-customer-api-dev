@@ -14,9 +14,14 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Customers } from '@modules/customers/entities/customers.entity';
 
 import { ReviewService } from '@modules/review/review.service';
+import { AppConstants } from '@common/constants/constants';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class AuthService {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   constructor(
     @Inject(REQUEST) private readonly request: Request,
     private jwtService: JwtService,
@@ -25,7 +30,10 @@ export class AuthService {
     @InjectRepository(Customers)
     private customerRepository: Repository<Customers>,
     private reviewService: ReviewService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.cfAccountHash = configService.cloudflareAccountHash;
+  }
 
   async registration(
     first_name: string,
@@ -208,13 +216,32 @@ export class AuthService {
           const avg_rating = await this.reviewService.getAverageRating(
             customer?.id,
           );
+          //url
+          let url = null;
 
+          if (customer.profile_image_cf_media_id != null) {
+            const cloudflare_id = await this.entityManager
+              .createQueryBuilder()
+              .select(['cf.cloudflare_id'])
+              .from('cf_media', 'cf')
+              .where('cf.id = :id', { id: customer.profile_image_cf_media_id })
+              .getRawOne();
+
+            url =
+              this.cfMediaBaseUrl +
+              '/' +
+              this.cfAccountHash +
+              '/' +
+              cloudflare_id.cloudflare_id +
+              '/' +
+              this.cfMediaVariant;
+          }
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
               // user: user,
-              customer: { ...customer, avg_rating },
+              customer: { ...customer, avg_rating, url },
               access_token: access_token,
               // auth_token: response?.data?.data?.auth_token,
             },
@@ -353,13 +380,32 @@ export class AuthService {
           const avg_rating = await this.reviewService.getAverageRating(
             customer?.id,
           );
+          //url
+          let url = null;
 
+          if (customer.profile_image_cf_media_id != null) {
+            const cloudflare_id = await this.entityManager
+              .createQueryBuilder()
+              .select(['cf.cloudflare_id'])
+              .from('cf_media', 'cf')
+              .where('cf.id = :id', { id: customer.profile_image_cf_media_id })
+              .getRawOne();
+
+            url =
+              this.cfMediaBaseUrl +
+              '/' +
+              this.cfAccountHash +
+              '/' +
+              cloudflare_id.cloudflare_id +
+              '/' +
+              this.cfMediaVariant;
+          }
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
               // user: user,
-              customer: { ...customer, avg_rating },
+              customer: { ...customer, avg_rating, url },
               access_token: access_token,
               // auth_token: response?.data?.data?.auth_token,
             },
@@ -484,13 +530,35 @@ export class AuthService {
         const customer = await this.customerRepository.findOne({
           where: { user_id: user?.id },
         });
+        //url
+        let url = null;
 
+        if (customer.profile_image_cf_media_id != null) {
+          const cloudflare_id = await this.entityManager
+            .createQueryBuilder()
+            .select(['cf.cloudflare_id'])
+            .from('cf_media', 'cf')
+            .where('cf.id = :id', { id: customer.profile_image_cf_media_id })
+            .getRawOne();
+
+          url =
+            this.cfMediaBaseUrl +
+            '/' +
+            this.cfAccountHash +
+            '/' +
+            cloudflare_id.cloudflare_id +
+            '/' +
+            this.cfMediaVariant;
+        }
         return {
           status: 'success',
           message: response?.data?.msg,
           data: {
             // user: user,
-            customer: customer,
+            customer: {
+              ...customer,
+              url,
+            },
           },
         };
       } else {

@@ -14,9 +14,14 @@ import { Orders } from '@modules/orders/entities/orders.entity';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { OrderType } from '@common/enums/order.enum';
 import { ShippingStatus } from '@common/enums/delivery.enum';
+import { AppConstants } from '@common/constants/constants';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class DeliveryRequestService {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   constructor(
     @InjectModel(DeliveryRequest.name)
     private deliveryRequestModel: Model<DeliveryRequest>,
@@ -27,7 +32,10 @@ export class DeliveryRequestService {
     private ordersRepository: Repository<Orders>,
     @InjectRepository(UserAddressBook)
     private userAddressBookRepository: Repository<UserAddressBook>,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.cfAccountHash = configService.cloudflareAccountHash;
+  }
 
   async getDeliveryRequestPayloadByStripeId(stripeId: string): Promise<any> {
     console.log('getDeliveryRequestPayloadByStripeId called!');
@@ -75,12 +83,46 @@ export class DeliveryRequestService {
           warehouseId,
         })
         .getRawMany();
+      // get customer's overall review
+      const given_to_id = warehouseId;
+      const result = await this.entityManager.query(
+        'SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(rating) as total_ratings FROM overall_reviews WHERE given_to_id = ?',
+        [given_to_id],
+      );
 
+      const averageRating = result[0].average_rating || 0;
+      const totalRatings = result[0].total_ratings || 0;
+
+      const avg_rating = {
+        average_rating: Number(averageRating),
+        total_ratings: Number(totalRatings),
+      };
+      // logo
+      const logo_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'logo' AND cf.model_id = ?`;
+
+      const logo = await this.entityManager.query(logo_cloudflare_id_query, [
+        warehouseId,
+      ]);
+
+      let logo_url = null;
+
+      if (logo.length != 0 && logo[0].cloudflare_id != null) {
+        logo_url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          logo[0].cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+      }
       requestFrom = {
         id: Number(warehouseBranches[0].id),
         name: warehouseBranches[0].name,
-        // url: customer.url,
-        // avg_rating: customer.avg_rating,
+        url: logo_url,
+        avg_rating,
       };
 
       pickupLocation = {
