@@ -154,12 +154,51 @@ export class DeliveryRequestService {
         })
         .getRawOne();
 
+      // get customer's overall review
+      const given_to_id = customerId;
+      const result = await this.entityManager.query(
+        'SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(rating) as total_ratings FROM overall_reviews WHERE given_to_id = ?',
+        [given_to_id],
+      );
+
+      const averageRating = result[0].average_rating || 0;
+      const totalRatings = result[0].total_ratings || 0;
+
+      const avg_rating = {
+        average_rating: Number(averageRating),
+        total_ratings: Number(totalRatings),
+      };
+
+      //url
+      let customer_profile_image_url = null;
+
+      if (customer.profile_image_cf_media_id != null) {
+        const cloudflare_id = await this.entityManager
+          .createQueryBuilder()
+          .select(['cf.cloudflare_id'])
+          .from('cf_media', 'cf')
+          .where('cf.id = :id', { id: customer.profile_image_cf_media_id })
+          .getRawOne();
+
+        customer_profile_image_url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          cloudflare_id.cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+      }
+
       requestFrom = {
         id: customer.id,
         name: customer.first_name + ' ' + customer.last_name,
-        url: customer.url,
-        avg_rating: customer.avg_rating,
+        url: customer_profile_image_url,
+        avg_rating,
       };
+
+      console.log('customer', customer);
+      console.log('requestFrom', requestFrom);
 
       const pickupLocationRaw = await this.userAddressBookRepository.findOne({
         where: { id: order.pickup_address_id },

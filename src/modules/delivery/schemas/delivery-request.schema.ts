@@ -4,12 +4,26 @@ import { CreateUserAddressDto } from '@modules/user-address-book/create-user-add
 import { OrderType } from '@common/enums/order.enum';
 import { ShippingStatus } from '@common/enums/delivery.enum';
 
+export class AvgRating {
+  @Prop({ required: true })
+  average_rating: number;
+
+  @Prop({ required: true })
+  total_ratings: number;
+}
+
 export class RequestFrom {
   @Prop({ required: true })
   id: number;
 
   @Prop({ required: true })
   name: string;
+
+  @Prop({ required: true })
+  url: string;
+
+  @Prop({ type: AvgRating, required: true })
+  avg_rating: AvgRating;
 }
 
 export class AssignedRider {

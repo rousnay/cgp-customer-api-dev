@@ -12,6 +12,16 @@ import { CreateUserAddressDto } from '@modules/user-address-book/create-user-add
 import { OrderType } from '@common/enums/order.enum';
 import { ShippingStatus } from '@common/enums/delivery.enum';
 
+class AvgRating {
+  @ApiProperty()
+  @IsNumber()
+  average_rating: number;
+
+  @ApiProperty()
+  @IsNumber()
+  total_ratings: number;
+}
+
 class RequestFrom {
   @ApiProperty()
   @IsNumber()
@@ -20,6 +30,14 @@ class RequestFrom {
   @ApiProperty()
   @IsString()
   name: string;
+
+  @ApiProperty()
+  @IsString()
+  url: string;
+
+  @ApiProperty({ type: AvgRating })
+  @IsObject()
+  avg_rating: AvgRating;
 }
 
 class AssignedRider {
