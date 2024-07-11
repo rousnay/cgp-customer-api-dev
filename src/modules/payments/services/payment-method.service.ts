@@ -248,8 +248,12 @@ export class PaymentMethodService {
     // if not find this customer
     if (!customerStripeId) {
       return {
-        paymentMethodList: [],
-        customer: null,
+        status: 'success',
+        message: 'Customer not found',
+        data: {
+          paymentMethodList: [],
+          customer: null,
+        },
       };
     }
     // find this customer
