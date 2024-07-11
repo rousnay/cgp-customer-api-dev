@@ -2,18 +2,27 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
-
+import { AppConstants } from '@common/constants/constants';
 import { ProductsDto } from '../dtos/products.dto';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class ProductsService {
+    private readonly cfAccountHash: string;
+    private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+    private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   findProductsByCategoryId(categoryId: number) {
     throw new Error('Method not implemented.');
   }
   constructor(
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.cfAccountHash = configService.cloudflareAccountHash;
+  }
+
+  
 
   async findAll(): Promise<any> {
     const productsQuery = `
@@ -72,6 +81,36 @@ export class ProductsService {
           warehouses: [],
         };
       }
+
+        const product_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
+
+        const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [productId]);
+
+
+        // console.log('product_cloudflare_id_result', product_cloudflare_id_result, productId);
+        
+        let product_img_url = [];
+
+        product_cloudflare_id_result.map(item => {
+            if (item && item.cloudflare_id != null) {
+                let url =
+                    this.cfMediaBaseUrl +
+                    '/' +
+                    this.cfAccountHash +
+                    '/' +
+                    item.cloudflare_id +
+                    '/' +
+                    this.cfMediaVariant;
+                product_img_url.push(url);
+            }
+
+        })
+
+        productsGroupedById[productId].img_urls = product_img_url;
+    
+
       // Exclude id, product_name, etc. from product data
       delete product.id;
       delete product.product_name;
@@ -107,6 +146,7 @@ export class ProductsService {
         pw.quantity,
         pw.active,
         pw.has_own_product_img,
+        p.id as product_id,
         p.barcode,
         p.category_id,
         p.primary_category_id,
@@ -152,7 +192,7 @@ export class ProductsService {
 
     const productData = productResult[0];
     const brandId = productData.brand_id;
-
+    
     // Fetch brand data based on brandId
     const brandQuery = `
       SELECT
@@ -167,14 +207,14 @@ export class ProductsService {
 
     // Fetching warehouse data
     const warehousesQuery = `
-            SELECT
-                *
-            FROM
-                product_warehouse_branch pw
-            INNER JOIN
-                warehouses w ON pw.warehouse_id = w.id
-            WHERE
-                pw.id = ?`;
+        SELECT
+            *
+        FROM
+            product_warehouse_branch pw
+        INNER JOIN
+            warehouses w ON pw.warehouse_id = w.id
+        WHERE
+            pw.id = ?`;
 
     const warehousesResults = await this.entityManager.query(warehousesQuery, [
       id,
@@ -196,6 +236,29 @@ export class ProductsService {
         main_branch: mainBranch,
       });
     }
+
+    const product_cloudflare_id_query = `SELECT cf.cloudflare_id FROM cf_media cf WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
+
+    const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [productData.product_id]);
+        
+    let product_img_urls = [];
+
+    product_cloudflare_id_result.map(item => {
+        if (item && item.cloudflare_id != null) {
+            let url =
+                this.cfMediaBaseUrl +
+                '/' +
+                this.cfAccountHash +
+                '/' +
+                item.cloudflare_id +
+                '/' +
+                this.cfMediaVariant;
+            product_img_urls.push(url);
+        }
+
+    })
+
+    productData.img_urls = product_img_urls
 
     // Return product data with brand data as a separate object
     return {

@@ -5,9 +5,10 @@ import { ProductsService } from '@modules/products/services/products.service';
 import { WishList } from './wishlist.entity';
 import { WishListService } from './wishlist.service';
 import { WishListController } from './wishlist.controller';
+import { ConfigModule } from '@config/config.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([WishList])],
+  imports: [ConfigModule, TypeOrmModule.forFeature([WishList])],
   controllers: [WishListController],
   providers: [WishListService, ProductsService],
 })
