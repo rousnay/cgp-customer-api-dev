@@ -109,12 +109,12 @@ export class PaymentService {
         .andWhere('payment_status != :payment_status', { payment_status })
         .execute();
 
-    //   const query = `
-    //     SELECT o.order_type
-    //     FROM payments p
-    //     INNER JOIN orders o ON o.id = p.order_id
-    //     WHERE p.stripe_id = ?
-    // `;
+      //   const query = `
+      //     SELECT o.order_type
+      //     FROM payments p
+      //     INNER JOIN orders o ON o.id = p.order_id
+      //     WHERE p.stripe_id = ?
+      // `;
 
       // const order_type = await this.entityManager.query(query, [stripe_id]);
 
