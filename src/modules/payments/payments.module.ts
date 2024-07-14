@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@config/config.module';
 import { PaymentToken } from './entities/payment-token.entity';
-import { PaymentService } from './payments.service';
-import { PaymentController } from './payments.controller';
+import { PaymentService } from './services/payments.service'; // src
+import { PaymentController } from './controllers/payments.controller';
 import { DeliveryService } from '@modules/delivery/delivery.service';
 import { FirebaseAdminModule } from '@services/firebase-admin.module';
 import { NotificationsModule } from '@modules/notification/notification.module';

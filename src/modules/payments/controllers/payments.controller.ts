@@ -12,9 +12,9 @@ import {
 import { ApiOperation, ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
-import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
-import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
-import { PaymentService } from './payments.service';
+import { CreatePaymentTokenDto } from '../dtos/create-payment-token.dto';
+import { RetrievePaymentMethodDto } from '../dtos/retrieve-payment-method.dto';
+import { PaymentService } from '../services/payments.service';
 
 @Controller('payment')
 @ApiTags('Payments')

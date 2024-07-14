@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@config/config.module';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
-import { PaymentService } from '@modules/payments/payments.service';
+import { PaymentService } from '@modules/payments/services/payments.service';
 import { PaymentToken } from '@modules/payments/entities/payment-token.entity';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { Cart } from '@modules/cart/cart.entity';

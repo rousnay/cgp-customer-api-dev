@@ -3,7 +3,7 @@ import { REQUEST } from '@nestjs/core';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
-import { PaymentService } from '@modules/payments/payments.service';
+import { PaymentService } from '@modules/payments/services/payments.service';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';

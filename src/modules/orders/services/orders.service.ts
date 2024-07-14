@@ -14,7 +14,7 @@ import { Orders } from '../entities/orders.entity';
 import { OrderDetails } from '../entities/order_details.entity';
 import { NotificationService } from '@modules/notification/notification.service';
 import { OrderNotificationService } from './order.notification.service';
-import { PaymentService } from '@modules/payments/payments.service';
+import { PaymentService } from '@modules/payments/services/payments.service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { OrderStatus, OrderType } from '@common/enums/order.enum';
@@ -169,7 +169,6 @@ export class OrderService {
   //     'order_cancelled',
   //   );
   // }
-  
 
   async cancelOrder(
     orderId: number,

@@ -7,9 +7,9 @@ import Stripe from 'stripe';
 import { ConfigService } from '@config/config.service';
 import { AppConstants } from '@common/constants/constants';
 import { DeliveryService } from '@modules/delivery/delivery.service';
-import { CreatePaymentTokenDto } from './dtos/create-payment-token.dto';
-import { RetrievePaymentMethodDto } from './dtos/retrieve-payment-method.dto';
-import { PaymentToken } from './entities/payment-token.entity';
+import { CreatePaymentTokenDto } from '../dtos/create-payment-token.dto';
+import { RetrievePaymentMethodDto } from '../dtos/retrieve-payment-method.dto';
+import { PaymentToken } from '../entities/payment-token.entity';
 import { NotificationService } from '@modules/notification/notification.service'; // TODO: Remove this service
 import { DeliveryRequestService } from '@modules/delivery/delivery-request.service';
 
