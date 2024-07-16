@@ -63,13 +63,13 @@ export class PaymentService {
     try {
       console.log('updatePaymentStatus called');
       // const updateResult = await this.entityManager;
-      await this.entityManager
-        .createQueryBuilder()
-        .update('payments')
-        .set({ payment_status })
-        .where('stripe_id = :stripe_id', { stripe_id })
-        .andWhere('payment_status != :payment_status', { payment_status })
-        .execute();
+      // await this.entityManager
+      //   .createQueryBuilder()
+      //   .update('payments')
+      //   .set({ payment_status })
+      //   .where('stripe_id = :stripe_id', { stripe_id })
+      //   .andWhere('payment_status != :payment_status', { payment_status })
+      //   .execute();
     } catch (error) {
       console.error(error);
       throw new Error('Payment not found or update failed');
