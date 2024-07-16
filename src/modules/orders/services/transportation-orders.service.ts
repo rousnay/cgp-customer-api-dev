@@ -68,6 +68,7 @@ export class TransportationOrdersService {
       init_distance: createTransportationOrderDto?.distance,
       init_duration: createTransportationOrderDto?.duration,
       delivery_charge: createTransportationOrderDto?.payable_amount,
+      vehicle_type_id: createTransportationOrderDto?.vehicle_type_id,
     });
 
     const orderInfo = {
@@ -90,27 +91,11 @@ export class TransportationOrdersService {
       'Pending',
     );
 
-    // const stripId = await this.entityManager
-    //   .createQueryBuilder()
-    //   .from('users', 'u')
-    //   .where({ id: customer?.id })
-    //   .execute();
-
-    const stripIdQueryResult = await this.entityManager
-      .createQueryBuilder()
-      .select('u.stripe_id', 'stripe_id')
-      .from('users', 'u')
-      .where({ id: customer?.id })
-      // .where('u.id = :userId', { customer?.id })
-      .getRawOne();
-
-    console.log('stripIdQueryResult', stripIdQueryResult);
-
     // REQUEST FOR TRIP --- Rider to be notified, Searching....
     const deliveryRequestData =
       await this.deliveryRequestService.sendDeliveryRequest(
+        customer?.user_id,
         savedOrder?.id,
-        stripIdQueryResult?.stripe_id,
       );
 
     return {

@@ -40,25 +40,25 @@ export class DeliveryController {
     schema: {
       type: 'object',
       properties: {
+        userId: {
+          type: 'number',
+          example: '123',
+        },
         orderId: {
           type: 'number',
           example: '12345',
         },
-        stripeId: {
-          type: 'string',
-          example: 'cus_QTlJQ7xSGqe4jY',
-        },
       },
-      required: ['orderId', 'stripeId'],
+      required: ['orderId', 'userId'],
     },
   })
   async sendRequest(
+    @Body('userId') userId: number,
     @Body('orderId') orderId: number,
-    @Body('stripeId') stripeId: string,
   ): Promise<any> {
     const requestResult = await this.deliveryRequestService.sendDeliveryRequest(
+      userId,
       orderId,
-      stripeId,
     );
 
     return {

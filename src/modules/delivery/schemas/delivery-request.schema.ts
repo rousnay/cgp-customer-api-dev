@@ -14,6 +14,9 @@ export class AvgRating {
 
 export class RequestFrom {
   @Prop({ required: true })
+  userId: number;
+
+  @Prop({ required: true })
   id: number;
 
   @Prop({ required: true })
@@ -68,6 +71,9 @@ export class DeliveryRequest extends Document {
 
   @Prop({ required: true })
   deliveryId: number;
+
+  @Prop({ required: true })
+  targetedVehicleTypeId: number;
 
   @Prop({
     enum: OrderType,

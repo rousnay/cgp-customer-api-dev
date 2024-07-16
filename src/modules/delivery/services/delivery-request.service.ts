@@ -42,11 +42,10 @@ export class DeliveryRequestService {
   }
 
   async buildDeliveryRequestPayload(
+    userId: number,
     orderId: number,
-    stripeId: string,
   ): Promise<any> {
     console.log('buildDeliveryRequestPayload called!');
-    console.log('orderId', orderId, 'stripeId', stripeId);
 
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
@@ -117,6 +116,7 @@ export class DeliveryRequestService {
           this.cfMediaVariant;
       }
       requestFrom = {
+        userId,
         id: Number(warehouseBranches[0].id),
         name: warehouseBranches[0].name,
         url: logo_url,
@@ -189,6 +189,7 @@ export class DeliveryRequestService {
       }
 
       requestFrom = {
+        userId,
         id: customer.id,
         name: customer.first_name + ' ' + customer.last_name,
         url: customer_profile_image_url,
@@ -231,6 +232,13 @@ export class DeliveryRequestService {
       };
     }
 
+    const { stripe_id } = await this.entityManager
+      .createQueryBuilder()
+      .select('u.stripe_id', 'stripe_id')
+      .from('users', 'u')
+      .where({ id: userId })
+      .getRawOne();
+
     const delivery = await this.deliveriesRepository.findOne({
       where: { order_id: orderId },
     });
@@ -240,7 +248,7 @@ export class DeliveryRequestService {
 
     return {
       orderId: orderId,
-      stripeId: stripeId || '',
+      stripeId: stripe_id || '',
       deliveryId: delivery.id,
       targetedVehicleTypeId: delivery.vehicle_type_id,
       requestFrom,
@@ -382,13 +390,13 @@ export class DeliveryRequestService {
     }
   }
 
-  async sendDeliveryRequest(orderId: number, stripeId: string): Promise<any> {
+  async sendDeliveryRequest(userId: number, orderId: number): Promise<any> {
     console.log('sendDeliveryRequest operated successfully');
-    console.log('orderId', orderId, 'stripeId', stripeId);
+    console.log('userId', userId, 'orderId', orderId);
 
     const buildDeliveryRequestPayload = await this.buildDeliveryRequestPayload(
+      userId,
       orderId,
-      stripeId,
     );
 
     const getStoredDeliveryRequestData = await this.storeDeliveryRequest(
