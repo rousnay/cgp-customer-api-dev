@@ -8,6 +8,7 @@ import { UserAddressBookService } from '@modules/user-address-book/user-address-
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
 import { Orders } from '../entities/orders.entity';
+import { DeliveryRequestService } from '@modules/delivery/services/delivery-request.service';
 
 @Injectable()
 export class TransportationOrdersService {
@@ -20,6 +21,7 @@ export class TransportationOrdersService {
     private readonly deliveriesRepository: Repository<Deliveries>,
     private readonly userAddressBookService: UserAddressBookService,
     private readonly paymentService: PaymentService,
+    private readonly deliveryRequestService: DeliveryRequestService,
   ) {}
   async create(
     payment_client: string,
@@ -60,12 +62,6 @@ export class TransportationOrdersService {
 
     const savedOrder = await this.transportationOrdersRepository.save(order);
 
-    const savedPayment = await this.paymentService.storePaymentStatus(
-      savedOrder?.id,
-      null,
-      'Pending',
-    );
-
     const savedDelivery = await this.deliveriesRepository.save({
       customer_id: customer?.id,
       order_id: savedOrder?.id,
@@ -88,10 +84,40 @@ export class TransportationOrdersService {
       updated_at: savedOrder?.updated_at,
     };
 
+    const savedPayment = await this.paymentService.storePaymentStatus(
+      savedOrder?.id,
+      null,
+      'Pending',
+    );
+
+    // const stripId = await this.entityManager
+    //   .createQueryBuilder()
+    //   .from('users', 'u')
+    //   .where({ id: customer?.id })
+    //   .execute();
+
+    const stripIdQueryResult = await this.entityManager
+      .createQueryBuilder()
+      .select('u.stripe_id', 'stripe_id')
+      .from('users', 'u')
+      .where({ id: customer?.id })
+      // .where('u.id = :userId', { customer?.id })
+      .getRawOne();
+
+    console.log('stripIdQueryResult', stripIdQueryResult);
+
+    // REQUEST FOR TRIP --- Rider to be notified, Searching....
+    const deliveryRequestData =
+      await this.deliveryRequestService.sendDeliveryRequest(
+        savedOrder?.id,
+        stripIdQueryResult?.stripe_id,
+      );
+
     return {
       order: orderInfo,
       delivery: savedDelivery,
       payment: savedPayment,
+      delivery_request: deliveryRequestData,
     };
   }
 }

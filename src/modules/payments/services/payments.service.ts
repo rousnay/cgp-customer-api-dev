@@ -1,17 +1,10 @@
 import { REQUEST } from '@nestjs/core';
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import Stripe from 'stripe';
 
 import { ConfigService } from '@config/config.service';
 import { AppConstants } from '@common/constants/constants';
-import { DeliveryService } from '@modules/delivery/delivery.service';
-import { CreatePaymentTokenDto } from '../dtos/create-payment-token.dto';
-import { RetrievePaymentMethodDto } from '../dtos/retrieve-payment-method.dto';
-import { PaymentToken } from '../entities/payment-token.entity';
-import { NotificationService } from '@modules/notification/notification.service'; // TODO: Remove this service
-import { DeliveryRequestService } from '@modules/delivery/delivery-request.service';
 
 @Injectable()
 export class PaymentService {
@@ -21,40 +14,10 @@ export class PaymentService {
     @Inject(REQUEST) private readonly request: Request,
     private readonly entityManager: EntityManager,
     private readonly configService: ConfigService,
-    @InjectRepository(PaymentToken)
-    private paymentTokenRepository: Repository<PaymentToken>,
-    private readonly deliveryService: DeliveryService,
-    private readonly notificationService: NotificationService,
-    private deliveryRequestService: DeliveryRequestService,
   ) {
     this.stripe = new Stripe(configService.stripeSecretKey, {
       apiVersion: AppConstants.stripe.apiVersion,
     });
-  }
-
-  async findOrCreateCustomer(
-    email: string,
-    name: string,
-    phone: string,
-  ): Promise<Stripe.Customer> {
-    // Find existing customer by email
-    const customers = await this.stripe.customers.list({
-      email: email,
-      limit: 1,
-    });
-
-    if (customers.data.length > 0) {
-      // Customer with email exists
-      return customers.data[0];
-    } else {
-      // Customer with email does not exist, create a new customer
-      const customer = await this.stripe.customers.create({
-        email: email,
-        name: name,
-        phone: phone,
-      });
-      return customer;
-    }
   }
 
   async storePaymentStatus(
@@ -96,7 +59,6 @@ export class PaymentService {
   async updatePaymentStatus(
     stripe_id: string,
     payment_status: string,
-    isFromWarehouse: boolean,
   ): Promise<any> {
     try {
       console.log('updatePaymentStatus called');
@@ -108,85 +70,96 @@ export class PaymentService {
         .where('stripe_id = :stripe_id', { stripe_id })
         .andWhere('payment_status != :payment_status', { payment_status })
         .execute();
-
-      //   const query = `
-      //     SELECT o.order_type
-      //     FROM payments p
-      //     INNER JOIN orders o ON o.id = p.order_id
-      //     WHERE p.stripe_id = ?
-      // `;
-
-      // const order_type = await this.entityManager.query(query, [stripe_id]);
-
-      // if (updateResult.affected > 0) {
-
-      // if (
-      //   (payment_status === 'Paid' &&
-      //     order_type[0].order_type !== 'product_and_transport') ||
-      //   isFromWarehouse
-      // ) {
-
-      if (payment_status === 'Paid') {
-        const payment = await this.entityManager
-          .createQueryBuilder()
-          .select('*')
-          .from('payments', 'p')
-          .where('p.stripe_id = :stripe_id', {
-            stripe_id,
-          })
-          .getRawOne();
-
-        if (payment) {
-          console.log('updatePaymentStatus operated successfully');
-          const riderDeviceTokens =
-            await this.deliveryService.sendDeliveryRequest(stripe_id);
-
-          const buildDeliveryRequestPayload =
-            await this.deliveryRequestService.getDeliveryRequestPayloadByStripeId(
-              stripe_id,
-            );
-
-          const getDeliveryRequestData =
-            await this.deliveryRequestService.create(
-              buildDeliveryRequestPayload,
-            );
-
-          //NEED TO CHANGE DELIVERY STATUS TO SEARCHING...
-
-          const requestedByUserId = getDeliveryRequestData?.requestFrom?.id;
-          const requestedByUserName = getDeliveryRequestData?.requestFrom?.name;
-          const requestId = getDeliveryRequestData?.id;
-          const title = 'New Delivery Request';
-          const message =
-            'You have a new delivery request from ' + requestedByUserName;
-          const data = {
-            target: 'rider',
-            type: 'delivery_request',
-            requestId: requestId,
-            requestedByUserId: requestedByUserId.toString(),
-            requestedByUserName: requestedByUserName,
-          };
-
-          for (const rider of riderDeviceTokens) {
-            console.log('rider', rider);
-            for (const deviceToken of rider.deviceTokens) {
-              await this.notificationService.sendAndStoreDeliveryRequestNotification(
-                rider.userId,
-                deviceToken,
-                title,
-                message,
-                { ...data, riderId: rider.riderId.toString() },
-              );
-            }
-          }
-
-          return payment;
-        }
-        return null;
-      }
     } catch (error) {
       console.error(error);
       throw new Error('Payment not found or update failed');
+    }
+  }
+
+  async handleWebhookEvent(
+    rawPayload: string,
+    signature: string,
+  ): Promise<void> {
+    try {
+      // Verify the webhook signature to ensure it's coming from Stripe
+      const event = this.stripe.webhooks.constructEvent(
+        rawPayload,
+        signature,
+        this.configService.stripeWebhookSigningSecret,
+      );
+
+      // Handle the event based on its type
+      switch (event.type) {
+        case 'payment_intent.canceled':
+          const canceledPaymentIntent = event.data
+            .object as Stripe.PaymentIntent;
+          console.log('PaymentIntent was canceled:', canceledPaymentIntent.id);
+          break;
+
+        case 'payment_intent.created':
+          const createdPaymentIntent = event.data
+            .object as Stripe.PaymentIntent;
+          console.log('PaymentIntent was created:', createdPaymentIntent.id);
+          break;
+
+        case 'payment_intent.payment_failed':
+          const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
+          console.log('PaymentIntent failed:', failedPaymentIntent.id);
+          break;
+
+        case 'payment_intent.processing':
+          const processingPaymentIntent = event.data
+            .object as Stripe.PaymentIntent;
+          console.log(
+            'PaymentIntent is processing:',
+            processingPaymentIntent.id,
+          );
+          break;
+
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+          console.log('PaymentIntent was successful:', paymentIntent.id);
+          await this.updatePaymentStatus(paymentIntent.id, 'Paid');
+          break;
+
+        case 'checkout.session.completed':
+          const session = event.data.object as Stripe.Checkout.Session;
+          console.log('Checkout session was successful:', session.id);
+          await this.updatePaymentStatus(session.id, 'Paid');
+          break;
+
+        default:
+          console.log('Unhandled event type:', event.type);
+      }
+    } catch (error) {
+      // Handle webhook verification or processing errors
+      console.error('Error handling webhook event:', error.message);
+      throw new Error('Webhook event handling failed');
+    }
+  }
+
+  async findOrCreateCustomer(
+    email: string,
+    name: string,
+    phone: string,
+  ): Promise<Stripe.Customer> {
+    // Find existing customer by email
+    const customers = await this.stripe.customers.list({
+      email: email,
+      limit: 1,
+    });
+
+    if (customers.data.length > 0) {
+      // Customer with email exists
+      return customers.data[0];
+    } else {
+      // Customer with email does not exist, create a new customer
+      const customer = await this.stripe.customers.create({
+        email: email,
+        name: name,
+        phone: phone,
+      });
+      return customer;
     }
   }
 
@@ -284,155 +257,6 @@ export class PaymentService {
       return paymentIntent;
     } catch (error) {
       throw new Error('Failed to create payment intent');
-    }
-  }
-
-  async tokenizeAndStorePaymentInformation(
-    createPaymentTokenDto: CreatePaymentTokenDto,
-  ): Promise<string> {
-    console.log('createPaymentTokenDto', createPaymentTokenDto);
-    // const paymentMethod = await this.stripe.paymentMethods.create({
-    //   type: 'card',
-    //   card: {
-    //     number: createPaymentTokenDto.cardNumber,
-    //     exp_month: createPaymentTokenDto.expMonth,
-    //     exp_year: createPaymentTokenDto.expYear,
-    //     cvc: createPaymentTokenDto.cvc,
-    //   },
-    // });
-
-    const paymentMethod = await this.stripe.paymentMethods.create({
-      type: 'card',
-      card: {
-        token: 'tok_visa', // Use test card token provided by Stripe
-      },
-    });
-
-    const paymentToken = paymentMethod.id;
-    const newPaymentToken = this.paymentTokenRepository.create({
-      customerId: createPaymentTokenDto.customerId,
-      paymentToken: paymentToken,
-    });
-    await this.paymentTokenRepository.save(newPaymentToken);
-
-    return paymentToken;
-  }
-
-  async retrievePaymentMethod(
-    retrievePaymentMethodDto: RetrievePaymentMethodDto,
-  ): Promise<Stripe.PaymentMethod> {
-    try {
-      // Retrieve stored payment method associated with the customer's identifier
-      const paymentToken = await this.paymentTokenRepository.findOne({
-        where: { customerId: retrievePaymentMethodDto.customerId },
-      });
-
-      console.log('paymentToken', paymentToken);
-
-      // Retrieve default payment method ID from Stripe customer
-      //   const customer = await this.stripe.customers.retrieve(
-      //     retrievePaymentMethodDto.customerId,
-      //   );
-
-      //   console.log('customer', customer);
-
-      //   // Check if invoice_settings exists on customer
-      //   if (!customer.invoice_settings) {
-      //     throw new Error('Invoice settings not found for customer');
-      //   }
-
-      //   const defaultPaymentMethodId =
-      //     customer.invoice_settings.default_payment_method;
-
-      const paymentMethodId = 'pm_1PE9EYGJkp9au0iQEEZC9mnq';
-
-      //   // Check if invoice_settings exists on customer
-      //   if (!('invoice_settings' in customer)) {
-      //     throw new Error('Invoice settings not found for customer');
-      //   }
-
-      //   const defaultPaymentMethodId =
-      //     customer.invoice_settings.default_payment_method;
-
-      //   // If the default payment method is a PaymentMethod object, retrieve its ID
-      // paymentMethodId =
-      //     typeof defaultPaymentMethodId === 'string'
-      //       ? defaultPaymentMethodId
-      //       : defaultPaymentMethodId.id;
-
-      console.log('paymentMethodId', paymentMethodId);
-
-      // Retrieve payment method details from Stripe using default payment method ID
-      return await this.stripe.paymentMethods.retrieve(paymentMethodId);
-      //   const await this.stripe.customers.retrievePaymentMethod(
-      //     'cus_9s6XKzkNRiz8i3',
-      //     'pm_1NVChw2eZvKYlo2CHxiM5E2E',
-      //   );
-    } catch (error) {
-      console.error('Error retrieving payment method:', error.message);
-      throw new Error('Error retrieving payment method');
-    }
-  }
-
-  async handleWebhookEvent(
-    rawPayload: string,
-    signature: string,
-  ): Promise<void> {
-    try {
-      // Verify the webhook signature to ensure it's coming from Stripe
-      const event = this.stripe.webhooks.constructEvent(
-        rawPayload,
-        signature,
-        this.configService.stripeWebhookSigningSecret,
-      );
-
-      // Handle the event based on its type
-      switch (event.type) {
-        case 'payment_intent.canceled':
-          const canceledPaymentIntent = event.data
-            .object as Stripe.PaymentIntent;
-          console.log('PaymentIntent was canceled:', canceledPaymentIntent.id);
-          break;
-
-        case 'payment_intent.created':
-          const createdPaymentIntent = event.data
-            .object as Stripe.PaymentIntent;
-          console.log('PaymentIntent was created:', createdPaymentIntent.id);
-          break;
-
-        case 'payment_intent.payment_failed':
-          const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
-          console.log('PaymentIntent failed:', failedPaymentIntent.id);
-          break;
-
-        case 'payment_intent.processing':
-          const processingPaymentIntent = event.data
-            .object as Stripe.PaymentIntent;
-          console.log(
-            'PaymentIntent is processing:',
-            processingPaymentIntent.id,
-          );
-          break;
-
-        case 'payment_intent.succeeded':
-          const paymentIntent = event.data.object as Stripe.PaymentIntent;
-          console.log('PaymentIntent was successful:', paymentIntent.id);
-          await this.updatePaymentStatus(paymentIntent.id, 'Paid', false);
-          break;
-
-        case 'checkout.session.completed':
-          const session = event.data.object as Stripe.Checkout.Session;
-          console.log('Checkout session was successful:', session.id);
-          await this.updatePaymentStatus(session.id, 'Paid', false);
-          break;
-
-        default:
-          console.log('Unhandled event type:', event.type);
-      }
-    } catch (error) {
-      // Handle webhook verification or processing errors
-      console.error('Error handling webhook event:', error.message);
-      throw new Error('Webhook event handling failed');
     }
   }
 }

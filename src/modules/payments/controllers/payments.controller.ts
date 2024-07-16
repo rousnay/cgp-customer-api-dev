@@ -12,33 +12,12 @@ import {
 import { ApiOperation, ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
-import { CreatePaymentTokenDto } from '../dtos/create-payment-token.dto';
-import { RetrievePaymentMethodDto } from '../dtos/retrieve-payment-method.dto';
 import { PaymentService } from '../services/payments.service';
 
 @Controller('payment')
-@ApiTags('Payments')
+@ApiTags('Payments - Testing purpose only')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
-
-  @Post('tokenize')
-  @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (token)' })
-  @UseGuards(JwtAuthGuard)
-  async tokenizeAndStorePaymentInformation(
-    @Body() createPaymentTokenDto: CreatePaymentTokenDto,
-  ): Promise<string> {
-    return this.paymentService.tokenizeAndStorePaymentInformation(
-      createPaymentTokenDto,
-    );
-  }
-
-  @Post('retrieve-method')
-  @ApiOperation({ summary: 'PLEASE IGNORE! UNDER DEVELOPMENT' })
-  async retrievePaymentMethod(
-    @Body() retrievePaymentMethodDto: RetrievePaymentMethodDto,
-  ): Promise<any> {
-    return this.paymentService.retrievePaymentMethod(retrievePaymentMethodDto);
-  }
 
   @Put('update-payment-status')
   @ApiOperation({ summary: 'PLEASE IGNORE! Only for backend (webhook)' })
@@ -59,11 +38,7 @@ export class PaymentController {
     @Body('stripe_id') stripe_id: string,
     @Body('payment_status') payment_status: string,
   ): Promise<number> {
-    return this.paymentService.updatePaymentStatus(
-      stripe_id,
-      payment_status,
-      true,
-    );
+    return this.paymentService.updatePaymentStatus(stripe_id, payment_status);
   }
 
   @Put('send-transportation-request/:stripe_id')
@@ -71,7 +46,7 @@ export class PaymentController {
   async requestTransportation(
     @Param('stripe_id') stripe_id: string,
   ): Promise<number> {
-    return this.paymentService.updatePaymentStatus(stripe_id, 'Paid', true);
+    return this.paymentService.updatePaymentStatus(stripe_id, 'Paid');
   }
 
   @Post('webhook-receiver')

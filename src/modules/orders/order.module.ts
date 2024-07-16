@@ -6,7 +6,6 @@ import { ConfigModule } from '@config/config.module';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { PaymentService } from '@modules/payments/services/payments.service';
-import { PaymentToken } from '@modules/payments/entities/payment-token.entity';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { Cart } from '@modules/cart/cart.entity';
 import { Orders } from './entities/orders.entity';
@@ -19,7 +18,7 @@ import { TransportationCostCalculationService } from './services/transportation-
 import { TransportationVehiclesController } from './controllers/transportation-vehicles.controller';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
 import { TransportationOrdersController } from './controllers/transportation-orders.controller';
-import { DeliveryService } from '@modules/delivery/delivery.service';
+import { DeliveryService } from '@modules/delivery/services/delivery.service';
 import { FirebaseAdminModule } from '@services/firebase-admin.module';
 import { NotificationsModule } from '@modules/notification/notification.module';
 import { LocationModule } from '@modules/location/location.module';
@@ -54,7 +53,6 @@ import { DeliveryRequestNotificationSchema } from '@modules/notification/notific
       OrderCancelReason,
       UserAddressBook,
       UserAddressBookService,
-      PaymentToken,
       PaymentService,
     ]),
     MongooseModule.forFeature([
