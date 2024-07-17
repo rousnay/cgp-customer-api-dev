@@ -42,10 +42,10 @@ import { ReviewModule } from '@modules/review/review.module';
     OrderModule,
     DeliveryModule,
     LocationModule,
-    GeoLocationModule,
+    ReviewModule,
     NotificationsModule,
     PaymentModule,
-    ReviewModule,
+    GeoLocationModule,
     ChatModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),

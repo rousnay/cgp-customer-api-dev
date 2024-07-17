@@ -12,7 +12,21 @@ import { CreateUserAddressDto } from '@modules/user-address-book/create-user-add
 import { OrderType } from '@common/enums/order.enum';
 import { ShippingStatus } from '@common/enums/delivery.enum';
 
+class AvgRating {
+  @ApiProperty()
+  @IsNumber()
+  average_rating: number;
+
+  @ApiProperty()
+  @IsNumber()
+  total_ratings: number;
+}
+
 class RequestFrom {
+  @ApiProperty()
+  @IsNumber()
+  userId: number;
+
   @ApiProperty()
   @IsNumber()
   id: number;
@@ -20,6 +34,14 @@ class RequestFrom {
   @ApiProperty()
   @IsString()
   name: string;
+
+  @ApiProperty()
+  @IsString()
+  url: string;
+
+  @ApiProperty({ type: AvgRating })
+  @IsObject()
+  avg_rating: AvgRating;
 }
 
 class AssignedRider {
@@ -71,8 +93,12 @@ export class CreateDeliveryRequestDto {
   stripeId: string;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   deliveryId: number;
+
+  @ApiProperty()
+  @IsNumber()
+  targetedVehicleTypeId: number;
 
   @ApiProperty({ enum: OrderType })
   @IsEnum(OrderType)

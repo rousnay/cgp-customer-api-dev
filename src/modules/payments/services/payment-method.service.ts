@@ -199,7 +199,18 @@ export class PaymentMethodService {
             },
           },
         );
-        return setDefaultResult;
+        if (setDefaultResult) {
+          return {
+            status: 'success',
+            message: 'Default payment method set successfully',
+            data: setDefaultResult,
+          };
+        }
+        return {
+          status: 'error',
+          message: 'Failed to set default payment method',
+          data: null,
+        };
       } else {
         // if customer stripe id does not exist, throw error
         return {
@@ -248,8 +259,12 @@ export class PaymentMethodService {
     // if not find this customer
     if (!customerStripeId) {
       return {
-        paymentMethodList: [],
-        customer: null,
+        status: 'success',
+        message: 'Customer not found',
+        data: {
+          paymentMethodList: [],
+          customer: null,
+        },
       };
     }
     // find this customer

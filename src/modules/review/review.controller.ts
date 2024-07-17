@@ -20,7 +20,7 @@ import {
 import { ReviewService } from './review.service';
 import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 
-@ApiTags('reviews')
+@ApiTags('Reviews')
 @Controller('reviews')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}

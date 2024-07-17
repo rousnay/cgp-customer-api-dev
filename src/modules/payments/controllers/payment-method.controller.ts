@@ -82,9 +82,7 @@ export class PaymentMethodController {
     );
     return res.status(200).json({
       status: result.status,
-      message: result.message
-        ? result.message
-        : 'Something went wrong, please try again',
+      message: result.message ? result.message : '',
       data: result.data,
     });
   }

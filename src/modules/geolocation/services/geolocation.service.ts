@@ -21,8 +21,9 @@ export class GeoLocationService {
       const response: GeocodeResponse = await this.googleMapsClient.geocode({
         params: {
           address,
-          // key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c',
-          key: 'AIzaSyCUqRnsyjWiluojL3z2-9VRoZ7ABubgbpE',
+          // key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c', //Rousnay
+          // key: 'AIzaSyCUqRnsyjWiluojL3z2-9VRoZ7ABubgbpE', //Atiq
+          key: 'AIzaSyBprY90fvqn9LQqEhe4mSIyDf1UekyT2Po', // Tradebar
         },
       });
 
@@ -48,8 +49,9 @@ export class GeoLocationService {
           params: {
             origins: [origin],
             destinations: [destination],
-            // key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c',
-            key: 'AIzaSyCUqRnsyjWiluojL3z2-9VRoZ7ABubgbpE',
+            // key: 'AIzaSyD8QJ0NhV8Sd6kGXRntcKyxT8akcoc72-c', //Rousnay
+            // key: 'AIzaSyCUqRnsyjWiluojL3z2-9VRoZ7ABubgbpE', //Atiq
+            key: 'AIzaSyBprY90fvqn9LQqEhe4mSIyDf1UekyT2Po', // Tradebar
           },
         });
 

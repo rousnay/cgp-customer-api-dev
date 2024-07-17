@@ -14,7 +14,7 @@ import {
 import { GeoLocationService } from '../services/geolocation.service';
 
 @Controller('geolocation')
-@ApiTags('GeoLocation')
+@ApiTags('GeoLocation - Testing purpose only')
 export class GeoLocationController {
   geolocationService: any;
   constructor(private readonly GeoLocationService: GeoLocationService) {}

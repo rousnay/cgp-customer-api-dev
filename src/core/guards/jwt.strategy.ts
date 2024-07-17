@@ -64,21 +64,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     let url = null;
 
     if (user.profile_image_cf_media_id != null) {
-      const cloudflare_id = await this.entityManager
-        .createQueryBuilder()
-        .select(['cf.cloudflare_id'])
-        .from('cf_media', 'cf')
-        .where('cf.id = :id', { id: user.profile_image_cf_media_id })
-        .getRawOne();
+      try {
+        const cloudflare_id = await this.entityManager
+          .createQueryBuilder()
+          .select(['cf.cloudflare_id'])
+          .from('cf_media', 'cf')
+          .where('cf.id = :id', { id: user.profile_image_cf_media_id })
+          .getRawOne();
 
-      url =
-        this.cfMediaBaseUrl +
-        '/' +
-        this.cfAccountHash +
-        '/' +
-        cloudflare_id.cloudflare_id +
-        '/' +
-        this.cfMediaVariant;
+        url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          cloudflare_id.cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+      } catch (e) {
+        // do nothing
+      }
     }
 
     const addReview = { ...user, avg_rating, url };

@@ -14,7 +14,7 @@ import { Orders } from '../entities/orders.entity';
 import { OrderDetails } from '../entities/order_details.entity';
 import { NotificationService } from '@modules/notification/notification.service';
 import { OrderNotificationService } from './order.notification.service';
-import { PaymentService } from '@modules/payments/payments.service';
+import { PaymentService } from '@modules/payments/services/payments.service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { OrderStatus, OrderType } from '@common/enums/order.enum';
@@ -28,11 +28,17 @@ import {
   DeliveryRequestNotification,
   DeliveryRequestNotificationModel,
 } from '@modules/notification/notification.schema';
+import { AppConstants } from '@common/constants/constants';
 
 @Injectable()
 export class OrderService {
   private readonly googleMapsClient: Client;
   private readonly googleMapsApiKey: string;
+
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
+
   constructor(
     configService: ConfigService,
     @Inject(REQUEST) private readonly request: Request,
@@ -59,6 +65,7 @@ export class OrderService {
   ) {
     this.googleMapsClient = new Client({});
     this.googleMapsApiKey = configService.googleMapsApiKey;
+    this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
   async placeOrder(createOrderDto: CreateOrderDto): Promise<any> {
@@ -373,6 +380,7 @@ export class OrderService {
         r.last_name AS rider_last_name,
         r.email AS rider_email,
         r.phone AS rider_phone,
+        r.profile_image_cf_media_id AS rider_profile_image_cf_media_id,
 
         ors.id AS order_review_id,
         ors.model_id AS order_review_model_id,
@@ -511,17 +519,45 @@ export class OrderService {
       updated_at: result[0].updated_at,
 
       rider: {
+        user_id: null,
         id: result[0].rider_id,
         name: result[0].rider_first_name + ' ' + result[0].rider_last_name,
+        url: null,
         vehicle_license_plate: result[0].vehicle_license_plate,
-        // media_url: ,
         email: result[0].rider_email,
         phone: result[0].rider_phone,
         location: null,
       },
     };
 
+    if (result[0].rider_profile_image_cf_media_id) {
+      const cloudflare_id = await this.entityManager
+        .createQueryBuilder()
+        .select(['cf.cloudflare_id'])
+        .from('cf_media', 'cf')
+        .where('cf.id = :id', { id: result[0].rider_profile_image_cf_media_id })
+        .getRawOne();
+
+      delivery_info.rider.url =
+        this.cfMediaBaseUrl +
+        '/' +
+        this.cfAccountHash +
+        '/' +
+        cloudflare_id.cloudflare_id +
+        '/' +
+        this.cfMediaVariant;
+    }
+
     if (result[0].rider_id) {
+      const { userId } = await this.entityManager
+        .createQueryBuilder()
+        .select('r.user_id', 'userId')
+        .from('riders', 'r')
+        .where({ id: result[0].rider_id })
+        .getRawOne();
+
+      delivery_info.rider.user_id = userId;
+
       const rider_location = await this.locationService.getLocation(
         result[0].rider_id,
       );
