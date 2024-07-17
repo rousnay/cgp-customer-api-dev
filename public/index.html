@@ -47,6 +47,15 @@
     //   }
     // });
 
+    const orderId = 296; // Replace with actual orderId
+    socket.on(`orderStatusUpdated_${orderId}`, (data) => {
+      console.log('Order status updated:', data);
+    });
+
+    socket.on(`orderStatusUpdatedx`, (data) => {
+      console.log('Order status updated:', data);
+    });
+
     // Event listener for real-time location updates
     let currentRiderId = 3; // Replace with the ID of the rider you want to track
     socket.on('locationUpdated', (data) => {
@@ -58,14 +67,15 @@
       }
     });
 
-    // Example usage: request location for rider with ID 1
-    // requestRiderLocation(3);
 
-    // Function to update the map position
-    function updateMapPosition(latitude, longitude) {
-      // Your code to update the map position
-      console.log(`Updating map position to Latitude: ${latitude}, Longitude: ${longitude}`);
-    }
+
+        // const orderId = '123456'; // Replace with actual orderId
+
+        // socket.on(`orderStatusUpdated_${orderId}`, (data) => {
+        //     console.log('Order status updated:', data);
+        //     // Handle updated order status (e.g., update UI)
+        // });
+
 
 
     // Debug logs to verify connection
