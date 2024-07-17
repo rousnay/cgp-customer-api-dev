@@ -28,33 +28,6 @@
       console.log('Connected to WebSocket server');
     });
 
-    // Variable to store the ID of the rider we are tracking
-    let trackedRiderId = 3;
-
-    // Function to request the location of a specific rider initially
-    // function requestRiderLocation(riderId) {
-    //   trackedRiderId = riderId;
-    //   socket.emit('getRiderLocation', { riderId });
-    // }
-
-    // Event listener to handle the initial response for the rider's location
-    // socket.on('riderLocation', (location) => {
-    //   if (location) {
-    //     console.log('Initial location:', location);
-    //     updateMapPosition(location.latitude, location.longitude);
-    //   } else {
-    //     console.log('Location not found for rider:', trackedRiderId);
-    //   }
-    // });
-
-    const orderId = 296; // Replace with actual orderId
-    socket.on(`orderStatusUpdated_${orderId}`, (data) => {
-      console.log('Order status updated:', data);
-    });
-
-    socket.on(`orderStatusUpdatedx`, (data) => {
-      console.log('Order status updated:', data);
-    });
 
     // Event listener for real-time location updates
     let currentRiderId = 3; // Replace with the ID of the rider you want to track
@@ -68,15 +41,10 @@
     });
 
 
-
-        // const orderId = '123456'; // Replace with actual orderId
-
-        // socket.on(`orderStatusUpdated_${orderId}`, (data) => {
-        //     console.log('Order status updated:', data);
-        //     // Handle updated order status (e.g., update UI)
-        // });
-
-
+    const orderId = 296; // Replace with actual orderId
+    socket.on(`orderStatusUpdated_${orderId}`, (data) => {
+      console.log('Order status updated:', data);
+    });
 
     // Debug logs to verify connection
     socket.on('connect', () => {
