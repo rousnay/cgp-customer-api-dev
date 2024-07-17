@@ -33,6 +33,7 @@ import {
   DeliveryRequestSchema,
 } from '@modules/delivery/schemas/delivery-request.schema';
 import { DeliveryRequestNotificationSchema } from '@modules/notification/notification.schema';
+import { OngoingOrderSchema } from './schemas/ongoing-order.schema';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { DeliveryRequestNotificationSchema } from '@modules/notification/notific
         name: 'DeliveryRequestNotification',
         schema: DeliveryRequestNotificationSchema,
       },
+      { name: 'OngoingOrder', schema: OngoingOrderSchema },
     ]),
   ],
   exports: [OrderService],

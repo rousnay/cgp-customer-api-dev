@@ -29,6 +29,7 @@ import {
   DeliveryRequestNotificationModel,
 } from '@modules/notification/notification.schema';
 import { AppConstants } from '@common/constants/constants';
+import { OngoingOrder } from '../schemas/ongoing-order.schema';
 
 @Injectable()
 export class OrderService {
@@ -59,6 +60,7 @@ export class OrderService {
 
     @InjectModel(DeliveryRequest.name)
     private deliveryRequestModel: Model<DeliveryRequest>,
+    @InjectModel('OngoingOrder') private ongoingOrderModel: Model<OngoingOrder>,
     @InjectModel(DeliveryRequestNotificationModel.modelName)
     private deliveryRequestNotificationModel: Model<DeliveryRequestNotification>,
     private deliveryNotificationService: OrderNotificationService,
@@ -811,5 +813,15 @@ export class OrderService {
     }, []);
 
     return orders;
+  }
+
+  async getOngoingOrderByOrderId(orderId: number): Promise<OngoingOrder> {
+    const order = await this.ongoingOrderModel.findOne({ orderId }).exec();
+    if (!order) {
+      throw new NotFoundException(
+        `Ongoing order with ID '${orderId}' not found`,
+      );
+    }
+    return order;
   }
 }
