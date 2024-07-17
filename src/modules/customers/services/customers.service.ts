@@ -11,6 +11,9 @@ import { ApiResponseDto } from '../dtos/api-response.dto';
 import { Customers } from '../entities/customers.entity';
 import { AppConstants } from '@common/constants/constants';
 import { ConfigService } from '@config/config.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { DeliveryRequest } from '@modules/delivery/schemas/delivery-request.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class CustomersService {
@@ -26,6 +29,8 @@ export class CustomersService {
     private customersRepository: Repository<Customers>,
     @InjectRepository(Preferences)
     private readonly preferencesRepository: Repository<Preferences>,
+    // @InjectModel(DeliveryRequest.name)
+    // private deliveryRequestModel: Model<DeliveryRequest>,
     configService: ConfigService,
   ) {
     this.cfAccountHash = configService.cloudflareAccountHash;
@@ -59,30 +64,8 @@ export class CustomersService {
   public async getLoggedInCustomerProfile(): Promise<{ data: Customers }> {
     try {
       const customer = this.request['user'];
-
-      console.log('customer', customer);
-
-      let url = null;
-
-      if (customer.profile_image_cf_media_id != null) {
-        const cloudflare_id = await this.entityManager
-          .createQueryBuilder()
-          .select(['cf.cloudflare_id'])
-          .from('cf_media', 'cf')
-          .where('cf.id = :id', { id: customer.profile_image_cf_media_id })
-          .getRawOne();
-
-        url =
-          this.cfMediaBaseUrl +
-          '/' +
-          this.cfAccountHash +
-          '/' +
-          cloudflare_id.cloudflare_id +
-          '/' +
-          this.cfMediaVariant;
-      }
       return {
-        data: { ...customer, url },
+        data: customer,
       };
     } catch (error) {
       throw new Error(`Error fetching customer: ${error.message}`);
@@ -180,5 +163,62 @@ export class CustomersService {
     customer.preferences = preferences;
     // Save the updated customer entity
     await this.customersRepository.save(customer);
+  }
+
+  async getCustomerProfileImageUrl(
+    profile_image_cf_media_id: any,
+  ): Promise<any> {
+    let url = null;
+
+    if (profile_image_cf_media_id != null) {
+      try {
+        const cloudflare_id = await this.entityManager
+          .createQueryBuilder()
+          .select(['cf.cloudflare_id'])
+          .from('cf_media', 'cf')
+          .where('cf.id = :id', { id: profile_image_cf_media_id })
+          .getRawOne();
+
+        url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          cloudflare_id.cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+
+        return url;
+      } catch (e) {
+        // do nothing
+      }
+    } else {
+      return null;
+    }
+  }
+
+  async getCustomerOngoingDelivery(customerId: any): Promise<{ data: any }> {
+    let ongoing_delivery = null;
+    // find deliver id and order id for find ongoing trip
+    const deliveriesData = await this.entityManager.query(
+      `SELECT
+        id, customer_id, order_id, shipping_status
+    FROM
+        deliveries
+    WHERE
+        shipping_status IN ('waiting', 'searching', 'accepted', 'reached_at_pickup_point', 'picked_up', 'reached_at_delivery_point')
+        AND customer_id = ?`,
+      [customerId],
+    );
+    if (deliveriesData.length > 0) {
+      ongoing_delivery = {
+        order_id: deliveriesData[0].order_id || null,
+        delivery_id: deliveriesData[0].id || null,
+        shipping_status: deliveriesData[0].shipping_status || null,
+      };
+      return ongoing_delivery;
+    } else {
+      return null;
+    }
   }
 }

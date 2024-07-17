@@ -12,12 +12,14 @@ import { Customers } from '@modules/customers/entities/customers.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { ReviewService } from '@modules/review/review.service';
+import { CustomersService } from '@modules/customers/services/customers.service';
+import { Preferences } from '@modules/application/entities/preferences.entity';
 
 @Module({
   imports: [
     ConfigModule,
     PassportModule,
-    TypeOrmModule.forFeature([Customers]),
+    TypeOrmModule.forFeature([Customers, Preferences]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -33,6 +35,7 @@ import { ReviewService } from '@modules/review/review.service';
     LocalStrategy,
     JwtStrategy,
     PasswordService,
+    CustomersService,
     ReviewService,
   ],
   controllers: [AuthController],

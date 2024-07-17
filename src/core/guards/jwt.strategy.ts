@@ -39,14 +39,28 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validateUser(payload: any): Promise<any> {
     // Extract user id from the payload
     const customer_id = payload.sub;
-
     // Find the user in the database by userId
     const user = await this.customerRepository.findOne({
       where: { id: customer_id },
     });
 
-    // get customer's overall review
-    const given_to_id = user?.id;
+    const avg_rating = await this.getCustomerAvgRating(user?.id);
+    const ongoing_delivery = await this.getCustomerOngoingDelivery(customer_id);
+    const url = await this.getCustomerProfileImageUrl(
+      user?.profile_image_cf_media_id,
+    );
+
+    const addReview = { ...user, url, avg_rating, ongoing_delivery };
+    // If user is found, return the user, otherwise return null
+    if (user) {
+      return addReview;
+    } else {
+      return null;
+    }
+  }
+
+  async getCustomerAvgRating(userId: any) {
+    const given_to_id = userId;
     const result = await this.entityManager.query(
       'SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(rating) as total_ratings FROM overall_reviews WHERE given_to_id = ?',
       [given_to_id],
@@ -60,16 +74,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       total_ratings: Number(totalRatings),
     };
 
-    //url
+    return avg_rating;
+  }
+
+  async getCustomerProfileImageUrl(
+    profile_image_cf_media_id: any,
+  ): Promise<any> {
     let url = null;
 
-    if (user.profile_image_cf_media_id != null) {
+    if (profile_image_cf_media_id != null) {
       try {
         const cloudflare_id = await this.entityManager
           .createQueryBuilder()
           .select(['cf.cloudflare_id'])
           .from('cf_media', 'cf')
-          .where('cf.id = :id', { id: user.profile_image_cf_media_id })
+          .where('cf.id = :id', { id: profile_image_cf_media_id })
           .getRawOne();
 
         url =
@@ -80,16 +99,36 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           cloudflare_id.cloudflare_id +
           '/' +
           this.cfMediaVariant;
+
+        return url;
       } catch (e) {
         // do nothing
       }
+    } else {
+      return null;
     }
+  }
 
-    const addReview = { ...user, avg_rating, url };
-
-    // If user is found, return the user, otherwise return null
-    if (user) {
-      return addReview;
+  async getCustomerOngoingDelivery(customerId: any): Promise<{ data: any }> {
+    let ongoing_delivery = null;
+    // find deliver id and order id for find ongoing trip
+    const deliveriesData = await this.entityManager.query(
+      `SELECT
+        id, customer_id, order_id, shipping_status
+    FROM
+        deliveries
+    WHERE
+        shipping_status IN ('waiting', 'searching', 'accepted', 'reached_at_pickup_point', 'picked_up', 'reached_at_delivery_point')
+        AND customer_id = ?`,
+      [customerId],
+    );
+    if (deliveriesData.length > 0) {
+      ongoing_delivery = {
+        order_id: deliveriesData[0].order_id || null,
+        delivery_id: deliveriesData[0].id || null,
+        shipping_status: deliveriesData[0].shipping_status || null,
+      };
+      return ongoing_delivery;
     } else {
       return null;
     }
