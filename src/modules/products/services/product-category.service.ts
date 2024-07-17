@@ -1,13 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
-
+import { ConfigService } from '@config/config.service';
+import { AppConstants } from '@common/constants/constants';
 @Injectable()
 export class ProductCategoryService {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   constructor(
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.cfAccountHash = configService.cloudflareAccountHash;
+  }
 
   async findProductsByCategoryId(categoryId: number): Promise<any> {
     // Query to fetch category object
@@ -102,8 +109,80 @@ export class ProductCategoryService {
         product.id,
       ]);
 
+
+      for (const item of warehouseResults) {
+        const logo_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'logo' AND cf.model_id = ?`;
+
+        const thumbnail_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'thumbnail' AND cf.model_id = ?`;
+
+        const logo = await this.entityManager.query(logo_cloudflare_id_query, [
+            item.warehouse_id,
+        ]);
+
+        const thumbnail = await this.entityManager.query(
+            thumbnail_cloudflare_id_query,
+            [item.warehouse_id],
+        );
+
+        let logo_url = null;
+
+        if (logo.length != 0 && logo[0].cloudflare_id != null) {
+            logo_url =
+            this.cfMediaBaseUrl +
+            '/' +
+            this.cfAccountHash +
+            '/' +
+            logo[0].cloudflare_id +
+            '/' +
+            this.cfMediaVariant;
+        }
+
+        let thumbnail_url = null;
+
+        if (thumbnail.length != 0 && thumbnail[0].cloudflare_id != null) {
+            thumbnail_url =
+            this.cfMediaBaseUrl +
+            '/' +
+            this.cfAccountHash +
+            '/' +
+            thumbnail[0].cloudflare_id +
+            '/' +
+            this.cfMediaVariant;
+        }
+        
+        item.logo_url = logo_url
+        item.thumbnail_url = thumbnail_url
+         
+      }
+
+      const product_cloudflare_id_query = `SELECT cf.cloudflare_id FROM cf_media cf WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
+
+      const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [product.id]);
+          
+      let img_urls = [];
+
+      product_cloudflare_id_result.map(item => {
+          if (item && item.cloudflare_id != null) {
+              let url =
+                  this.cfMediaBaseUrl +
+                  '/' +
+                  this.cfAccountHash +
+                  '/' +
+                  item.cloudflare_id +
+                  '/' +
+                  this.cfMediaVariant;
+              img_urls.push(url);
+          }
+
+      })
+
       productsWithCategoryAndWarehouses.push({
         ...productData, // Entire product object
+        img_urls, //image urls
         brand_name: brandData.name, // Add the brand data as a separate object
         warehouses: warehouseResults,
       });
