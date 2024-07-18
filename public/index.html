@@ -41,6 +41,12 @@
     });
 
 
+    const riderId = 3;
+    socket.on(`locationUpdated_${riderId}`, (location) => {
+      console.log(`Location updated for rider ${riderId}:`, location);
+    });
+
+
     const orderId = 296; // Replace with actual orderId
     socket.on(`orderStatusUpdated_${orderId}`, (data) => {
       console.log('Order status updated:', data);
