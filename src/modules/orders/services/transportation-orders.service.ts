@@ -9,6 +9,9 @@ import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
 import { Orders } from '../entities/orders.entity';
 import { DeliveryRequestService } from '@modules/delivery/services/delivery-request.service';
+import { OngoingOrder } from '../schemas/ongoing-order.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class TransportationOrdersService {
@@ -22,6 +25,7 @@ export class TransportationOrdersService {
     private readonly userAddressBookService: UserAddressBookService,
     private readonly paymentService: PaymentService,
     private readonly deliveryRequestService: DeliveryRequestService,
+    @InjectModel('OngoingOrder') private ongoingOrderModel: Model<OngoingOrder>,
   ) {}
   async create(
     payment_client: string,
@@ -91,6 +95,14 @@ export class TransportationOrdersService {
       'Pending',
     );
 
+    const ongoingOrderStatus = await this.updateOngoingOrder(
+      savedOrder?.id,
+      savedDelivery?.id,
+      savedDelivery?.shipping_status,
+      'Searching for a rider',
+      'Be patient, we are searching for a rider for your order',
+    );
+
     // REQUEST FOR TRIP --- Rider to be notified, Searching....
     const deliveryRequestData =
       await this.deliveryRequestService.sendDeliveryRequest(
@@ -103,6 +115,39 @@ export class TransportationOrdersService {
       delivery: savedDelivery,
       payment: savedPayment,
       delivery_request: deliveryRequestData,
+      ongoing_delivery_status: ongoingOrderStatus,
     };
+  }
+
+  async updateOngoingOrder(
+    orderId: number,
+    deliveryId: number,
+    shippingStatus: string,
+    title: string,
+    message: string,
+  ): Promise<OngoingOrder> {
+    const updateData: Partial<OngoingOrder> = {
+      orderId,
+      deliveryId,
+      shippingStatus,
+      title,
+      message,
+      updatedAt: new Date(),
+    };
+
+    let existingOrder = await this.ongoingOrderModel.findOne({ orderId });
+
+    if (!existingOrder) {
+      // Create a new order if it doesn't exist
+      existingOrder = new this.ongoingOrderModel({
+        ...updateData,
+        createdAt: new Date(),
+      });
+    } else {
+      // Update the existing order with the new data
+      existingOrder.set(updateData);
+    }
+
+    return existingOrder.save();
   }
 }
