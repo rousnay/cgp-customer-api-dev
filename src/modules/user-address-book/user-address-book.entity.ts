@@ -46,7 +46,7 @@ export class UserAddressBook extends BaseEntity {
   @Column({ length: 20, nullable: true })
   postal_code: string;
 
-  @Column({ length: 50, nullable: true })
+  @Column({ length: 512, nullable: true })
   country_id: string;
 
   @Column({ type: 'double', default: 0.0 })
