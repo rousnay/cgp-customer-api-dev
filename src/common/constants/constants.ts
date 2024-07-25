@@ -13,8 +13,8 @@ export const AppConstants = {
   stripe: {
     apiVersion: '2024-04-10' as const,
     apiBaseUrl: 'https://api.stripe.com/v1' as const,
-    success_url: 'https://raw-bertie-wittyplex.koyeb.app' as const,
-    cancel_url: 'https://raw-bertie-wittyplex.koyeb.app' as const,
+    success_url: 'https://cgp-customer-api-dev.onrender.com' as const,
+    cancel_url: 'https://cgp-customer-api-dev.onrender.com' as const,
   },
   mail: {
     recipient: 'mr.rousnay@gmail.com' as const,

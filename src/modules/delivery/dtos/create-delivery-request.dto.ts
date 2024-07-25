@@ -78,7 +78,11 @@ export class CreateDeliveryRequestDto {
 
   @ApiProperty()
   @IsNumber()
-  deliveryCost: number;
+  deliveryCost: string;
+
+  @ApiProperty()
+  @IsString()
+  riderFee: string;
 
   @ApiProperty()
   @IsString()

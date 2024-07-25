@@ -9,6 +9,8 @@ import { SentryFilter } from '@core/filters/sentry.filter';
 import { CustomValidationPipe } from '@core/pipes/custom-validation.pipe';
 import { SocketAdapter } from '@core/adapters/socket.adapter';
 import { AppModule } from './app.module';
+import { EntityManager } from 'typeorm';
+// import { setEntityManager } from '@common/utils/variables';
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;
@@ -32,6 +34,10 @@ async function bootstrap() {
 
   // use the custom socket adapter
   app.useWebSocketAdapter(new SocketAdapter(app));
+
+  //Initialize EntityManager on Application Startup for variables.ts
+  // const entityManager = app.get(EntityManager);
+  // setEntityManager(entityManager);
 
   // Import the filter globally, capturing all exceptions on all routes
   const { httpAdapter } = app.get(HttpAdapterHost);

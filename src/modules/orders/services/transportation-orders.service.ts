@@ -12,6 +12,7 @@ import { DeliveryRequestService } from '@modules/delivery/services/delivery-requ
 import { OngoingOrder } from '../schemas/ongoing-order.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { AppVariables } from '@common/utils/variables';
 
 @Injectable()
 export class TransportationOrdersService {
@@ -66,12 +67,22 @@ export class TransportationOrdersService {
 
     const savedOrder = await this.transportationOrdersRepository.save(order);
 
+    const the_tradebar_fee = await AppVariables.tradebar_fee.percentage;
+
+    console.log(the_tradebar_fee);
+
+    const tradebar_percentage = the_tradebar_fee / 100;
+    const payable_amount = createTransportationOrderDto?.payable_amount;
+    const tradebar_fee = payable_amount * tradebar_percentage;
+    const rider_fee = payable_amount - tradebar_fee;
+
     const savedDelivery = await this.deliveriesRepository.save({
       customer_id: customer?.id,
       order_id: savedOrder?.id,
       init_distance: createTransportationOrderDto?.distance,
       init_duration: createTransportationOrderDto?.duration,
       delivery_charge: createTransportationOrderDto?.payable_amount,
+      rider_fee: rider_fee,
       vehicle_type_id: createTransportationOrderDto?.vehicle_type_id,
     });
 
