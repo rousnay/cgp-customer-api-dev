@@ -153,21 +153,21 @@ export class ProductCategoryService {
             '/' +
             this.cfMediaVariant;
         }
-        
+
         item.logo_url = logo_url
         item.thumbnail_url = thumbnail_url
-         
+
       }
 
       const product_cloudflare_id_query = `SELECT cf.cloudflare_id FROM cf_media cf WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
 
       const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [product.id]);
-          
-      let img_urls = [];
+
+      const img_urls = [];
 
       product_cloudflare_id_result.map(item => {
           if (item && item.cloudflare_id != null) {
-              let url =
+              const url =
                   this.cfMediaBaseUrl +
                   '/' +
                   this.cfAccountHash +
