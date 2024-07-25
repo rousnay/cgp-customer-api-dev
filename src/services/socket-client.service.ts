@@ -6,8 +6,8 @@ export class SocketClientService implements OnModuleInit {
   private socket: Socket;
 
   onModuleInit() {
-    this.socket = io('http://localhost:8000');
-    // this.socket = io('https://cgp-rider-api.onrender.com');
+    // this.socket = io('http://localhost:8000');
+    this.socket = io('https://cgp-rider-api.onrender.com');
     this.socket.on('connect', () => {
       console.log('Connected to Socket.IO server');
     });
