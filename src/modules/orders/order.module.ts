@@ -34,6 +34,7 @@ import {
 } from '@modules/delivery/schemas/delivery-request.schema';
 import { DeliveryRequestNotificationSchema } from '@modules/notification/notification.schema';
 import { OngoingOrderSchema } from './schemas/ongoing-order.schema';
+import { SocketClientService } from '@services/socket-client.service';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { OngoingOrderSchema } from './schemas/ongoing-order.schema';
     DeliveryService,
     OrderCancelReasonService,
     OrderNotificationService,
+    SocketClientService,
   ],
   controllers: [
     OrderController,

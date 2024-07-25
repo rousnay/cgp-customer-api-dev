@@ -30,6 +30,7 @@ import {
 } from '@modules/notification/notification.schema';
 import { AppConstants } from '@common/constants/constants';
 import { OngoingOrder } from '../schemas/ongoing-order.schema';
+import { SocketClientService } from '@services/socket-client.service';
 
 @Injectable()
 export class OrderService {
@@ -64,6 +65,7 @@ export class OrderService {
     @InjectModel(DeliveryRequestNotificationModel.modelName)
     private deliveryRequestNotificationModel: Model<DeliveryRequestNotification>,
     private deliveryNotificationService: OrderNotificationService,
+    private readonly socketClientService: SocketClientService,
   ) {
     this.googleMapsClient = new Client({});
     this.googleMapsApiKey = configService.googleMapsApiKey;
@@ -164,21 +166,6 @@ export class OrderService {
     };
   }
 
-  // async cancelOrder(orderId: number): Promise<void> {
-  //   const order = await this.orderRepository.findOne({
-  //     where: { id: orderId, customer_id: this.request['user'].id },
-  //   });
-  //   if (!order) {
-  //     throw new NotFoundException('Order not found');
-  //   }
-  //   order.order_status = OrderStatus.CANCELLED;
-  //   await this.orderRepository.save(order);
-  //   await this.orderNotificationService.sendOrderNotification(
-  //     order,
-  //     'order_cancelled',
-  //   );
-  // }
-
   async cancelOrder(
     orderId: number,
     orderCancelReasonId: number,
@@ -249,6 +236,9 @@ export class OrderService {
     // const updatedDelivery = await this.deliveriesRepository.findOne({
     //   where: { order_id: orderId },
     // });
+
+    //sent socket notification
+    this.socketClientService.emitOrderStatusUpdate(orderId);
 
     //sent notifications
     const notificationSentToDeviceTokens =
