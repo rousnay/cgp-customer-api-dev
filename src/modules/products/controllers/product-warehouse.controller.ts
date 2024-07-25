@@ -36,7 +36,7 @@ export class ProductWarehouseController {
   })
   async findProductsByWarehouseAndCategory(
     @Param('warehouseId') warehouseId: number,
-    @Param('categoryId') categoryId: number,
+    @Param('categoryId') categoryId: number
   ): Promise<{ message: string; status: string; data: any[] }> {
     const results =
       await this.productWarehouseService.findProductsByWarehouseAndCategory(
