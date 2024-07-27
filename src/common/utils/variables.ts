@@ -1,3 +1,27 @@
+import { VariablesService } from './variables.service';
+let variablesService: VariablesService;
+export const setVariablesService = (service: VariablesService) => {
+  variablesService = service;
+};
+
+export const AppVariables = {
+  tradebarFee: {
+    get id(): Promise<number | null> {
+      return variablesService.getTradebarFeeId();
+    },
+    get percentage(): Promise<number> {
+      return variablesService.getTradebarFeePercentage();
+    },
+  },
+};
+
+// export const AppVariables = {
+//   tradebar_fee: {
+//     id: 1 as const,
+//     percentage: 20.0 as const,
+//   },
+// };
+
 // src/variables.ts
 // import { DataSource } from 'typeorm';
 
@@ -39,6 +63,7 @@
 //   },
 // };
 
+// src/variables.ts
 // import { Injectable } from '@nestjs/common';
 // import { InjectEntityManager } from '@nestjs/typeorm';
 // import { EntityManager } from 'typeorm';
@@ -50,13 +75,6 @@
 //   async getTradebarFeeId(): Promise<number | null> {
 //     const result = await this.entityManager
 //       .createQueryBuilder()
-
-export const AppVariables = {
-  tradebar_fee: {
-    id: 1 as const,
-    percentage: 20.0 as const,
-  },
-};
 
 // src/variables.ts
 // import { EntityManager } from 'typeorm';

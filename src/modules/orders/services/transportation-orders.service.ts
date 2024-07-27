@@ -67,10 +67,7 @@ export class TransportationOrdersService {
 
     const savedOrder = await this.transportationOrdersRepository.save(order);
 
-    const the_tradebar_fee = await AppVariables.tradebar_fee.percentage;
-
-    console.log(the_tradebar_fee);
-
+    const the_tradebar_fee = await AppVariables.tradebarFee.percentage;
     const tradebar_percentage = the_tradebar_fee / 100;
     const payable_amount = createTransportationOrderDto?.payable_amount;
     const tradebar_fee = payable_amount * tradebar_percentage;
