@@ -113,15 +113,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     let ongoing_delivery = null;
     // find deliver id and order id for find ongoing trip
     const deliveriesData = await this.entityManager.query(
-      `SELECT
-        id, customer_id, order_id, shipping_status
+      `
+    SELECT
+        d.id, d.customer_id, d.order_id, d.shipping_status
     FROM
-        deliveries
+        deliveries d
+    INNER JOIN orders o ON d.order_id = o.id
     WHERE
-        shipping_status IN ('waiting', 'searching', 'accepted', 'reached_at_pickup_point', 'picked_up', 'reached_at_delivery_point')
-        AND customer_id = ?`,
+        d.shipping_status IN ('waiting', 'searching', 'accepted', 'reached_at_pickup_point', 'picked_up', 'reached_at_delivery_point')
+        AND d.customer_id = ?
+        AND o.order_type = 'transportation_only'
+    `,
       [customerId],
     );
+
     if (deliveriesData.length > 0) {
       ongoing_delivery = {
         order_id: deliveriesData[0].order_id || null,
