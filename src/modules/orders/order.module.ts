@@ -35,6 +35,7 @@ import {
 import { DeliveryRequestNotificationSchema } from '@modules/notification/notification.schema';
 import { OngoingOrderSchema } from './schemas/ongoing-order.schema';
 import { SocketClientService } from '@services/socket-client.service';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { SocketClientService } from '@services/socket-client.service';
     TransportationOrdersService,
     UserAddressBookService,
     PaymentService,
+    PaymentMethodService,
     DeliveryService,
     OrderCancelReasonService,
     OrderNotificationService,

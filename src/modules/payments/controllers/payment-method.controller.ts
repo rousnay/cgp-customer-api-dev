@@ -116,4 +116,12 @@ export class PaymentMethodController {
       data: result.data,
     });
   }
+
+  @Get('has-default')
+  @ApiOperation({
+    summary: 'Check if customer has default payment method',
+  })
+  async hasDefaultPaymentMethod() {
+    return this.paymentMethodService.hasDefaultPaymentMethod();
+  }
 }

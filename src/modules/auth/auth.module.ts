@@ -14,6 +14,7 @@ import { AuthController } from './auth.controller';
 import { ReviewService } from '@modules/review/review.service';
 import { CustomersService } from '@modules/customers/services/customers.service';
 import { Preferences } from '@modules/application/entities/preferences.entity';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { Preferences } from '@modules/application/entities/preferences.entity';
     JwtStrategy,
     PasswordService,
     CustomersService,
+    PaymentMethodService,
     ReviewService,
   ],
   controllers: [AuthController],

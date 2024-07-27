@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
@@ -12,6 +12,7 @@ import { DeliveryRequestService } from '@modules/delivery/services/delivery-requ
 import { OngoingOrder } from '../schemas/ongoing-order.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Injectable()
 export class TransportationOrdersService {
@@ -25,12 +26,22 @@ export class TransportationOrdersService {
     private readonly userAddressBookService: UserAddressBookService,
     private readonly paymentService: PaymentService,
     private readonly deliveryRequestService: DeliveryRequestService,
+    private paymentMethodService: PaymentMethodService,
     @InjectModel('OngoingOrder') private ongoingOrderModel: Model<OngoingOrder>,
   ) {}
   async create(
     payment_client: string,
     createTransportationOrderDto: CreateTransportationOrderDto,
   ): Promise<any> {
+    const defaultPaymentMethodInfo =
+      await this.paymentMethodService.hasDefaultPaymentMethod();
+
+    if (!defaultPaymentMethodInfo.data) {
+      throw new NotFoundException(
+        'No default payment method found, Please add one',
+      );
+    }
+
     const customer = this.request['user'];
     let pickup_address_id: number;
     let shipping_address_id: number;

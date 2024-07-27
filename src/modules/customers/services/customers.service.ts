@@ -14,6 +14,7 @@ import { ConfigService } from '@config/config.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeliveryRequest } from '@modules/delivery/schemas/delivery-request.schema';
 import { Model } from 'mongoose';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Injectable()
 export class CustomersService {
@@ -29,6 +30,7 @@ export class CustomersService {
     private customersRepository: Repository<Customers>,
     @InjectRepository(Preferences)
     private readonly preferencesRepository: Repository<Preferences>,
+    private paymentMethodService: PaymentMethodService,
     // @InjectModel(DeliveryRequest.name)
     // private deliveryRequestModel: Model<DeliveryRequest>,
     configService: ConfigService,
@@ -64,8 +66,14 @@ export class CustomersService {
   public async getLoggedInCustomerProfile(): Promise<{ data: Customers }> {
     try {
       const customer = this.request['user'];
+      const defaultPaymentMethodInfo =
+        await this.paymentMethodService.hasDefaultPaymentMethod();
+
       return {
-        data: customer,
+        data: {
+          ...customer,
+          has_default_payment_method: defaultPaymentMethodInfo.data,
+        },
       };
     } catch (error) {
       throw new Error(`Error fetching customer: ${error.message}`);
@@ -221,4 +229,10 @@ export class CustomersService {
       return null;
     }
   }
+
+  // async getCustomerPaymentMethodInfo(customerId: any): Promise<{ data: any }> {
+  //   const defaultPaymentMethodInfo =
+  //     await this.paymentMethodService.hasDefaultPaymentMethod(user_id);
+  //   return defaultPaymentMethodInfo;
+  // }
 }

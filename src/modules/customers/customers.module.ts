@@ -9,6 +9,7 @@ import { Preferences } from '@modules/application/entities/preferences.entity';
 import { Customers } from './entities/customers.entity';
 import { CustomersService } from './services/customers.service';
 import { CustomerController } from './controllers/customers.controller';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { CustomerController } from './controllers/customers.controller';
     TypeOrmModule.forFeature([Customers, Preferences]),
   ],
   exports: [CustomersService],
-  providers: [CustomersService, CloudflareMediaService],
+  providers: [CustomersService, CloudflareMediaService, PaymentMethodService],
   controllers: [CustomerController],
 })
 export class CustomersModule {}
