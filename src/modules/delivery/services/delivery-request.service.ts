@@ -254,8 +254,9 @@ export class DeliveryRequestService {
       requestFrom,
       pickupLocation,
       dropOffLocation,
-      totalDistance: delivery.init_distance.toString(),
+      totalDistance: delivery.init_distance,
       deliveryCost: delivery.delivery_charge,
+      riderFee: delivery.rider_fee,
       totalWeight: '2', // NEED TO REWORK THIS
       approxWeight: '2.5', // NEED TO REWORK THIS
       maxWeight: '5', // NEED TO REWORK THIS
@@ -438,8 +439,8 @@ export class DeliveryRequestService {
     return {
       deliveryRequest: getStoredDeliveryRequestData,
       nearByRidersIds: nearByRidersIds,
-      nearRiders: nearByRidersIds,
-      nearRidersDeviceTokens: nearRidersDeviceTokens,
+      // nearRiders: nearByRidersIds,
+      // nearRidersDeviceTokens: nearRidersDeviceTokens,
     };
   }
 }

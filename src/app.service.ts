@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
+import { AppVariables } from '@common/utils/variables';
 
 @Injectable()
 export class AppService {
@@ -22,6 +23,15 @@ export class AppService {
     if (result.length === 0) {
       return null;
     }
-    return 'Total customers: ' + result[0].total_customers;
+
+    const tradebarFeePercentage = await AppVariables.tradebarFee.percentage;
+
+    return (
+      'Total customers: ' +
+      result[0].total_customers +
+      ', Tradebar Fee ' +
+      tradebarFeePercentage +
+      '%'
+    );
   }
 }

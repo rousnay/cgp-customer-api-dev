@@ -38,20 +38,23 @@ export class Deliveries {
   @Column({ nullable: true })
   vehicle_type_id: number;
 
-  @Column({ nullable: true })
-  delivery_charge: number;
-
-  @Column({ nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   init_distance: number;
 
-  @Column({ nullable: true })
-  init_duration: number;
-
-  @Column({ nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   final_distance: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  init_duration: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   final_duration: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  rider_fee: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  delivery_charge: number;
 
   @Column({ nullable: true })
   cancel_reason_id: number;
