@@ -249,7 +249,7 @@ export class OrderService {
       );
 
     console.log(
-      'Delivery Status - ACCEPTED, notificationSentToDeviceTokens',
+      'Order cancelled by customer, notificationSentToDeviceTokens',
       JSON.stringify(notificationSentToDeviceTokens, null, 2),
     );
 

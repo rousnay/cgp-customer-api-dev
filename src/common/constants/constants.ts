@@ -20,6 +20,7 @@ export const AppConstants = {
     recipient: 'mr.rousnay@gmail.com' as const,
   },
   appServices: {
+    laravelServerBaseUrl: 'https://laravel-api.tradebar.com.au' as const,
     warehouseBaseUrl: 'https://cgp-warehouse.vercel.app' as const,
   },
 };

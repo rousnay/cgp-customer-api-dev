@@ -63,7 +63,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to register the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/register',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/register',
         formData,
         config,
       );
@@ -114,7 +115,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/validate-otp',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/validate-otp',
         formData,
         config,
       );
@@ -199,7 +201,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/set-password',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/set-password',
         formData,
         config,
       );
@@ -301,7 +304,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/login',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/login',
         formData,
         config,
       );
@@ -356,7 +360,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/verify-login-otp',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/verify-login-otp',
         formData,
         config,
       );
@@ -459,7 +464,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to forget-password the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/forget-password',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/forget-password',
         formData,
         config,
       );
@@ -516,7 +522,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/reset-password',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/reset-password',
         formData,
         config,
       );
@@ -597,7 +604,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to forget-password the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/resend-otp',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/resend-otp',
         formData,
         config,
       );
