@@ -146,7 +146,7 @@ export class SearchWarehouseService {
     );
 
     return {
-      data: { warehouses: filteredResults },
+      data: filteredResults || [],
     };
   }
 }
