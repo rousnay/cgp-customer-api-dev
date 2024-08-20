@@ -24,6 +24,7 @@ import { JwtAuthGuard } from '@core/guards/jwt-auth.guard';
 import { OrderService } from '../services/orders.service';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { Orders } from '../entities/orders.entity';
+import { OngoingOrder } from '../schemas/ongoing-order.schema';
 
 @Controller('orders')
 @ApiTags('Orders')
@@ -135,6 +136,22 @@ export class OrderController {
       status: 'success',
       message: 'Order has been fetched successfully',
       data: orders,
+    };
+  }
+
+  @Get('ongoing-order/:orderId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Get the ongoing order by id' })
+  async getOngoingOrderByOrderId(
+    @Param('orderId') orderId: number,
+  ): Promise<{ status: string; message: string; data: OngoingOrder }> {
+    const order = await this.orderService.getOngoingOrderByOrderId(orderId);
+
+    return {
+      status: 'success',
+      message: 'Ongoing order has been fetched successfully',
+      data: order,
     };
   }
 }

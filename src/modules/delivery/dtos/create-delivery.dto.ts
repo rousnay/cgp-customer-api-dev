@@ -27,7 +27,7 @@ export class CreateDeliveryDto {
 
   @IsOptional()
   @IsNumber()
-  delivery_charge?: number;
+  vehicle_type_id?: number;
 
   @IsOptional()
   @IsNumber()
@@ -35,15 +35,23 @@ export class CreateDeliveryDto {
 
   @IsOptional()
   @IsNumber()
-  init_duration?: number;
-
-  @IsOptional()
-  @IsNumber()
   final_distance?: number;
 
   @IsOptional()
   @IsNumber()
+  init_duration?: number;
+
+  @IsOptional()
+  @IsNumber()
   final_duration?: number;
+
+  @IsOptional()
+  @IsNumber()
+  rider_fee?: number;
+
+  @IsOptional()
+  @IsNumber()
+  delivery_charge?: number;
 
   @IsOptional()
   @IsDateString()

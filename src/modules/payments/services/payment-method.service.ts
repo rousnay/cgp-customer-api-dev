@@ -368,4 +368,74 @@ export class PaymentMethodService {
       data: deletePaymentMethodResult,
     };
   }
+
+  async hasDefaultPaymentMethod(): Promise<{
+    status: string;
+    message: string;
+    data: boolean;
+  }> {
+    try {
+      // delete this payment method
+      const user = this.request['user'];
+      const userEmail = user.email;
+      if (!userEmail) {
+        return {
+          status: 'error',
+          message: 'User email not found',
+          data: null,
+        };
+      }
+      // find customer stripe id from database
+      const customerDetails = await this.entityManager.query(
+        'SELECT * FROM users WHERE email = ? LIMIT 1',
+        [userEmail],
+      );
+      if (customerDetails.length === 0) {
+        return {
+          status: 'error',
+          message: 'Customer not found',
+          data: null,
+        };
+      }
+
+      const customerStripeId = customerDetails[0]?.stripe_id;
+      if (!customerStripeId) {
+        return {
+          status: 'success',
+          message: 'Customer has no Stripe ID',
+          data: false,
+        };
+      }
+
+      // Retrieve customer from Stripe
+      const customer = await this.stripe.customers.retrieve(customerStripeId);
+      if ((customer as Stripe.DeletedCustomer).deleted) {
+        return {
+          status: 'success',
+          message: 'Customer not found in Stripe',
+          data: false,
+        };
+      }
+
+      // Cast customer to Stripe.Customer
+      const stripeCustomer = customer as Stripe.Customer;
+
+      // Check if default payment method is set
+      const hasDefault =
+        !!stripeCustomer.invoice_settings.default_payment_method;
+
+      return {
+        status: 'success',
+        message: 'Default payment method status retrieved',
+        data: hasDefault,
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        message:
+          e.message || 'Failed to retrieve default payment method status',
+        data: false,
+      };
+    }
+  }
 }

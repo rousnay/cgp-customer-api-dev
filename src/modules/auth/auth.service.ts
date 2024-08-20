@@ -16,6 +16,8 @@ import { Customers } from '@modules/customers/entities/customers.entity';
 import { ReviewService } from '@modules/review/review.service';
 import { AppConstants } from '@common/constants/constants';
 import { ConfigService } from '@config/config.service';
+import { CustomersService } from '@modules/customers/services/customers.service';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +32,8 @@ export class AuthService {
     @InjectRepository(Customers)
     private customerRepository: Repository<Customers>,
     private reviewService: ReviewService,
+    private customersService: CustomersService,
+    private paymentMethodService: PaymentMethodService,
     private configService: ConfigService,
   ) {
     this.cfAccountHash = configService.cloudflareAccountHash;
@@ -59,7 +63,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to register the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/register',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/register',
         formData,
         config,
       );
@@ -110,7 +115,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/validate-otp',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/validate-otp',
         formData,
         config,
       );
@@ -195,7 +201,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/set-password',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/set-password',
         formData,
         config,
       );
@@ -216,38 +223,30 @@ export class AuthService {
           const avg_rating = await this.reviewService.getAverageRating(
             customer?.id,
           );
-          //url
-          let url = null;
+          const ongoing_delivery =
+            await this.customersService.getCustomerOngoingDelivery(
+              customer?.id,
+            );
 
-          if (customer.profile_image_cf_media_id != null) {
-            try {
-              const cloudflare_id = await this.entityManager
-                .createQueryBuilder()
-                .select(['cf.cloudflare_id'])
-                .from('cf_media', 'cf')
-                .where('cf.id = :id', {
-                  id: customer.profile_image_cf_media_id,
-                })
-                .getRawOne();
+          const url = await this.customersService.getCustomerProfileImageUrl(
+            customer?.profile_image_cf_media_id,
+          );
 
-              url =
-                this.cfMediaBaseUrl +
-                '/' +
-                this.cfAccountHash +
-                '/' +
-                cloudflare_id.cloudflare_id +
-                '/' +
-                this.cfMediaVariant;
-            } catch (e) {
-              // do nothing
-            }
-          }
+          const defaultPaymentMethodInfo =
+            await this.paymentMethodService.hasDefaultPaymentMethod();
+
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
               // user: user,
-              customer: { ...customer, avg_rating, url },
+              customer: {
+                ...customer,
+                url,
+                avg_rating,
+                ongoing_delivery,
+                has_default_payment_method: defaultPaymentMethodInfo.data,
+              },
               access_token: access_token,
               // auth_token: response?.data?.data?.auth_token,
             },
@@ -305,7 +304,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/login',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/login',
         formData,
         config,
       );
@@ -360,7 +360,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/verify-login-otp',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/verify-login-otp',
         formData,
         config,
       );
@@ -387,37 +388,29 @@ export class AuthService {
             customer?.id,
           );
           //url
-          let url = null;
+          const ongoing_delivery =
+            await this.customersService.getCustomerOngoingDelivery(
+              customer?.id,
+            );
+          const url = await this.customersService.getCustomerProfileImageUrl(
+            customer?.profile_image_cf_media_id,
+          );
 
-          if (customer.profile_image_cf_media_id != null) {
-            try {
-              const cloudflare_id = await this.entityManager
-                .createQueryBuilder()
-                .select(['cf.cloudflare_id'])
-                .from('cf_media', 'cf')
-                .where('cf.id = :id', {
-                  id: customer.profile_image_cf_media_id,
-                })
-                .getRawOne();
+          const defaultPaymentMethodInfo =
+            await this.paymentMethodService.hasDefaultPaymentMethod();
 
-              url =
-                this.cfMediaBaseUrl +
-                '/' +
-                this.cfAccountHash +
-                '/' +
-                cloudflare_id.cloudflare_id +
-                '/' +
-                this.cfMediaVariant;
-            } catch (e) {
-              // do nothing
-            }
-          }
           return {
             status: 'success',
             message: response?.data?.msg,
             data: {
               // user: user,
-              customer: { ...customer, avg_rating, url },
+              customer: {
+                ...customer,
+                url,
+                has_default_payment_method: defaultPaymentMethodInfo.data,
+                avg_rating,
+                ongoing_delivery,
+              },
               access_token: access_token,
               // auth_token: response?.data?.data?.auth_token,
             },
@@ -471,7 +464,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to forget-password the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/forget-password',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/forget-password',
         formData,
         config,
       );
@@ -528,7 +522,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to authenticate the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/reset-password',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/reset-password',
         formData,
         config,
       );
@@ -543,37 +538,29 @@ export class AuthService {
           where: { user_id: user?.id },
         });
         //url
-        let url = null;
+        const url = await this.customersService.getCustomerProfileImageUrl(
+          customer?.profile_image_cf_media_id,
+        );
+        const defaultPaymentMethodInfo =
+          await this.paymentMethodService.hasDefaultPaymentMethod();
 
-        if (customer.profile_image_cf_media_id != null) {
-          try {
-            const cloudflare_id = await this.entityManager
-              .createQueryBuilder()
-              .select(['cf.cloudflare_id'])
-              .from('cf_media', 'cf')
-              .where('cf.id = :id', { id: user.profile_image_cf_media_id })
-              .getRawOne();
-
-            url =
-              this.cfMediaBaseUrl +
-              '/' +
-              this.cfAccountHash +
-              '/' +
-              cloudflare_id.cloudflare_id +
-              '/' +
-              this.cfMediaVariant;
-          } catch (e) {
-            // do nothing
-          }
-        }
+        //get customer's overall review
+        const avg_rating = await this.reviewService.getAverageRating(
+          customer?.id,
+        );
+        //url
+        const ongoing_delivery =
+          await this.customersService.getCustomerOngoingDelivery(customer?.id);
         return {
           status: 'success',
           message: response?.data?.msg,
           data: {
-            // user: user,
             customer: {
               ...customer,
               url,
+              has_default_payment_method: defaultPaymentMethodInfo.data,
+              avg_rating,
+              ongoing_delivery,
             },
           },
         };
@@ -617,7 +604,8 @@ export class AuthService {
 
       // Make a request to your Laravel backend to forget-password the user
       const response = await axios.post(
-        'https://cgp.studypress.org/api/v1/user/auth/resend-otp',
+        AppConstants.appServices.laravelServerBaseUrl +
+          '/api/v1/user/auth/resend-otp',
         formData,
         config,
       );

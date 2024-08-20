@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -24,6 +24,8 @@ import { ChatModule } from '@modules/chat/chat.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { ReviewModule } from '@modules/review/review.module';
+import { VariablesService } from '@common/utils/variables.service';
+import { setVariablesService } from '@common/utils/variables';
 
 @Module({
   imports: [
@@ -42,16 +44,22 @@ import { ReviewModule } from '@modules/review/review.module';
     OrderModule,
     DeliveryModule,
     LocationModule,
-    GeoLocationModule,
+    ReviewModule,
     NotificationsModule,
     PaymentModule,
-    ReviewModule,
+    GeoLocationModule,
     ChatModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
   ],
-  providers: [AppService],
+  providers: [AppService, VariablesService],
   controllers: [AppController],
 })
-export class AppModule {}
+// export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private variablesService: VariablesService) {}
+  onModuleInit() {
+    setVariablesService(this.variablesService);
+  }
+}

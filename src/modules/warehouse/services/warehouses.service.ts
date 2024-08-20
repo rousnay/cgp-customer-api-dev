@@ -121,10 +121,27 @@ export class WarehousesService {
         delete warehouse.category_names;
         delete warehouse.brand_names;
 
+
+        // get customer's overall review
+    const given_to_id = warehouse.id;
+    const result = await this.entityManager.query(
+      'SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(rating) as total_ratings FROM overall_reviews WHERE given_to_id = ? AND given_to_type_id=20',
+      [given_to_id],
+    );
+
+    const averageRating = result[0].average_rating || 0;
+    const totalRatings = result[0].total_ratings || 0;
+
+    const avg_rating = {
+      average_rating: Number(averageRating),
+      total_ratings: Number(totalRatings),
+    };
+
         return {
           ...warehouse,
-          logo_url: logo_url,
-          thumbnail_url: thumbnail_url,
+          logo_url,
+          thumbnail_url,
+          avg_rating,
           main_branch:
             mainBranch && mainBranch.length > 0 ? mainBranch[0] : null,
           categories: categoryNames,

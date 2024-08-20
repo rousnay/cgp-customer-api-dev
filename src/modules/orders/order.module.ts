@@ -5,8 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@config/config.module';
 import { UserAddressBook } from '@modules/user-address-book/user-address-book.entity';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
-import { PaymentService } from '@modules/payments/payments.service';
-import { PaymentToken } from '@modules/payments/entities/payment-token.entity';
+import { PaymentService } from '@modules/payments/services/payments.service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { Cart } from '@modules/cart/cart.entity';
 import { Orders } from './entities/orders.entity';
@@ -19,7 +18,7 @@ import { TransportationCostCalculationService } from './services/transportation-
 import { TransportationVehiclesController } from './controllers/transportation-vehicles.controller';
 import { TransportationCostCalculationController } from './controllers/transportation-cost-calculation.controller';
 import { TransportationOrdersController } from './controllers/transportation-orders.controller';
-import { DeliveryService } from '@modules/delivery/delivery.service';
+import { DeliveryService } from '@modules/delivery/services/delivery.service';
 import { FirebaseAdminModule } from '@services/firebase-admin.module';
 import { NotificationsModule } from '@modules/notification/notification.module';
 import { LocationModule } from '@modules/location/location.module';
@@ -34,6 +33,9 @@ import {
   DeliveryRequestSchema,
 } from '@modules/delivery/schemas/delivery-request.schema';
 import { DeliveryRequestNotificationSchema } from '@modules/notification/notification.schema';
+import { OngoingOrderSchema } from './schemas/ongoing-order.schema';
+import { SocketClientService } from '@services/socket-client.service';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Module({
   imports: [
@@ -54,7 +56,6 @@ import { DeliveryRequestNotificationSchema } from '@modules/notification/notific
       OrderCancelReason,
       UserAddressBook,
       UserAddressBookService,
-      PaymentToken,
       PaymentService,
     ]),
     MongooseModule.forFeature([
@@ -63,6 +64,7 @@ import { DeliveryRequestNotificationSchema } from '@modules/notification/notific
         name: 'DeliveryRequestNotification',
         schema: DeliveryRequestNotificationSchema,
       },
+      { name: 'OngoingOrder', schema: OngoingOrderSchema },
     ]),
   ],
   exports: [OrderService],
@@ -73,9 +75,11 @@ import { DeliveryRequestNotificationSchema } from '@modules/notification/notific
     TransportationOrdersService,
     UserAddressBookService,
     PaymentService,
+    PaymentMethodService,
     DeliveryService,
     OrderCancelReasonService,
     OrderNotificationService,
+    SocketClientService,
   ],
   controllers: [
     OrderController,

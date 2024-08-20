@@ -3,11 +3,17 @@ import { REQUEST } from '@nestjs/core';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
-import { PaymentService } from '@modules/payments/payments.service';
+import { PaymentService } from '@modules/payments/services/payments.service';
 import { UserAddressBookService } from '@modules/user-address-book/user-address-book-service';
 import { Deliveries } from '@modules/delivery/deliveries.entity';
 import { CreateTransportationOrderDto } from '../dtos/create-transportation-order.dto';
 import { Orders } from '../entities/orders.entity';
+import { DeliveryRequestService } from '@modules/delivery/services/delivery-request.service';
+import { OngoingOrder } from '../schemas/ongoing-order.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { AppVariables } from '@common/utils/variables';
+import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 
 @Injectable()
 export class TransportationOrdersService {
@@ -20,17 +26,26 @@ export class TransportationOrdersService {
     private readonly deliveriesRepository: Repository<Deliveries>,
     private readonly userAddressBookService: UserAddressBookService,
     private readonly paymentService: PaymentService,
+    private readonly deliveryRequestService: DeliveryRequestService,
+    private paymentMethodService: PaymentMethodService,
+    @InjectModel('OngoingOrder') private ongoingOrderModel: Model<OngoingOrder>,
   ) {}
   async create(
     payment_client: string,
     createTransportationOrderDto: CreateTransportationOrderDto,
   ): Promise<any> {
+    const defaultPaymentMethodInfo =
+      await this.paymentMethodService.hasDefaultPaymentMethod();
+
+    if (!defaultPaymentMethodInfo.data) {
+      throw new NotFoundException(
+        'No default payment method found, Please add one',
+      );
+    }
+
     const customer = this.request['user'];
     let pickup_address_id: number;
     let shipping_address_id: number;
-    let stripeSession: any;
-    let stripePaymentIntent: any;
-    let stripe_id: any;
 
     if (createTransportationOrderDto.pickup_address_id) {
       pickup_address_id = createTransportationOrderDto.pickup_address_id;
@@ -61,53 +76,22 @@ export class TransportationOrdersService {
       throw new Error('Transportation order not created');
     }
 
-    const processPayment = {
-      payable_amount: order.payable_amount,
-      // shipping_address: createTransportationOrderDto.shipping_address,
-      // pickup_address_coordinates:
-      //   createTransportationOrderDto.pickup_address.latitude.toString() +
-      //   ',' +
-      //   createTransportationOrderDto.pickup_address.longitude.toString(),
-      // shipping_address_coordinates:
-      //   createTransportationOrderDto.shipping_address.latitude.toString() +
-      //   ',' +
-      //   createTransportationOrderDto.shipping_address.longitude.toString(),
-      // vehicle_type_id: createTransportationOrderDto.vehicle_type_id,
-      total_cost: createTransportationOrderDto.total_cost,
-      gst: createTransportationOrderDto.gst,
-    };
-
-    if (payment_client === 'web') {
-      stripeSession = await this.paymentService.createCheckoutSession(
-        processPayment,
-      );
-      stripe_id = stripeSession?.id;
-    } else if (payment_client === 'app') {
-      stripePaymentIntent = await this.paymentService.createPaymentIntent(
-        processPayment,
-      );
-
-      // Remove secret and get only payment Intent
-      const regex = /^(.*?)_secret/;
-      const match = stripePaymentIntent?.client_secret.match(regex);
-      stripe_id = match[1];
-    }
-
     const savedOrder = await this.transportationOrdersRepository.save(order);
 
-    const savedPayment = await this.paymentService.storePaymentStatus(
-      savedOrder?.id,
-      stripe_id,
-      'Pending',
-    );
+    const the_tradebar_fee = await AppVariables.tradebarFee.percentage;
+    const tradebar_percentage = the_tradebar_fee / 100;
+    const payable_amount = createTransportationOrderDto?.payable_amount;
+    const tradebar_fee = payable_amount * tradebar_percentage;
+    const rider_fee = payable_amount - tradebar_fee;
 
     const savedDelivery = await this.deliveriesRepository.save({
       customer_id: customer?.id,
       order_id: savedOrder?.id,
-      // vehicle_type_id: createTransportationOrderDto?.vehicle_type_id,
       init_distance: createTransportationOrderDto?.distance,
       init_duration: createTransportationOrderDto?.duration,
       delivery_charge: createTransportationOrderDto?.payable_amount,
+      rider_fee: rider_fee,
+      vehicle_type_id: createTransportationOrderDto?.vehicle_type_id,
     });
 
     const orderInfo = {
@@ -124,12 +108,65 @@ export class TransportationOrdersService {
       updated_at: savedOrder?.updated_at,
     };
 
+    const savedPayment = await this.paymentService.storePaymentStatus(
+      savedOrder?.id,
+      null,
+      'Pending',
+    );
+
+    const ongoingOrderStatus = await this.updateOngoingOrder(
+      savedOrder?.id,
+      savedDelivery?.id,
+      savedDelivery?.shipping_status,
+      'Searching for a rider',
+      'Be patient, we are searching for a rider for your order',
+    );
+
+    // REQUEST FOR TRIP --- Rider to be notified, Searching....
+    const deliveryRequestData =
+      await this.deliveryRequestService.sendDeliveryRequest(
+        customer?.user_id,
+        savedOrder?.id,
+      );
+
     return {
       order: orderInfo,
       delivery: savedDelivery,
       payment: savedPayment,
-      session: stripeSession,
-      PaymentIntent: stripePaymentIntent,
+      delivery_request: deliveryRequestData,
+      ongoing_delivery_status: ongoingOrderStatus,
     };
+  }
+
+  async updateOngoingOrder(
+    orderId: number,
+    deliveryId: number,
+    shippingStatus: string,
+    title: string,
+    message: string,
+  ): Promise<OngoingOrder> {
+    const updateData: Partial<OngoingOrder> = {
+      orderId,
+      deliveryId,
+      shippingStatus,
+      title,
+      message,
+      updatedAt: new Date(),
+    };
+
+    let existingOrder = await this.ongoingOrderModel.findOne({ orderId });
+
+    if (!existingOrder) {
+      // Create a new order if it doesn't exist
+      existingOrder = new this.ongoingOrderModel({
+        ...updateData,
+        createdAt: new Date(),
+      });
+    } else {
+      // Update the existing order with the new data
+      existingOrder.set(updateData);
+    }
+
+    return existingOrder.save();
   }
 }

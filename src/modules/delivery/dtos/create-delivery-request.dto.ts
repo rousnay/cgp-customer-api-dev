@@ -25,6 +25,10 @@ class AvgRating {
 class RequestFrom {
   @ApiProperty()
   @IsNumber()
+  userId: number;
+
+  @ApiProperty()
+  @IsNumber()
   id: number;
 
   @ApiProperty()
@@ -74,7 +78,11 @@ export class CreateDeliveryRequestDto {
 
   @ApiProperty()
   @IsNumber()
-  deliveryCost: number;
+  deliveryCost: string;
+
+  @ApiProperty()
+  @IsString()
+  riderFee: string;
 
   @ApiProperty()
   @IsString()
@@ -89,8 +97,12 @@ export class CreateDeliveryRequestDto {
   stripeId: string;
 
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   deliveryId: number;
+
+  @ApiProperty()
+  @IsNumber()
+  targetedVehicleTypeId: number;
 
   @ApiProperty({ enum: OrderType })
   @IsEnum(OrderType)

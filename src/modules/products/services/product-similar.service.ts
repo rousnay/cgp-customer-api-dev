@@ -1,13 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
-
+import { AppConstants } from '@common/constants/constants';
+import { ConfigService } from '@config/config.service';
 @Injectable()
 export class SimilarProductsService {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   constructor(
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
-  ) {}
+    configService: ConfigService,
+  ) {
+      this.cfAccountHash = configService.cloudflareAccountHash;
+  }
 
   async getSimilarProducts(productId: number): Promise<any> {
     try {
@@ -63,8 +70,30 @@ export class SimilarProductsService {
           [product.id],
         );
 
+        const product_cloudflare_id_query = `SELECT cf.cloudflare_id FROM cf_media cf WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
+
+        const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [product.id]);
+
+        const img_urls = [];
+
+        product_cloudflare_id_result.map(item => {
+            if (item && item.cloudflare_id != null) {
+                const url =
+                    this.cfMediaBaseUrl +
+                    '/' +
+                    this.cfAccountHash +
+                    '/' +
+                    item.cloudflare_id +
+                    '/' +
+                    this.cfMediaVariant;
+                img_urls.push(url);
+            }
+
+        })
+
         categoryProductsWithBrandAndWarehouseData.push({
           ...productData, // Entire product object
+          img_urls, //image urls
           brand_name: brandData.name, // Add the brand data as a separate object
           warehouses: warehouseResults,
         });

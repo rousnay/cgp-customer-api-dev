@@ -1,220 +1,152 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
+import { AppConstants } from '@common/constants/constants';
+import { ConfigService } from '@config/config.service';
 
 @Injectable()
-export class SearchProductsService {
-  constructor(private readonly entityManager: EntityManager) {}
+export class SearchWarehouseService {
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
+  constructor(
+    private readonly entityManager: EntityManager,
+    configService: ConfigService,
+  ) {
+    this.cfAccountHash = configService.cloudflareAccountHash;
+  }
 
-  async searchProducts(
-    query: string,
-    brand: string,
-    category: string,
-    warehouse: string,
-    brandId: number,
-    categoryId: number,
-    warehouseId: number,
-    sort: string,
-    priceMin: number,
-    priceMax: number,
-    // currentPage: number,
-    // limit: number,
-  ): Promise<any> {
-    let sqlQuery = `
-      SELECT
-        pw.id,
-        pw.product_name,
-        pw.regular_price,
-        pw.sales_price,
-        pw.quantity,
-        pw.active,
-        pw.has_own_product_img,
-        p.barcode,
-        p.category_id,
-        p.primary_category_id,
-        p.brand_id,
-        p.unit,
-        p.size_id,
-        p.size_height,
-        p.size_width,
-        p.size_length,
-        p.colour_id,
-        p.group_id,
-        p.weight,
-        p.weight_unit_id,
-        p.materials,
-        p.short_desc,
-        p.long_desc,
-        p.details_overview,
-        p.details_specifications,
-        p.details_size_and_materials,
-        p.details_size_and_materials,
-        p.created_at,
-        p.updated_at,
-        w.name AS warehouse_name,
-        c.name AS category_name,
-        b.name AS brand_name
-      FROM
-        products p
-      LEFT JOIN
-        brands b ON p.brand_id = b.id
-      LEFT JOIN
-        categories c ON p.category_id = c.id
-      LEFT JOIN
-        product_warehouse_branch pw ON p.id = pw.product_id
-      LEFT JOIN
-        warehouses w ON pw.warehouse_id = w.id
-    `;
+  async searchWarehouses(query: string): Promise<any> {
+    const warehousesQuery = `
+    SELECT
+      w.id as id,
+      w.name as name,
+      w.abn_number as abn_number,
+      w.active as active,
+      b.id as branch_id,
+      b.name as branch_name,
+      b.branch_type,
+      b.address as branch_address,
+      b.latitude as branch_latitude,
+      b.longitude as branch_longitude,
+      b.active as branch_active,
+      CASE
+        WHEN UPPER(w.name) LIKE ? THEN 1
+        WHEN UPPER(c.name) LIKE ? THEN 2
+        ELSE 3
+      END as relevance
+    FROM
+      warehouses w
+    LEFT JOIN
+      warehouse_branches b ON w.id = b.warehouse_id
+    LEFT JOIN
+      product_warehouse_branch pw ON w.id = pw.warehouse_id
+    LEFT JOIN
+      products p ON pw.product_id = p.id
+    LEFT JOIN
+      categories c ON p.category_id = c.id
+    WHERE
+      (UPPER(p.name) LIKE ?
+      OR UPPER(w.name) LIKE ?
+      OR UPPER(c.name) LIKE ?)
+    ORDER BY
+      relevance, w.name, c.name, p.name`;
 
-    // const parameters: any[] = [`%${query}%`];
+    const parameters = [
+      `%${query.toUpperCase()}%`, // For sorting by warehouse
+      `%${query.toUpperCase()}%`, // For sorting by category
+      `%${query.toUpperCase()}%`, // For filtering by product name
+      `%${query.toUpperCase()}%`, // For filtering by warehouse name
+      `%${query.toUpperCase()}%`, // For filtering by category name
+    ];
 
-    const parameters: any[] = [];
+    const warehousesResults = await this.entityManager.query(
+      warehousesQuery,
+      parameters,
+    );
 
-    // Check if query is provided
-    if (query) {
-      sqlQuery += ' WHERE p.name LIKE ?';
-      parameters.push(`%${query}%`);
-    } else {
-      sqlQuery += ' WHERE p.name LIKE ?';
-      parameters.push(`%%`);
-    }
+    const uniqueResults = new Map();
 
-    // Apply optional filters
-    if (brandId) {
-      sqlQuery += ' AND p.brand_id = ?';
-      parameters.push(brandId);
-    } else if (brand) {
-      sqlQuery += ' AND UPPER(b.name) = ?';
-      parameters.push(brand.toUpperCase());
-    }
+    const warehousesWithDetails = await Promise.all(
+      warehousesResults.map(async (warehouse) => {
+        // Check for duplicates using a unique key (warehouse_id + branch_id)
+        const uniqueKey = `${warehouse.id}-${warehouse.branch_id}`;
+        if (uniqueResults.has(uniqueKey)) {
+          return null;
+        }
+        uniqueResults.set(uniqueKey, true);
 
-    if (categoryId) {
-      sqlQuery += ' AND p.category_id = ?';
-      parameters.push(categoryId);
-    } else if (category) {
-      sqlQuery += ' AND UPPER(c.name) = ?';
-      parameters.push(category.toUpperCase());
-    }
+        const logo_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'logo' AND cf.model_id = ?`;
 
-    if (warehouseId) {
-      sqlQuery += ' AND w.id = ?';
-      parameters.push(warehouseId);
-    } else if (warehouse) {
-      sqlQuery += ' AND UPPER(w.name) LIKE ?';
-      parameters.push(`%${warehouse.toUpperCase()}%`);
-    }
+        const thumbnail_cloudflare_id_query = `SELECT cf.cloudflare_id
+        FROM cf_media cf
+        WHERE cf.model = 'App\\\\Models\\\\Warehouse' AND cf.image_type = 'thumbnail' AND cf.model_id = ?`;
 
-    if (priceMin) {
-      sqlQuery += ` AND pw.price >= ?`;
-      parameters.push(priceMin);
-    }
+        const logo = await this.entityManager.query(logo_cloudflare_id_query, [
+          warehouse.id,
+        ]);
 
-    if (priceMax) {
-      sqlQuery += ` AND pw.price <= ?`;
-      parameters.push(priceMax);
-    }
+        const thumbnail = await this.entityManager.query(
+          thumbnail_cloudflare_id_query,
+          [warehouse.id],
+        );
 
-    // Apply sorting
-    if (sort) {
-      if (sort === 'recent') {
-        sqlQuery += ' ORDER BY pw.created_at DESC';
-      } else if (sort === 'older') {
-        sqlQuery += ' ORDER BY pw.created_at ASC';
-      } else if (sort === 'name') {
-        sqlQuery += ' ORDER BY pw.name ASC';
-      } else if (sort === 'price_high') {
-        sqlQuery += ' ORDER BY pw.price DESC';
-      } else if (sort === 'price_low') {
-        sqlQuery += ' ORDER BY pw.price ASC';
-      }
-    }
-    // Execute the query
-    const productResults = await this.entityManager.query(sqlQuery, parameters);
+        let logo_url = null;
+        if (logo.length != 0 && logo[0].cloudflare_id != null) {
+          logo_url = `${this.cfMediaBaseUrl}/${this.cfAccountHash}/${logo[0].cloudflare_id}/${this.cfMediaVariant}`;
+        }
 
-    const productsWithBrandAndWarehouses = [];
-    for (const product of productResults) {
-      const { brand_id, ...productData } = product; // Destructure the brand_id property
-      const brandQuery = `
-            SELECT
-                *
-            FROM
-                brands
-            WHERE
-                id = ?`;
-      const brandResult = await this.entityManager.query(brandQuery, [
-        brand_id,
-      ]);
-      const brandData = brandResult[0]; // Assuming there's only one brand with the given id
+        let thumbnail_url = null;
+        if (thumbnail.length != 0 && thumbnail[0].cloudflare_id != null) {
+          thumbnail_url = `${this.cfMediaBaseUrl}/${this.cfAccountHash}/${thumbnail[0].cloudflare_id}/${this.cfMediaVariant}`;
+        }
 
-      // Fetching warehouse data
-      const warehousesQuery = `
-            SELECT
-                pw.warehouse_id,
-                w.name AS warehouse_name
-            FROM
-                product_warehouse_branch pw
-            INNER JOIN
-                warehouses w ON pw.warehouse_id = w.id
-            WHERE
-                pw.id = ?`;
+        // Get customer's overall review
+        const given_to_id = warehouse.id;
+        const result = await this.entityManager.query(
+          'SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(rating) as total_ratings FROM overall_reviews WHERE given_to_id = ? AND given_to_type_id=20',
+          [given_to_id],
+        );
 
-      const warehouseResults = await this.entityManager.query(warehousesQuery, [
-        product.id,
-      ]);
+        const averageRating = result[0].average_rating || 0;
+        const totalRatings = result[0].total_ratings || 0;
 
-      productsWithBrandAndWarehouses.push({
-        ...productData, // Entire product object
-        brand_name: brandData.name, // Add the brand data as a separate object
-        warehouses: warehouseResults,
-      });
-    }
+        const avg_rating = {
+          average_rating: Number(averageRating),
+          total_ratings: Number(totalRatings),
+        };
 
-    console.log('products found', productResults.length);
+        return {
+          id: warehouse.id,
+          name: warehouse.name,
+          abn_number: warehouse.abn_number,
+          active: warehouse.active,
+          logo_url,
+          thumbnail_url,
+          avg_rating,
+          branch_info: {
+            id: warehouse.branch_id,
+            name: warehouse.branch_name,
+            branch_type: warehouse.branch_type,
+            address: warehouse.branch_address,
+            latitude: warehouse.branch_latitude,
+            longitude: warehouse.branch_longitude,
+            active: warehouse.branch_active,
+            created_at: warehouse.branch_created_at,
+            updated_at: warehouse.branch_updated_at,
+          },
+        };
+      }),
+    );
 
-    // Apply pagination
-    // currentPage = currentPage || 1;
-    // limit = limit || 10;
-    // const startIndex = (currentPage - 1) * limit;
-    // const endIndex = currentPage * limit;
-    // const paginatedResults = productsWithBrandAndWarehouses.slice(
-    //   startIndex,
-    //   endIndex,
-    // );
-
-    // console.log('paginatedResults products found', paginatedResults.length);
-
-    // Calculate pagination metadata
-    // const totalCount = productsWithBrandAndWarehouses.length;
-    // const totalPages = Math.ceil(totalCount / limit);
-    // const firstPageUrl = `/search/products/?page=1&limit=${limit}`;
-    // const previousPageUrl =
-    //   currentPage > 1
-    //     ? `/search/products/?page=${currentPage - 1}&limit=${limit}`
-    //     : null;
-    // const nextPageUrl =
-    //   currentPage < totalPages
-    //     ? `/search/products/?page=${currentPage + 1}&limit=${limit}`
-    //     : null;
-    // const lastPageUrl = `/search/products/?page=${totalPages}&limit=${limit}`;
+    // Filter out null values resulting from duplicate checks
+    const filteredResults = warehousesWithDetails.filter(
+      (item) => item !== null,
+    );
 
     return {
-      // pagination: {
-      //   meta: {
-      //     totalItems: totalCount,
-      //     itemsPerPage: Number(limit),
-      //     itemsInCurrentPage: paginatedResults.length,
-      //     totalPages,
-      //     currentPage: Number(currentPage),
-      //   },
-      //   links: {
-      //     firstPage: firstPageUrl,
-      //     previousPage: previousPageUrl,
-      //     nextPage: nextPageUrl,
-      //     lastPage: lastPageUrl,
-      //   },
-      // },
-      data: {
-        products: productsWithBrandAndWarehouses,
-      },
+      data: filteredResults || [],
     };
   }
 }

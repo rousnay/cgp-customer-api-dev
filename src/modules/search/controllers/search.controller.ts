@@ -7,15 +7,21 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 
-import { SearchProductsService } from '../services/search-products.service';
+import { SearchProductService } from '../services/search-product.service';
+import { SearchWarehouseService } from '../services/search-warehouse.service';
 
 @ApiTags('Search')
 @Controller('search')
 export class SearchController {
-  constructor(private readonly searchProductsService: SearchProductsService) {}
+  constructor(
+    private readonly searchProductService: SearchProductService,
+    private readonly searchWarehouseService: SearchWarehouseService,
+  ) {}
 
   @Get('products')
-  @ApiOperation({ summary: 'Search products' })
+  @ApiOperation({
+    summary: 'Search products by name, category, brand or warehouse',
+  })
   @ApiQuery({ name: 'query', type: String, required: false })
   @ApiQuery({ name: 'brand', type: String, required: false })
   @ApiQuery({ name: 'category', type: String, required: false })
@@ -47,7 +53,7 @@ export class SearchController {
     // @Query('currentPage') currentPage: number,
     // @Query('limit') limit: number,
   ) {
-    const products = await this.searchProductsService.searchProducts(
+    const products = await this.searchProductService.searchProducts(
       query,
       brand,
       category,
@@ -71,6 +77,26 @@ export class SearchController {
       message: 'All products based on your search query fetched successfully',
       status: 'success',
       ...products,
+    };
+  }
+
+  @Get('warehouses')
+  @ApiOperation({
+    summary: 'Search warehouses by name, category, or product.',
+  })
+  @ApiQuery({ name: 'query', type: String, required: false })
+  async searchWarehouses(@Query('query') query: string) {
+    const results = await this.searchWarehouseService.searchWarehouses(query);
+
+    if (!results || results.length === 0) {
+      throw new NotFoundException(
+        `No results found for your search query: ${query}`,
+      );
+    }
+    return {
+      message: 'Search results fetched successfully',
+      status: 'success',
+      ...results,
     };
   }
 }

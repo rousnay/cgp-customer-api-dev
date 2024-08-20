@@ -91,11 +91,12 @@ export class ProductsService {
 
       // console.log('product_cloudflare_id_result', product_cloudflare_id_result, productId);
 
-      let product_img_url = [];
+ 
+      const product_img_url = [];
 
       product_cloudflare_id_result.map((item) => {
         if (item && item.cloudflare_id != null) {
-          let url =
+          const url =
             this.cfMediaBaseUrl +
             '/' +
             this.cfAccountHash +
@@ -242,11 +243,12 @@ export class ProductsService {
       [productData.product_id],
     );
 
-    let product_img_urls = [];
+    const product_img_urls = [];
 
     product_cloudflare_id_result.map((item) => {
       if (item && item.cloudflare_id != null) {
-        let url =
+        const url =
+ 
           this.cfMediaBaseUrl +
           '/' +
           this.cfAccountHash +
