@@ -8,9 +8,9 @@ import { ConfigService } from '@config/config.service';
 
 @Injectable()
 export class ProductsService {
-    private readonly cfAccountHash: string;
-    private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
-    private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
+  private readonly cfAccountHash: string;
+  private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
+  private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
   findProductsByCategoryId(categoryId: number) {
     throw new Error('Method not implemented.');
   }
@@ -21,8 +21,6 @@ export class ProductsService {
   ) {
     this.cfAccountHash = configService.cloudflareAccountHash;
   }
-
-  
 
   async findAll(): Promise<any> {
     const productsQuery = `
@@ -67,7 +65,7 @@ export class ProductsService {
     LEFT JOIN
       product_warehouse_branch pw ON p.id = pw.product_id
     LEFT JOIN
-      warehouses w ON pw.warehouse_id = w.id`;
+      warehouses w ON pw.warehouse_id = w.id ORDER BY p.created_at desc`;
 
     const productResults = await this.entityManager.query(productsQuery);
 
@@ -82,34 +80,34 @@ export class ProductsService {
         };
       }
 
-        const product_cloudflare_id_query = `SELECT cf.cloudflare_id
+      const product_cloudflare_id_query = `SELECT cf.cloudflare_id
         FROM cf_media cf
         WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
 
-        const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [productId]);
+      const product_cloudflare_id_result = await this.entityManager.query(
+        product_cloudflare_id_query,
+        [productId],
+      );
 
+      // console.log('product_cloudflare_id_result', product_cloudflare_id_result, productId);
 
-        // console.log('product_cloudflare_id_result', product_cloudflare_id_result, productId);
-        
-        let product_img_url = [];
+      let product_img_url = [];
 
-        product_cloudflare_id_result.map(item => {
-            if (item && item.cloudflare_id != null) {
-                let url =
-                    this.cfMediaBaseUrl +
-                    '/' +
-                    this.cfAccountHash +
-                    '/' +
-                    item.cloudflare_id +
-                    '/' +
-                    this.cfMediaVariant;
-                product_img_url.push(url);
-            }
+      product_cloudflare_id_result.map((item) => {
+        if (item && item.cloudflare_id != null) {
+          let url =
+            this.cfMediaBaseUrl +
+            '/' +
+            this.cfAccountHash +
+            '/' +
+            item.cloudflare_id +
+            '/' +
+            this.cfMediaVariant;
+          product_img_url.push(url);
+        }
+      });
 
-        })
-
-        productsGroupedById[productId].img_urls = product_img_url;
-    
+      productsGroupedById[productId].img_urls = product_img_url;
 
       // Exclude id, product_name, etc. from product data
       delete product.id;
@@ -192,7 +190,7 @@ export class ProductsService {
 
     const productData = productResult[0];
     const brandId = productData.brand_id;
-    
+
     // Fetch brand data based on brandId
     const brandQuery = `
       SELECT
@@ -239,26 +237,28 @@ export class ProductsService {
 
     const product_cloudflare_id_query = `SELECT cf.cloudflare_id FROM cf_media cf WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
 
-    const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [productData.product_id]);
-        
+    const product_cloudflare_id_result = await this.entityManager.query(
+      product_cloudflare_id_query,
+      [productData.product_id],
+    );
+
     let product_img_urls = [];
 
-    product_cloudflare_id_result.map(item => {
-        if (item && item.cloudflare_id != null) {
-            let url =
-                this.cfMediaBaseUrl +
-                '/' +
-                this.cfAccountHash +
-                '/' +
-                item.cloudflare_id +
-                '/' +
-                this.cfMediaVariant;
-            product_img_urls.push(url);
-        }
+    product_cloudflare_id_result.map((item) => {
+      if (item && item.cloudflare_id != null) {
+        let url =
+          this.cfMediaBaseUrl +
+          '/' +
+          this.cfAccountHash +
+          '/' +
+          item.cloudflare_id +
+          '/' +
+          this.cfMediaVariant;
+        product_img_urls.push(url);
+      }
+    });
 
-    })
-
-    productData.img_urls = product_img_urls
+    productData.img_urls = product_img_urls;
 
     // Return product data with brand data as a separate object
     return {

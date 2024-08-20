@@ -36,7 +36,7 @@ export class WarehousesService {
     LEFT JOIN categories c ON cp.category_id = c.id
     LEFT JOIN products p ON pw.product_id = p.id
     LEFT JOIN brands br ON p.brand_id = br.id
-    GROUP BY w.id`;
+    GROUP BY w.id ORDER BY w.name`;
 
     const warehousesResults = await this.entityManager.query(warehousesQuery);
 
