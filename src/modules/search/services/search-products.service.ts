@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
 @Injectable()
-export class SearchProductService {
+export class SearchProductsService {
   constructor(private readonly entityManager: EntityManager) {}
 
   async searchProducts(

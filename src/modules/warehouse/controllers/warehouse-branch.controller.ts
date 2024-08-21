@@ -11,6 +11,25 @@ export class WarehouseBranchController {
     private readonly warehouseBranchService: WarehouseBranchService,
   ) {}
 
+  @Get('branches/all')
+  @ApiOperation({ summary: 'Get all branches' })
+  @ApiResponse({ status: 404, description: 'No branches found' })
+  async findAllWarehouseBranches(): Promise<{
+    message: string;
+    status: string;
+    data: any[];
+  }> {
+    const results = await this.warehouseBranchService.findAll();
+    if (!results) {
+      throw new NotFoundException(`No branches found!`);
+    }
+    return {
+      status: 'success',
+      message: 'All warehouse branches fetched successfully',
+      ...results,
+    };
+  }
+
   @Get(':warehouseId/branches')
   @ApiOperation({ summary: 'Get all branches of a warehouse' })
   @ApiResponse({

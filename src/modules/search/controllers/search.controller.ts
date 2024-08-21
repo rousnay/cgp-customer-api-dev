@@ -7,15 +7,15 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 
-import { SearchProductService } from '../services/search-product.service';
-import { SearchWarehouseService } from '../services/search-warehouse.service';
+import { SearchProductsService } from '../services/search-products.service';
+import { SearchWarehouseBranchesService } from '../services/search-warehouse-branches.service';
 
 @ApiTags('Search')
 @Controller('search')
 export class SearchController {
   constructor(
-    private readonly searchProductService: SearchProductService,
-    private readonly searchWarehouseService: SearchWarehouseService,
+    private readonly searchProductsService: SearchProductsService,
+    private readonly searchWarehouseBranchesService: SearchWarehouseBranchesService,
   ) {}
 
   @Get('products')
@@ -53,7 +53,7 @@ export class SearchController {
     // @Query('currentPage') currentPage: number,
     // @Query('limit') limit: number,
   ) {
-    const products = await this.searchProductService.searchProducts(
+    const products = await this.searchProductsService.searchProducts(
       query,
       brand,
       category,
@@ -86,7 +86,8 @@ export class SearchController {
   })
   @ApiQuery({ name: 'query', type: String, required: false })
   async searchWarehouses(@Query('query') query: string) {
-    const results = await this.searchWarehouseService.searchWarehouses(query);
+    const results =
+      await this.searchWarehouseBranchesService.searchWarehouseBranches(query);
 
     if (!results || results.length === 0) {
       throw new NotFoundException(

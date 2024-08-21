@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { SearchProductService } from './services/search-product.service';
+import { SearchProductsService } from './services/search-products.service';
 import { SearchController } from './controllers/search.controller';
 import { ConfigModule } from '@config/config.module';
-import { SearchWarehouseService } from './services/search-warehouse.service';
+import { SearchWarehouseBranchesService } from './services/search-warehouse-branches.service';
 
 @Module({
   imports: [ConfigModule, TypeOrmModule.forFeature()],
-  providers: [SearchProductService, SearchWarehouseService],
+  providers: [SearchProductsService, SearchWarehouseBranchesService],
   controllers: [SearchController],
 })
 export class SearchModule {}

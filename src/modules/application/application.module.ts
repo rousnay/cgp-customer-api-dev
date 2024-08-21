@@ -16,6 +16,7 @@ import { BrandsService } from './services/brands.service';
 import { PreferencesController } from './controllers/preferences.controller';
 import { HomeController } from './controllers/home.controller';
 import { ConfigModule } from '@config/config.module';
+import { WarehouseBranchService } from '@modules/warehouse/services/warehouse-branch.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ConfigModule } from '@config/config.module';
   ],
   providers: [
     WarehousesService,
+    WarehouseBranchService,
     ProductsService,
     BrandsService,
     WarehouseCategoryService,

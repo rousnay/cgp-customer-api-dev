@@ -4,7 +4,7 @@ import { AppConstants } from '@common/constants/constants';
 import { ConfigService } from '@config/config.service';
 
 @Injectable()
-export class SearchWarehouseService {
+export class SearchWarehouseBranchesService {
   private readonly cfAccountHash: string;
   private readonly cfMediaVariant = AppConstants.cloudflare.mediaVariant;
   private readonly cfMediaBaseUrl = AppConstants.cloudflare.mediaBaseUrl;
@@ -15,7 +15,7 @@ export class SearchWarehouseService {
     this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
-  async searchWarehouses(query: string): Promise<any> {
+  async searchWarehouseBranches(query: string): Promise<any> {
     const warehousesQuery = `
     SELECT
       w.id as id,
