@@ -15,12 +15,13 @@ import { ReviewService } from '@modules/review/review.service';
 import { CustomersService } from '@modules/customers/services/customers.service';
 import { Preferences } from '@modules/application/entities/preferences.entity';
 import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
+import { UserDeleted } from '@modules/customers/entities/user-deleted.entity';
 
 @Module({
   imports: [
     ConfigModule,
     PassportModule,
-    TypeOrmModule.forFeature([Customers, Preferences]),
+    TypeOrmModule.forFeature([Customers, Preferences, UserDeleted]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

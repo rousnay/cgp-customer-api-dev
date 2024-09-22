@@ -1,3 +1,4 @@
+import { Gender, UserType } from '@common/enums/user.enum';
 import {
   Entity,
   BaseEntity,
@@ -9,18 +10,20 @@ import {
   JoinTable,
 } from 'typeorm';
 
-// import { Preferences } from 'src/application/entities/preferences.entity';
-import { Preferences } from '../../application/entities/preferences.entity';
-import { Gender } from '@common/enums/user.enum';
-
-
 @Entity()
-export class Customers extends BaseEntity {
+export class UserDeleted extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   user_id: number;
+
+  @Column({
+    type: 'enum',
+    enum: UserType,
+    nullable: false,
+  })
+  user_type: UserType;
 
   @Column({ length: 50 })
   first_name: string;
@@ -34,6 +37,9 @@ export class Customers extends BaseEntity {
   @Column({ nullable: true })
   email: string;
 
+  @Column({ nullable: false })
+  password: string; // Add the password field
+
   @Column({ type: 'date', nullable: true })
   date_of_birth: Date;
 
@@ -41,26 +47,11 @@ export class Customers extends BaseEntity {
     type: 'enum',
     enum: Gender,
     nullable: true,
-    // default: Gender.OTHER
   })
-  gender: Gender | null; // Define the column as nullable in the entity
+  gender: Gender | null;
 
   @Column({ nullable: true })
   profile_image_cf_media_id: number;
-
-  // Define the relationship with preferences
-  @ManyToMany(() => Preferences, { onDelete: 'CASCADE' })
-  @JoinTable({ name: 'customers_preferences' })
-  preferences: Preferences[];
-
-  @CreateDateColumn({ type: 'timestamp' })
-  registration_date: Date;
-
-  @UpdateDateColumn({ type: 'timestamp' })
-  last_login: Date;
-
-  @Column({ default: true })
-  is_active: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -73,10 +64,4 @@ export class Customers extends BaseEntity {
     nullable: true,
   })
   updated_at: Date;
-
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-  })
-  deleted_at: Date;
 }

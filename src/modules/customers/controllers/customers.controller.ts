@@ -12,6 +12,8 @@ import {
   Put,
   UseInterceptors,
   UploadedFile,
+  Delete,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import {
   ApiHeader,
@@ -257,5 +259,35 @@ export class CustomerController {
       customer.data,
       updatePreferencesDto.preferences,
     );
+  }
+
+  @Delete('/remove-account')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({
+    summary: 'Remove logged in customer',
+  })
+  @ApiResponse({ status: 200, description: 'Customer removed successfully' })
+  @ApiResponse({ status: 404, description: 'Customer not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async removeCustomer(): Promise<{ status: string; message: string }> {
+    try {
+      await this.customersService.removeCustomer();
+
+      return {
+        status: 'success',
+        message: 'Customer removed successfully',
+      };
+    } catch (error) {
+      // Handle specific error cases
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Customer not found');
+      }
+
+      // Log or handle other types of errors
+      throw new InternalServerErrorException(
+        'An error occurred while removing the customer',
+      );
+    }
   }
 }

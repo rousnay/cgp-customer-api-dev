@@ -15,6 +15,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DeliveryRequest } from '@modules/delivery/schemas/delivery-request.schema';
 import { Model } from 'mongoose';
 import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
+import { UserDeleted } from '../entities/user-deleted.entity';
 
 @Injectable()
 export class CustomersService {
@@ -28,6 +29,8 @@ export class CustomersService {
     private readonly entityManager: EntityManager,
     @InjectRepository(Customers)
     private customersRepository: Repository<Customers>,
+    @InjectRepository(UserDeleted)
+    private deletedUsersRepository: Repository<UserDeleted>,
     @InjectRepository(Preferences)
     private readonly preferencesRepository: Repository<Preferences>,
     private paymentMethodService: PaymentMethodService,
@@ -251,4 +254,62 @@ export class CustomersService {
   //     await this.paymentMethodService.hasDefaultPaymentMethod(user_id);
   //   return defaultPaymentMethodInfo;
   // }
+
+  async removeCustomer(): Promise<void> {
+    const userId = this.request['user'].user_id;
+    // Find the customer
+    const customer = await this.customersRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!customer) {
+      throw new NotFoundException(`Customer with user_id ${userId} not found`);
+    }
+
+    // Query the users table directly using EntityManager
+    const user = await this.entityManager.query(
+      'SELECT * FROM users WHERE id = ?',
+      [userId],
+    );
+
+    if (!user || user.length === 0) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    // Transfer data to deleted_users table
+    const deletedUser = new UserDeleted();
+    deletedUser.user_id = customer.user_id;
+    deletedUser.first_name = customer.first_name;
+    deletedUser.last_name = customer.last_name;
+    deletedUser.phone = customer.phone;
+    deletedUser.email = customer.email;
+    deletedUser.password = user[0].password; // Get password from users table
+    deletedUser.user_type = user[0].user_type; // Get user_type from users table
+    deletedUser.date_of_birth = customer.date_of_birth;
+    deletedUser.gender = customer.gender;
+    deletedUser.profile_image_cf_media_id = customer.profile_image_cf_media_id;
+
+    await this.deletedUsersRepository.save(deletedUser);
+
+    // Nullify sensitive data in customers table
+    customer.first_name = null;
+    customer.last_name = null;
+    customer.phone = null;
+    customer.email = null;
+    customer.date_of_birth = null;
+    customer.gender = null;
+    customer.profile_image_cf_media_id = null;
+    customer.deleted_at = new Date();
+    await this.customersRepository.save(customer);
+
+    // Nullify sensitive data in users table using EntityManager
+    await this.entityManager.query(
+      `UPDATE users
+       SET name = NULL, first_name = NULL, last_name = NULL, email = NULL, phone = NULL, password = NULL, active = 0
+       WHERE id = ?`,
+      [userId],
+    );
+
+    console.log('Removed customer with user_id', userId);
+  }
 }

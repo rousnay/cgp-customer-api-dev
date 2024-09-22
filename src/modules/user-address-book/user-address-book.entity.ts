@@ -1,4 +1,4 @@
-import { AddressType } from '@common/enums/user-address-book.emun';
+import { AddressType } from '@common/enums/user.enum';
 import {
   Entity,
   BaseEntity,

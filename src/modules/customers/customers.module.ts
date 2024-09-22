@@ -10,6 +10,7 @@ import { Customers } from './entities/customers.entity';
 import { CustomersService } from './services/customers.service';
 import { CustomerController } from './controllers/customers.controller';
 import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
+import { UserDeleted } from './entities/user-deleted.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { PaymentMethodService } from '@modules/payments/services/payment-method.
       timeout: 5000,
       maxRedirects: 5,
     }),
-    TypeOrmModule.forFeature([Customers, Preferences]),
+    TypeOrmModule.forFeature([Customers, Preferences, UserDeleted]),
   ],
   exports: [CustomersService],
   providers: [CustomersService, CloudflareMediaService, PaymentMethodService],

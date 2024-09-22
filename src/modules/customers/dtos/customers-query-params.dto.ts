@@ -1,6 +1,7 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiQuery } from '@nestjs/swagger';
-import { Gender } from '../entities/customers.entity';
+import { Gender } from '@common/enums/user.enum';
+
 export class CustomersQueryParamsDto {
   @IsNumber()
   @IsOptional()

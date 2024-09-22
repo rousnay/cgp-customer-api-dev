@@ -12,7 +12,7 @@ import { Not, Repository } from 'typeorm';
 import { UserAddressBook } from './user-address-book.entity';
 import { CreateUserAddressDto } from './create-user-address.dto';
 import { UpdateUserAddressDto } from './update-user-address.dto';
-import { AddressType } from '@common/enums/user-address-book.emun';
+import { AddressType } from '@common/enums/user.enum';
 
 @Injectable()
 export class UserAddressBookService {

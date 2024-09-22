@@ -10,7 +10,7 @@ import {
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 // import { PartialType } from '@nestjs/mapped-types';
 import { CreateCustomerDto } from './create-customer.dto';
-import { Gender } from '../entities/customers.entity';
+import { Gender } from '@common/enums/user.enum';
 
 export class UpdateCustomerDto extends PartialType(CreateCustomerDto) {
   @IsOptional()
