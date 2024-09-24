@@ -271,6 +271,10 @@ export class CustomersService {
       throw new NotFoundException(`Customer with user_id ${userId} not found`);
     }
 
+    if (customer.deleted_at) {
+      throw new ConflictException('Customer already deleted');
+    }
+
     // Query the users table directly using EntityManager
     const user = await this.entityManager.query(
       'SELECT * FROM users WHERE id = ?',
@@ -280,12 +284,6 @@ export class CustomersService {
     if (!user || user.length === 0) {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
-
-    if (user[0].deleted_at) {
-      throw new ConflictException('User already deleted');
-    }
-    //   throw new NotFoundException(`User with id ${userId} not found`);
-    // }
 
     // Transfer data to deleted_users table
     const deletedUser = new UserDeleted();
