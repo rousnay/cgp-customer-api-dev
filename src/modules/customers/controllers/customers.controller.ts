@@ -311,11 +311,12 @@ export class CustomerController {
     @Query('email') email: string,
   ): Promise<{ status: string; message: string }> {
     try {
-      await this.customersService.restoreCustomer(email);
+      const result = await this.customersService.restoreCustomer(email);
 
       return {
         status: 'success',
         message: 'Customer restored successfully',
+        ...result,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
