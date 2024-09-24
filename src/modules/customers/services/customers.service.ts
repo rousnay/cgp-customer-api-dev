@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { Repository, Like, EntityManager } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
@@ -275,6 +280,12 @@ export class CustomersService {
     if (!user || user.length === 0) {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
+
+    if (user[0].deleted_at) {
+      throw new ConflictException('User already deleted');
+    }
+    //   throw new NotFoundException(`User with id ${userId} not found`);
+    // }
 
     // Transfer data to deleted_users table
     const deletedUser = new UserDeleted();
