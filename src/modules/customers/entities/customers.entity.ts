@@ -78,4 +78,10 @@ export class Customers extends BaseEntity {
     nullable: true,
   })
   deleted_at: Date;
+
+  // @Column({
+  //   type: 'timestamp',
+  //   nullable: true,
+  // })
+  // restored_at: Date;
 }
