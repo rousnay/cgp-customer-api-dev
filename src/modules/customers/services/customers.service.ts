@@ -292,20 +292,22 @@ export class CustomersService {
     await this.deletedUsersRepository.save(deletedUser);
 
     // Nullify sensitive data in customers table
-    customer.first_name = null;
-    customer.last_name = null;
-    customer.phone = null;
-    customer.email = null;
+    customer.first_name = 'Removed';
+    customer.last_name = 'User';
+    customer.phone = '0000000000';
+    customer.email = 'removed_user@tradebar.com.au';
     customer.date_of_birth = null;
     customer.gender = null;
+    customer.is_active = false;
     customer.profile_image_cf_media_id = null;
     customer.deleted_at = new Date();
     await this.customersRepository.save(customer);
 
     // Nullify sensitive data in users table using EntityManager
+
     await this.entityManager.query(
       `UPDATE users
-       SET name = NULL, first_name = NULL, last_name = NULL, email = NULL, phone = NULL, password = NULL, active = 0
+       SET name = 'Removed User', first_name = 'Removed', last_name = 'User', email = 'removed_user@tradebar.com.au', phone = '0000000000', password = '', active = 0
        WHERE id = ?`,
       [userId],
     );
