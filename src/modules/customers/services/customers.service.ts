@@ -303,7 +303,7 @@ export class CustomersService {
 
     // Nullify sensitive data in customers table
     customer.first_name = 'Removed';
-    customer.last_name = 'User';
+    customer.last_name = 'Customer';
     customer.phone = '0000000000';
     customer.email = 'removed_user@tradebar.com.au';
     customer.date_of_birth = null;
@@ -317,7 +317,7 @@ export class CustomersService {
 
     await this.entityManager.query(
       `UPDATE users
-       SET name = 'Removed User', first_name = 'Removed', last_name = 'User', email = 'removed_user@tradebar.com.au', phone = '0000000000', password = '', active = 0
+       SET name = 'Removed Customer', first_name = 'Removed', last_name = 'Customer', email = 'removed_customer@tradebar.com.au', phone = '0000000000', password = '', active = 0
        WHERE id = ?`,
       [userId],
     );
