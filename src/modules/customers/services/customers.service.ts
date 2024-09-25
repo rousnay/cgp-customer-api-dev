@@ -286,7 +286,7 @@ export class CustomersService {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
 
-    // Transfer data to deleted_users table
+    // Transfer data to user_deleted table
     const deletedUser = new UserDeleted();
     deletedUser.user_id = customer.user_id;
     deletedUser.first_name = customer.first_name;
@@ -332,7 +332,7 @@ export class CustomersService {
   }
 
   async restoreCustomer(email: string): Promise<any> {
-    // Retrieve data from deleted_users table by email and user_type
+    // Retrieve data from user_deleted table by email and user_type
     const deletedUser = await this.deletedUsersRepository.findOne({
       where: { email, user_type: UserType.CUSTOMER },
     });
@@ -384,7 +384,7 @@ export class CustomersService {
       ],
     );
 
-    // Remove the entry from deleted_users table after successful restoration
+    // Remove the entry from user_deleted table after successful restoration
     await this.deletedUsersRepository.delete({
       email,
       user_type: UserType.CUSTOMER,
