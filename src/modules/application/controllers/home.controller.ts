@@ -33,8 +33,10 @@ export class HomeController {
     products: ProductsDto[];
   }> {
     const categories = await this.categoryService.findAllWithProductCount();
-    const warehouses = await this.warehouseService.findAll();
-    const products = await this.productService.findAll();
+    const warehouses = await this.warehouseService.findAll({
+      forHome: true,
+    });
+    const products = await this.productService.findAll(10);
     return {
       message: 'Home data fetched successfully',
       status: 'success',
@@ -54,7 +56,7 @@ export class HomeController {
     products: ProductsDto[];
   }> {
     const categories = await this.categoryService.findAllWithProductCount();
-    const warehouseBranches = await this.warehouseBranchService.findAll();
+    const warehouseBranches = await this.warehouseBranchService.findAll({});
     const products = await this.productService.findAll();
     return {
       message: 'Home data fetched successfully',

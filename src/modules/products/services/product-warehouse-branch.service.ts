@@ -17,7 +17,11 @@ export class ProductWarehouseBranchService {
     this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
-  async findProductsByBranchId(branchId: number): Promise<any> {
+  async findProductsByBranchId(
+    branchId: number,
+    paginationQuery?: any,
+  ): Promise<any> {
+    const { page, perPage } = paginationQuery;
     // Fetch branch and associated warehouse data
     const branchQuery = `
         SELECT
@@ -123,11 +127,40 @@ export class ProductWarehouseBranchService {
     LEFT JOIN
         product_warehouse_branch pw ON p.id = pw.product_id
     WHERE
-        pw.warehouse_branch_id = ?`;
+        pw.warehouse_branch_id = ? LIMIT ? OFFSET ?`;
 
     const productResults = await this.entityManager.query(productsQuery, [
       branchId,
+      Number(perPage),
+      Number((page - 1) * Number(perPage)),
     ]);
+
+    const total = await this.entityManager.query(
+      ` SELECT
+        COUNT(pw.id) as count
+    FROM
+        products p
+    LEFT JOIN
+        brands b ON p.brand_id = b.id
+    LEFT JOIN
+        categories c ON p.category_id = c.id
+    LEFT JOIN
+        product_warehouse_branch pw ON p.id = pw.product_id
+    WHERE
+        pw.warehouse_branch_id = ?`,
+      [branchId],
+    );
+
+    const per_page = Number(perPage);
+    const current_page = Number(page);
+    const last_page = Number(Math.ceil(total[0].count / per_page));
+    const first_page_url = '';
+    const last_page_url = '';
+    const next_page_url = '';
+    const prev_page_url = '';
+    const path = '';
+    const from = Number((page - 1) * perPage + 1);
+    const to = Number(page * perPage);
 
     const productsData = [];
     for (const product of productResults) {
@@ -180,6 +213,17 @@ export class ProductWarehouseBranchService {
         branch_info: branchInfoOnly,
         products: productsData,
       },
+      total: Number(total[0].count),
+      per_page: per_page,
+      current_page: current_page,
+      last_page: last_page,
+      first_page_url: first_page_url,
+      last_page_url: last_page_url,
+      next_page_url: next_page_url,
+      prev_page_url: prev_page_url,
+      path: path,
+      from: from,
+      to: to,
     };
   }
 }

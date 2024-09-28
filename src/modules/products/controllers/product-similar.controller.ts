@@ -1,4 +1,10 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { SimilarProductsService } from '../services/product-similar.service';
 
@@ -11,9 +17,18 @@ export class SimilarProductsController {
 
   @Get('similar/:productId')
   @ApiParam({ name: 'productId', type: Number, required: false })
-  async getSimilarProducts(@Param('productId') productId: number) {
+  async getSimilarProducts(
+    @Param('productId') productId: number,
+    @Query() query: any,
+  ) {
+    const page = query.page || 1;
+    const perPage = query.perPage || 10;
     const results = await this.similarProductsService.getSimilarProducts(
       productId,
+      {
+        page,
+        perPage,
+      },
     );
 
     if (!results || results.length === 0) {

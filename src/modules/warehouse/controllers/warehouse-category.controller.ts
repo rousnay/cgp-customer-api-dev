@@ -1,4 +1,10 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { WarehousesDto } from '../dtos/warehouses.dto';
@@ -17,10 +23,17 @@ export class WarehouseCategoryController {
   })
   async findWarehousesByCategoryId(
     @Param('categoryId') categoryId: number,
+    @Query() paginationQuery: any,
   ): Promise<{ message: string; status: string; data: WarehousesDto[] }> {
+    const page = paginationQuery.page || 1;
+    const perPage = paginationQuery.perPage || 20;
     const warehouses =
       await this.warehouseCategoryService.findWarehousesByCategoryId(
         categoryId,
+        {
+          page,
+          perPage,
+        },
       );
     if (!warehouses || warehouses.length === 0) {
       throw new NotFoundException(

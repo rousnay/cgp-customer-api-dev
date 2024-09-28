@@ -1,4 +1,10 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { ProductsDto } from '../dtos/products.dto';
@@ -15,9 +21,18 @@ export class ProductWarehouseController {
   @ApiOperation({ summary: 'Get all products from a warehouse' })
   async findProductsByWarehouseId(
     @Param('warehouseId') warehouseId: number,
+    @Query() query: any,
   ): Promise<{ message: string; status: string; data: ProductsDto[] }> {
+    const page = query.page || 1;
+    const perPage = query.perPage || 10;
     const results =
-      await this.productWarehouseService.findProductsByWarehouseId(warehouseId);
+      await this.productWarehouseService.findProductsByWarehouseId(
+        warehouseId,
+        {
+          page,
+          perPage,
+        },
+      );
     if (!results) {
       throw new NotFoundException(
         `No products found for warehouse with id ${warehouseId}`,
@@ -36,12 +51,19 @@ export class ProductWarehouseController {
   })
   async findProductsByWarehouseAndCategory(
     @Param('warehouseId') warehouseId: number,
-    @Param('categoryId') categoryId: number
+    @Param('categoryId') categoryId: number,
+    @Query() query: any,
   ): Promise<{ message: string; status: string; data: any[] }> {
+    const page = query.page || 1;
+    const perPage = query.perPage || 10;
     const results =
       await this.productWarehouseService.findProductsByWarehouseAndCategory(
         warehouseId,
         categoryId,
+        {
+          page,
+          perPage,
+        },
       );
     return {
       status: 'success',

@@ -86,7 +86,12 @@ export class WarehouseCategoryService {
   //   };
   // }
 
-  async findWarehousesByCategoryId(categoryId: number): Promise<any> {
+  async findWarehousesByCategoryId(
+    categoryId: number,
+    paginationQuery?: any,
+  ): Promise<any> {
+    const page = paginationQuery?.page || 1;
+    const perPage = paginationQuery?.perPage || 20;
     // Query to fetch category object
     const categoryQuery = `
         SELECT c.*
@@ -103,17 +108,51 @@ export class WarehouseCategoryService {
         INNER JOIN product_warehouse_branch pw ON w.id = pw.warehouse_id
         INNER JOIN category_product cp ON pw.product_id = cp.product_id
         WHERE cp.category_id = ?
-        GROUP BY w.id, w.name`;
+        GROUP BY w.id, w.name LIMIT ? OFFSET ?`;
 
     const warehouseResults = await this.entityManager.query(warehousesQuery, [
       categoryId,
+      perPage,
+      (page - 1) * perPage,
     ]);
+
+    const total = await this.entityManager.query(
+      ` SELECT COUNT(DISTINCT pw.product_id) as count
+        FROM warehouses w
+        INNER JOIN product_warehouse_branch pw ON w.id = pw.warehouse_id
+        INNER JOIN category_product cp ON pw.product_id = cp.product_id
+        WHERE cp.category_id = ?
+        GROUP BY w.id, w.name `,
+      [categoryId],
+    );
+
+    const per_page = Number(perPage);
+    const current_page = Number(page);
+    const last_page = Number(Math.ceil(total[0].count / per_page));
+    const first_page_url = '';
+    const last_page_url = '';
+    const next_page_url = '';
+    const prev_page_url = '';
+    const path = '';
+    const from = Number((page - 1) * perPage + 1);
+    const to = Number(page * perPage);
 
     return {
       data: {
         category: categoryResult[0],
         warehouses: warehouseResults,
       },
+      total: Number(total[0].count),
+      per_page,
+      current_page,
+      last_page,
+      first_page_url,
+      last_page_url,
+      next_page_url,
+      prev_page_url,
+      path,
+      from,
+      to,
     };
   }
 }

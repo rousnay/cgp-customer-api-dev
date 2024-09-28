@@ -1,4 +1,10 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { ProductsDto } from '../dtos/products.dto';
@@ -15,9 +21,18 @@ export class ProductWarehouseBranchController {
   @ApiOperation({ summary: 'Get all products from a warehouse branch' })
   async findProductsByBranchId(
     @Param('branchId') branchId: number,
+    @Query() query: any,
   ): Promise<{ message: string; status: string; data: ProductsDto[] }> {
+    const page = query.page || 1;
+    const perPage = query.perPage || 10;
     const results =
-      await this.productWarehouseBranchService.findProductsByBranchId(branchId);
+      await this.productWarehouseBranchService.findProductsByBranchId(
+        branchId,
+        {
+          page,
+          perPage,
+        },
+      );
     if (!results) {
       throw new NotFoundException(
         `No products found for warehouse branch with id ${branchId}`,
