@@ -13,7 +13,6 @@ import {
 import { Preferences } from '../../application/entities/preferences.entity';
 import { Gender } from '@common/enums/user.enum';
 
-
 @Entity()
 export class Customers extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -22,10 +21,10 @@ export class Customers extends BaseEntity {
   @Column()
   user_id: number;
 
-  @Column({ length: 50 })
+  @Column({ nullable: true, length: 50 })
   first_name: string;
 
-  @Column({ length: 50 })
+  @Column({ nullable: true, length: 50 })
   last_name: string;
 
   @Column({ length: 20, nullable: true })
@@ -79,4 +78,10 @@ export class Customers extends BaseEntity {
     nullable: true,
   })
   deleted_at: Date;
+
+  // @Column({
+  //   type: 'timestamp',
+  //   nullable: true,
+  // })
+  // restored_at: Date;
 }

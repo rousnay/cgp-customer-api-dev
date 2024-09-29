@@ -14,6 +14,7 @@ import {
   UploadedFile,
   Delete,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import {
   ApiHeader,
@@ -270,23 +271,59 @@ export class CustomerController {
   @ApiResponse({ status: 200, description: 'Customer removed successfully' })
   @ApiResponse({ status: 404, description: 'Customer not found' })
   @ApiResponse({ status: 500, description: 'Internal server error' })
-  async removeCustomer(): Promise<{ status: string; message: string }> {
+  async removeCustomer(): Promise<any> {
     try {
-      await this.customersService.removeCustomer();
+      const result = await this.customersService.removeCustomer();
 
       return {
         status: 'success',
         message: 'Customer removed successfully',
+        ...result,
       };
     } catch (error) {
       // Handle specific error cases
       if (error instanceof NotFoundException) {
         throw new NotFoundException('Customer not found');
+      } else if (error instanceof ConflictException) {
+        throw new ConflictException('Customer already deleted');
       }
 
       // Log or handle other types of errors
       throw new InternalServerErrorException(
         'An error occurred while removing the customer',
+      );
+    }
+  }
+
+  @Post('/restore-account')
+  @ApiOperation({
+    summary: 'Restore a deleted customer by email and user_type',
+  })
+  @ApiQuery({
+    name: 'email',
+    description: 'Email of the customer to restore',
+    required: true,
+  })
+  @ApiResponse({ status: 200, description: 'Customer restored successfully' })
+  @ApiResponse({ status: 404, description: 'Deleted customer not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async restoreCustomerByEmailAndUserType(
+    @Query('email') email: string,
+  ): Promise<{ status: string; message: string }> {
+    try {
+      const result = await this.customersService.restoreCustomer(email);
+
+      return {
+        status: 'success',
+        message: 'Customer restored successfully',
+        ...result,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Deleted customer not found');
+      }
+      throw new InternalServerErrorException(
+        'An error occurred while restoring the customer',
       );
     }
   }

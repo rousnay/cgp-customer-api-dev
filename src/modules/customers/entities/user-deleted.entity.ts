@@ -25,10 +25,10 @@ export class UserDeleted extends BaseEntity {
   })
   user_type: UserType;
 
-  @Column({ length: 50 })
+  @Column({ nullable: true, length: 50 })
   first_name: string;
 
-  @Column({ length: 50 })
+  @Column({ nullable: true, length: 50 })
   last_name: string;
 
   @Column({ length: 20, nullable: true })
@@ -37,7 +37,7 @@ export class UserDeleted extends BaseEntity {
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   password: string; // Add the password field
 
   @Column({ type: 'date', nullable: true })

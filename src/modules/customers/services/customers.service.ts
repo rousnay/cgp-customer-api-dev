@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository, InjectEntityManager } from '@nestjs/typeorm';
 import { Repository, Like, EntityManager } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
@@ -16,6 +21,7 @@ import { DeliveryRequest } from '@modules/delivery/schemas/delivery-request.sche
 import { Model } from 'mongoose';
 import { PaymentMethodService } from '@modules/payments/services/payment-method.service';
 import { UserDeleted } from '../entities/user-deleted.entity';
+import { UserType } from '@common/enums/user.enum';
 
 @Injectable()
 export class CustomersService {
@@ -255,7 +261,7 @@ export class CustomersService {
   //   return defaultPaymentMethodInfo;
   // }
 
-  async removeCustomer(): Promise<void> {
+  async removeCustomer(): Promise<any> {
     const userId = this.request['user'].user_id;
     // Find the customer
     const customer = await this.customersRepository.findOne({
@@ -264,6 +270,10 @@ export class CustomersService {
 
     if (!customer) {
       throw new NotFoundException(`Customer with user_id ${userId} not found`);
+    }
+
+    if (customer.deleted_at) {
+      throw new ConflictException('Customer already deleted');
     }
 
     // Query the users table directly using EntityManager
@@ -276,7 +286,7 @@ export class CustomersService {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
 
-    // Transfer data to deleted_users table
+    // Transfer data to user_deleted table
     const deletedUser = new UserDeleted();
     deletedUser.user_id = customer.user_id;
     deletedUser.first_name = customer.first_name;
@@ -292,24 +302,100 @@ export class CustomersService {
     await this.deletedUsersRepository.save(deletedUser);
 
     // Nullify sensitive data in customers table
-    customer.first_name = null;
-    customer.last_name = null;
-    customer.phone = null;
-    customer.email = null;
+    customer.first_name = 'Removed';
+    customer.last_name = 'Customer';
+    customer.phone = '0000000000';
+    customer.email = 'removed_user@tradebar.com.au';
     customer.date_of_birth = null;
     customer.gender = null;
+    customer.is_active = false;
     customer.profile_image_cf_media_id = null;
     customer.deleted_at = new Date();
     await this.customersRepository.save(customer);
 
     // Nullify sensitive data in users table using EntityManager
+
     await this.entityManager.query(
       `UPDATE users
-       SET name = NULL, first_name = NULL, last_name = NULL, email = NULL, phone = NULL, password = NULL, active = 0
+       SET name = 'Removed Customer', first_name = 'Removed', last_name = 'Customer', email = 'removed_customer@tradebar.com.au', phone = '0000000000', password = '', active = 0
        WHERE id = ?`,
       [userId],
     );
 
     console.log('Removed customer with user_id', userId);
+
+    return {
+      data: {
+        user_id: userId,
+      },
+    };
+  }
+
+  async restoreCustomer(email: string): Promise<any> {
+    // Retrieve data from user_deleted table by email and user_type
+    const deletedUser = await this.deletedUsersRepository.findOne({
+      where: { email, user_type: UserType.CUSTOMER },
+    });
+
+    if (!deletedUser) {
+      throw new NotFoundException(
+        `Deleted customer with email ${email} not found`,
+      );
+    }
+
+    // Find the corresponding customer in the customers table
+    const existingCustomer = await this.customersRepository.findOne({
+      where: { user_id: deletedUser.user_id },
+    });
+
+    if (!existingCustomer) {
+      throw new NotFoundException(
+        `Customer with user_id ${deletedUser.user_id} not found`,
+      );
+    }
+
+    // Restore customer data in the customers table by updating the existing entry
+    existingCustomer.first_name = deletedUser.first_name;
+    existingCustomer.last_name = deletedUser.last_name;
+    existingCustomer.phone = deletedUser.phone;
+    existingCustomer.email = deletedUser.email;
+    existingCustomer.date_of_birth = deletedUser.date_of_birth;
+    existingCustomer.gender = deletedUser.gender;
+    existingCustomer.profile_image_cf_media_id =
+      deletedUser.profile_image_cf_media_id;
+    existingCustomer.is_active = true; // Make the customer active again
+    existingCustomer.deleted_at = null;
+    // existingCustomer.restored_at = new Date();
+
+    await this.customersRepository.save(existingCustomer);
+
+    // Restore data to users table using email and user_type
+    await this.entityManager.query(
+      `UPDATE users
+       SET first_name = ?, last_name = ?, email = ?, phone = ?, password = ?, active = 1
+       WHERE id = ?`,
+      [
+        deletedUser.first_name,
+        deletedUser.last_name,
+        deletedUser.email,
+        deletedUser.phone,
+        deletedUser.password,
+        deletedUser.user_id,
+      ],
+    );
+
+    // Remove the entry from user_deleted table after successful restoration
+    await this.deletedUsersRepository.delete({
+      email,
+      user_type: UserType.CUSTOMER,
+    });
+
+    console.log('Restored customer with email', email);
+
+    return {
+      data: {
+        email: email,
+      },
+    };
   }
 }
