@@ -21,18 +21,25 @@ export class ProductWarehouseBranchController {
   @ApiOperation({ summary: 'Get all products from a warehouse branch' })
   async findProductsByBranchId(
     @Param('branchId') branchId: number,
-    @Query() query: any,
+    @Query('page') page: number | any,
+    @Query('perPage') perPage: number | any,
   ): Promise<{ message: string; status: string; data: ProductsDto[] }> {
-    const page = query.page || 1;
-    const perPage = query.perPage || 10;
-    const results =
-      await this.productWarehouseBranchService.findProductsByBranchId(
+    let results = null;
+    if (page) {
+      results =
+        await this.productWarehouseBranchService.findProductsByBranchIdPage(
+          branchId,
+          {
+            page,
+            perPage,
+          },
+        );
+    } else {
+      results = await this.productWarehouseBranchService.findProductsByBranchId(
         branchId,
-        {
-          page,
-          perPage,
-        },
       );
+    }
+
     if (!results) {
       throw new NotFoundException(
         `No products found for warehouse branch with id ${branchId}`,

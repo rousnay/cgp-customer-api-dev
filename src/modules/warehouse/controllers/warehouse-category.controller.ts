@@ -23,18 +23,26 @@ export class WarehouseCategoryController {
   })
   async findWarehousesByCategoryId(
     @Param('categoryId') categoryId: number,
-    @Query() paginationQuery: any,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
   ): Promise<{ message: string; status: string; data: WarehousesDto[] }> {
-    const page = paginationQuery.page || 1;
-    const perPage = paginationQuery.perPage || 20;
-    const warehouses =
-      await this.warehouseCategoryService.findWarehousesByCategoryId(
-        categoryId,
-        {
-          page,
+    let warehouses = null;
+    if (page) {
+      if (!perPage) {
+        perPage = 10;
+      }
+      warehouses =
+        await this.warehouseCategoryService.findWarehousesByCategoryIdPage(
+          categoryId,
+          page || 1,
           perPage,
-        },
-      );
+        );
+    } else {
+      warehouses =
+        await this.warehouseCategoryService.findWarehousesByCategoryId(
+          categoryId,
+        );
+    }
     if (!warehouses || warehouses.length === 0) {
       throw new NotFoundException(
         `No warehouses found that offers products for category with id ${categoryId}`,
