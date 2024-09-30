@@ -47,7 +47,10 @@ export class TransportationOrdersService {
     let pickup_address_id: number;
     let shipping_address_id: number;
 
-    console.log('createTransportationOrderDto', createTransportationOrderDto);
+    console.log(
+      '###createTransportationOrderDto:',
+      createTransportationOrderDto,
+    );
 
     if (createTransportationOrderDto.pickup_address_id) {
       pickup_address_id = createTransportationOrderDto.pickup_address_id;
