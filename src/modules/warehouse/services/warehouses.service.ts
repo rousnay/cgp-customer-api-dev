@@ -22,9 +22,18 @@ export class WarehousesService {
     this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
-  async findAll(): Promise<any> {
+  async findAll({
+    forHome = false,
+    page = 1,
+    perPage = 20,
+  }: any): Promise<any> {
     // Fetch all warehouses with unique categories and brands
-    const warehousesQuery = `SELECT w.*,
+    let warehousesQuery = '';
+
+    const offset = (page - 1) * perPage;
+
+    if (forHome) {
+      warehousesQuery = `SELECT w.*,
     GROUP_CONCAT(DISTINCT b.id) as branch_ids,
     GROUP_CONCAT(DISTINCT b.branch_type) as branch_types,
     GROUP_CONCAT(DISTINCT c.name SEPARATOR '|,|') as category_names,
@@ -36,9 +45,41 @@ export class WarehousesService {
     LEFT JOIN categories c ON cp.category_id = c.id
     LEFT JOIN products p ON pw.product_id = p.id
     LEFT JOIN brands br ON p.brand_id = br.id
-    GROUP BY w.id ORDER BY w.name`;
+    GROUP BY w.id ORDER BY w.created_at DESC, w.name LIMIT ?`;
+    } else {
+      warehousesQuery = `SELECT w.*,
+    GROUP_CONCAT(DISTINCT b.id) as branch_ids,
+    GROUP_CONCAT(DISTINCT b.branch_type) as branch_types,
+    GROUP_CONCAT(DISTINCT c.name SEPARATOR '|,|') as category_names,
+    GROUP_CONCAT(DISTINCT br.name) as brand_names
+    FROM warehouses w
+    LEFT JOIN warehouse_branches b ON w.id = b.warehouse_id
+    LEFT JOIN product_warehouse_branch pw ON w.id = pw.warehouse_id
+    LEFT JOIN category_product cp ON pw.product_id = cp.product_id
+    LEFT JOIN categories c ON cp.category_id = c.id
+    LEFT JOIN products p ON pw.product_id = p.id
+    LEFT JOIN brands br ON p.brand_id = br.id
+    GROUP BY w.id ORDER BY w.created_at DESC, w.name LIMIT ?  OFFSET ?`;
+    }
 
-    const warehousesResults = await this.entityManager.query(warehousesQuery);
+    const total = await this.entityManager.query(
+      `SELECT COUNT(*) as count FROM warehouses`,
+    );
+    const per_page = perPage;
+    const current_page = page;
+    const last_page = Math.ceil(total[0].count / per_page);
+    const first_page_url = '';
+    const last_page_url = '';
+    const next_page_url = '';
+    const prev_page_url = '';
+    const path = '';
+    const from = (page - 1) * perPage + 1;
+    const to = page * perPage;
+
+    const warehousesResults = await this.entityManager.query(
+      warehousesQuery,
+      forHome ? [10] : [perPage, offset],
+    );
 
     // Process each warehouse
     const warehousesWithDetails = await Promise.all(
@@ -121,21 +162,20 @@ export class WarehousesService {
         delete warehouse.category_names;
         delete warehouse.brand_names;
 
-
         // get customer's overall review
-    const given_to_id = warehouse.id;
-    const result = await this.entityManager.query(
-      'SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(rating) as total_ratings FROM overall_reviews WHERE given_to_id = ? AND given_to_type_id=20',
-      [given_to_id],
-    );
+        const given_to_id = warehouse.id;
+        const result = await this.entityManager.query(
+          'SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(rating) as total_ratings FROM overall_reviews WHERE given_to_id = ? AND given_to_type_id=20',
+          [given_to_id],
+        );
 
-    const averageRating = result[0].average_rating || 0;
-    const totalRatings = result[0].total_ratings || 0;
+        const averageRating = result[0].average_rating || 0;
+        const totalRatings = result[0].total_ratings || 0;
 
-    const avg_rating = {
-      average_rating: Number(averageRating),
-      total_ratings: Number(totalRatings),
-    };
+        const avg_rating = {
+          average_rating: Number(averageRating),
+          total_ratings: Number(totalRatings),
+        };
 
         return {
           ...warehouse,
@@ -152,6 +192,16 @@ export class WarehousesService {
 
     return {
       data: warehousesWithDetails,
+      per_page,
+      current_page,
+      last_page,
+      first_page_url,
+      last_page_url,
+      next_page_url,
+      prev_page_url,
+      path,
+      from,
+      to,
     };
   }
 

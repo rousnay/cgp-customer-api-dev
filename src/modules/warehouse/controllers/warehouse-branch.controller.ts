@@ -1,4 +1,10 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { WarehouseBranchDto } from '../dtos/warehouse-branch.dto';
@@ -14,12 +20,17 @@ export class WarehouseBranchController {
   @Get('branches/all')
   @ApiOperation({ summary: 'Get all branches' })
   @ApiResponse({ status: 404, description: 'No branches found' })
-  async findAllWarehouseBranches(): Promise<{
+  async findAllWarehouseBranches(@Query() paginationQuery: any): Promise<{
     message: string;
     status: string;
     data: any[];
   }> {
-    const results = await this.warehouseBranchService.findAll();
+    const page = paginationQuery.page || 1;
+    const perPage = paginationQuery.perPage || 20;
+    const results = await this.warehouseBranchService.findAll({
+      page,
+      perPage,
+    });
     if (!results) {
       throw new NotFoundException(`No branches found!`);
     }
@@ -85,10 +96,17 @@ export class WarehouseBranchController {
   @ApiResponse({ status: 404, description: 'No branches found for warehouse' })
   async findAllBranchesByWarehouseId(
     @Param('warehouseId') warehouseId: number,
+    @Query() paginationQuery: any,
   ): Promise<{ message: string; status: string; data: WarehouseBranchDto[] }> {
+    const page = paginationQuery.page || 1;
+    const perPage = paginationQuery.perPage || 20;
     const results =
       await this.warehouseBranchService.findAllBranchesByWarehouseId(
         warehouseId,
+        {
+          page,
+          perPage,
+        },
       );
     if (!results) {
       throw new NotFoundException(

@@ -18,7 +18,7 @@ export class WarehouseBranchService {
     this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
-  async findAll(): Promise<any> {
+  async findAll({ page, perPage }: any): Promise<any> {
     const query = `
     SELECT
       w.id as id,
@@ -37,9 +37,30 @@ export class WarehouseBranchService {
     FROM
       warehouses w
     LEFT JOIN
-      warehouse_branches b ON w.id = b.warehouse_id`;
+      warehouse_branches b ON w.id = b.warehouse_id LIMIT ? OFFSET ?`;
 
-    const branchesResults = await this.entityManager.query(query);
+    const branchesResults = await this.entityManager.query(query, [
+      perPage,
+      (page - 1) * perPage,
+    ]);
+
+    const total = await this.entityManager.query(
+      `SELECT COUNT(*) as count  
+    FROM
+      warehouses w
+    LEFT JOIN
+      warehouse_branches b ON w.id = b.warehouse_id`,
+    );
+    const per_page = Number(perPage);
+    const current_page = Number(page);
+    const last_page = Number(Math.ceil(total[0].count / per_page));
+    const first_page_url = '';
+    const last_page_url = '';
+    const next_page_url = '';
+    const prev_page_url = '';
+    const path = '';
+    const from = Number((page - 1) * perPage + 1);
+    const to = Number(page * perPage);
 
     const branchesWithDetails = await Promise.all(
       branchesResults.map(async (branch) => {
@@ -109,6 +130,17 @@ export class WarehouseBranchService {
     );
     return {
       data: branchesWithDetails,
+      total: Number(total[0].count),
+      current_page,
+      per_page,
+      last_page,
+      first_page_url,
+      last_page_url,
+      next_page_url,
+      prev_page_url,
+      path,
+      from,
+      to,
     };
   }
 
@@ -127,7 +159,10 @@ export class WarehouseBranchService {
     return branches;
   }
 
-  async findAllBranchesByWarehouseId(warehouseId: number): Promise<any> {
+  async findAllBranchesByWarehouseId(
+    warehouseId: number,
+    { page, perPage }: any,
+  ): Promise<any> {
     const warehouseQuery = `
       SELECT w.*
       FROM warehouses w
@@ -152,17 +187,48 @@ export class WarehouseBranchService {
     const branchesQuery = `
       SELECT b.*
       FROM warehouse_branches b
-      WHERE b.warehouse_id = ? `;
+      WHERE b.warehouse_id = ? LIMIT ? OFFSET ?`;
 
     const otherBranchesResult = await this.entityManager.query(branchesQuery, [
       warehouseId,
+      perPage,
+      (page - 1) * perPage,
     ]);
+
+    const total = await this.entityManager.query(
+      `SELECT COUNT(*) as count
+      FROM warehouse_branches b
+      WHERE b.warehouse_id = ?`,
+      [warehouseId],
+    );
+
+    const per_page = Number(perPage);
+    const current_page = Number(page);
+    const last_page = Number(Math.ceil(total[0].count / per_page));
+    const first_page_url = '';
+    const last_page_url = '';
+    const next_page_url = '';
+    const prev_page_url = '';
+    const path = '';
+    const from = Number((page - 1) * perPage + 1);
+    const to = Number(page * perPage);
 
     return {
       data: {
         warehouse: { ...warehouseResult[0], main_branch: mainBranchResult[0] },
         branches: otherBranchesResult,
       },
+      total: Number(total[0].count),
+      current_page,
+      per_page,
+      last_page,
+      first_page_url,
+      last_page_url,
+      next_page_url,
+      prev_page_url,
+      path,
+      from,
+      to,
     };
   }
 

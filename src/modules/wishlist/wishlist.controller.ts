@@ -8,11 +8,13 @@ import {
   Body,
   Put,
   Patch,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -36,6 +38,32 @@ export class WishListController {
     data: WishList[];
   }> {
     const results = await this.wishListService.getWishList();
+    return {
+      status: 'success',
+      message: 'Wish list fetched successfully',
+      data: results,
+    };
+  }
+  @Get('new-list')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Get wish list of the current customer' })
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'perPage', type: Number, required: false })
+  async getWishNewList(
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ): Promise<{
+    status: string;
+    message: string;
+    data: WishList[];
+  }> {
+    page = page || 1;
+    perPage = perPage || 10;
+    const results = await this.wishListService.getWishNewList({
+      page,
+      perPage,
+    });
     return {
       status: 'success',
       message: 'Wish list fetched successfully',

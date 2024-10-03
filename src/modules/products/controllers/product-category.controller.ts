@@ -1,5 +1,11 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Param,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { ProductsDto } from '../dtos/products.dto';
 import { ProductCategoryService } from '../services/product-category.service';
@@ -13,12 +19,22 @@ export class ProductCategoryController {
 
   @Get()
   @ApiOperation({ summary: 'Get all products from a category' })
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'perPage', type: Number, required: false })
   async findProductsByCategoryId(
     @Param('categoryId') categoryId: number,
+    @Query('page') page: any,
+    @Query('perPage') perPage: any,
   ): Promise<{ message: string; status: string; data: ProductsDto[] }> {
-    const results = await this.categoryProductService.findProductsByCategoryId(
-      categoryId,
-    );
+    page = page || 1;
+    perPage = perPage || 10;
+    const results =
+      await this.categoryProductService.findProductsByCategoryIdPage(
+        categoryId,
+        page,
+        perPage,
+      );
+
     if (!results || results.length === 0) {
       throw new NotFoundException(
         `No products found for category with id ${categoryId}`,

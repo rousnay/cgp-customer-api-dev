@@ -45,6 +45,23 @@ export class CartController {
     };
   }
 
+  @Get('new-list')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access_token')
+  @ApiOperation({ summary: 'Get cart of the current customer' })
+  async getNewCart(): Promise<{
+    status: string;
+    message: string;
+    data: Cart[];
+  }> {
+    const results = await this.cartService.getNewCart();
+    return {
+      status: 'success',
+      message: 'Cart fetched successfully',
+      data: results,
+    };
+  }
+
   @Post('add-single/:productId/:quantity')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')

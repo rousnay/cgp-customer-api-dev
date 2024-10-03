@@ -85,9 +85,21 @@ export class SearchController {
     summary: 'Search warehouses by name, category, or product.',
   })
   @ApiQuery({ name: 'query', type: String, required: false })
-  async searchWarehouses(@Query('query') query: string) {
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'perPage', type: Number, required: false })
+  async searchWarehouses(
+    @Query('query') query: string,
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ) {
+    page = page || 1;
+    perPage = perPage || 10;
     const results =
-      await this.searchWarehouseBranchesService.searchWarehouseBranches(query);
+      await this.searchWarehouseBranchesService.searchWarehouseBranchesPage(
+        query,
+        page,
+        perPage,
+      );
 
     if (!results || results.length === 0) {
       throw new NotFoundException(

@@ -22,8 +22,14 @@ export class ProductsService {
     this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
-  async findAll(): Promise<any> {
-    const productsQuery = `
+  async findAll(params?: any): Promise<any> {
+    let productsQuery = '';
+    const forHome = params.forHome || false;
+    const page = Number(params.page) || 1;
+    const perPage = Number(params.perPage) || 10;
+
+    if (forHome) {
+      productsQuery = `
     SELECT
       pw.id,
       pw.product_name,
@@ -65,9 +71,83 @@ export class ProductsService {
     LEFT JOIN
       product_warehouse_branch pw ON p.id = pw.product_id
     LEFT JOIN
-      warehouses w ON pw.warehouse_id = w.id ORDER BY p.created_at desc`;
+      warehouses w ON pw.warehouse_id = w.id ORDER BY p.created_at desc LIMIT ?`;
+    } else {
+      productsQuery = `
+    SELECT
+      pw.id,
+      pw.product_name,
+      pw.regular_price,
+      pw.sales_price,
+      pw.quantity,
+      pw.active,
+      pw.has_own_product_img,
+      p.barcode,
+      p.category_id,
+      p.primary_category_id,
+      p.brand_id,
+      p.unit,
+      p.size_id,
+      p.size_height,
+      p.size_width,
+      p.size_length,
+      p.colour_id,
+      p.group_id,
+      p.weight,
+      p.weight_unit_id,
+      p.materials,
+      p.short_desc,
+      p.long_desc,
+      p.details_overview,
+      p.details_specifications,
+      p.details_size_and_materials,
+      p.created_at,
+      p.updated_at,
+      w.name AS warehouse_name,
+      c.name AS category_name,
+      b.name AS brand_name
+    FROM
+      products p
+    LEFT JOIN
+      brands b ON p.brand_id = b.id
+    LEFT JOIN
+      categories c ON p.category_id = c.id
+    LEFT JOIN
+      product_warehouse_branch pw ON p.id = pw.product_id
+    LEFT JOIN
+      warehouses w ON pw.warehouse_id = w.id ORDER BY p.created_at desc LIMIT ? OFFSET ?`;
+    }
 
-    const productResults = await this.entityManager.query(productsQuery);
+    const productResults = await this.entityManager.query(
+      productsQuery,
+      forHome ? [10] : [perPage, (page - 1) * perPage],
+    );
+
+    const total = await this.entityManager.query(
+      `  SELECT
+      COUNT(DISTINCT p.id) as count
+    FROM
+      products p
+    LEFT JOIN
+      brands b ON p.brand_id = b.id
+    LEFT JOIN
+      categories c ON p.category_id = c.id
+    LEFT JOIN
+      product_warehouse_branch pw ON p.id = pw.product_id
+    LEFT JOIN
+      warehouses w ON pw.warehouse_id = w.id ORDER BY p.created_at desc`,
+    );
+
+    const per_page = Number(perPage);
+    const current_page = Number(page);
+    const last_page = Number(Math.ceil(total[0].count / per_page));
+    const first_page_url = '';
+    const last_page_url = '';
+    const next_page_url = '';
+    const prev_page_url = '';
+    const path = '';
+    const from = Number((page - 1) * perPage + 1);
+    const to = Number(page * perPage);
 
     // Group the results by product ID
     const productsGroupedById: { [key: number]: any } = {};
@@ -91,7 +171,6 @@ export class ProductsService {
 
       // console.log('product_cloudflare_id_result', product_cloudflare_id_result, productId);
 
- 
       const product_img_url = [];
 
       product_cloudflare_id_result.map((item) => {
@@ -132,6 +211,17 @@ export class ProductsService {
 
     return {
       data: productsWithBrandData,
+      total: Number(total[0].count),
+      per_page: per_page,
+      current_page: current_page,
+      last_page: last_page,
+      first_page_url: first_page_url,
+      last_page_url: last_page_url,
+      next_page_url: next_page_url,
+      prev_page_url: prev_page_url,
+      path: path,
+      from: from,
+      to: to,
     };
   }
 
@@ -248,7 +338,6 @@ export class ProductsService {
     product_cloudflare_id_result.map((item) => {
       if (item && item.cloudflare_id != null) {
         const url =
- 
           this.cfMediaBaseUrl +
           '/' +
           this.cfAccountHash +

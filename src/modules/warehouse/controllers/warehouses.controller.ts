@@ -39,17 +39,20 @@ export class WarehousesController {
       },
     },
   })
-  async findAll(): Promise<{
+  async findAll(@Query() paginationQuery: any): Promise<{
     message: string;
     status: string;
   }> {
-    const warehouses = await this.warehouseService.findAll();
+    const page = paginationQuery.page || 1;
+    const perPage = paginationQuery.perPage || 20;
+
+    const warehouses = await this.warehouseService.findAll({ page, perPage });
     if (warehouses === undefined || warehouses === null) {
       throw new NotFoundException(`No warehouses were found`);
     }
     return {
       status: 'success',
-      message: 'Warehouse with specified id fetched successfully',
+      message: 'Warehouse with specified id fetched successfully...',
       ...warehouses,
     };
   }

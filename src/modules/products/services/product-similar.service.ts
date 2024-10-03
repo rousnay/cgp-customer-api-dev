@@ -13,11 +13,15 @@ export class SimilarProductsService {
     private readonly entityManager: EntityManager,
     configService: ConfigService,
   ) {
-      this.cfAccountHash = configService.cloudflareAccountHash;
+    this.cfAccountHash = configService.cloudflareAccountHash;
   }
 
-  async getSimilarProducts(productId: number): Promise<any> {
+  async getSimilarProducts(
+    productId: number,
+    paginationQuery?: any,
+  ): Promise<any> {
     try {
+      const { page, perPage } = paginationQuery;
       // Fetch the categoryId based on the provided productId
       const categoryIdQuery = `
         SELECT category_id FROM products WHERE id = ?
@@ -31,7 +35,7 @@ export class SimilarProductsService {
       const categoryProductsQuery = `
         SELECT p.*
         FROM products p
-        WHERE p.category_id = ? AND p.id <> ?
+        WHERE p.category_id = ? AND p.id <> ? 
       `;
       const categoryProducts = await this.entityManager.query(
         categoryProductsQuery,
@@ -72,24 +76,26 @@ export class SimilarProductsService {
 
         const product_cloudflare_id_query = `SELECT cf.cloudflare_id FROM cf_media cf WHERE cf.model = 'App\\\\Models\\\\Product' AND cf.model_id = ?`;
 
-        const product_cloudflare_id_result = await this.entityManager.query(product_cloudflare_id_query, [product.id]);
+        const product_cloudflare_id_result = await this.entityManager.query(
+          product_cloudflare_id_query,
+          [product.id],
+        );
 
         const img_urls = [];
 
-        product_cloudflare_id_result.map(item => {
-            if (item && item.cloudflare_id != null) {
-                const url =
-                    this.cfMediaBaseUrl +
-                    '/' +
-                    this.cfAccountHash +
-                    '/' +
-                    item.cloudflare_id +
-                    '/' +
-                    this.cfMediaVariant;
-                img_urls.push(url);
-            }
-
-        })
+        product_cloudflare_id_result.map((item) => {
+          if (item && item.cloudflare_id != null) {
+            const url =
+              this.cfMediaBaseUrl +
+              '/' +
+              this.cfAccountHash +
+              '/' +
+              item.cloudflare_id +
+              '/' +
+              this.cfMediaVariant;
+            img_urls.push(url);
+          }
+        });
 
         categoryProductsWithBrandAndWarehouseData.push({
           ...productData, // Entire product object

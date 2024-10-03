@@ -130,6 +130,113 @@ export class CartService {
 
     return cartWithProductData;
   }
+  async getNewCart(): Promise<any[]> {
+    const customerId = this.request['user'].id;
+    const cartItems = await this.cartRepository.find({
+      where: { customer_id: customerId },
+    });
+
+    const cartWithProductData = [];
+    for (const cartItem of cartItems) {
+      console.log(cartItem);
+      const productQuery = `
+      SELECT
+        pw.id,
+        pw.product_name,
+        pw.regular_price,
+        pw.sales_price,
+        pw.quantity,
+        pw.active,
+        pw.has_own_product_img,
+        p.barcode,
+        p.category_id,
+        p.primary_category_id,
+        p.brand_id,
+        p.unit,
+        p.size_id,
+        p.size_height,
+        p.size_width,
+        p.size_length,
+        p.colour_id,
+        p.group_id,
+        p.weight,
+        p.weight_unit_id,
+        p.materials,
+        p.short_desc,
+        p.long_desc,
+        p.details_overview,
+        p.details_specifications,
+        p.details_size_and_materials,
+        p.details_size_and_materials,
+        p.created_at,
+        p.updated_at,
+        w.name AS warehouse_name,
+        c.name AS category_name,
+        b.name AS brand_name
+      FROM
+        product_warehouse_branch pw
+      LEFT JOIN
+        products p ON pw.product_id = p.id
+      LEFT JOIN
+        brands b ON p.brand_id = b.id
+      LEFT JOIN
+        categories c ON p.category_id = c.id
+      LEFT JOIN
+        warehouses w ON pw.warehouse_id = w.id
+      WHERE
+        pw.id = ?`;
+
+      const productData = await this.entityManager.query(productQuery, [
+        cartItem.product_id,
+      ]);
+      console.log(cartItem.product_id, productData);
+      if (productData) {
+        delete cartItem.product_id; // Remove product_id
+        delete cartItem.customer_id; // Remove customer_id
+
+        // Fetching brands data
+        const brandQuery = `
+            SELECT
+                b.name
+            FROM
+                brands b
+            WHERE
+                id = ?`;
+        const brandResult = await this.entityManager.query(brandQuery, [
+          productData[0]?.brand_id,
+        ]);
+
+        // Fetching warehouse data
+        const warehousesQuery = `
+            SELECT
+                pw.warehouse_id,
+                w.name AS warehouse_name
+            FROM
+                product_warehouse_branch pw
+            INNER JOIN
+                warehouses w ON pw.warehouse_id = w.id
+            WHERE
+                pw.id = ?`;
+
+        const warehouseResults = await this.entityManager.query(
+          warehousesQuery,
+          [productData[0]?.id],
+        );
+
+        cartWithProductData.push({
+          ...cartItem,
+
+          product: {
+            ...productData[0],
+            brand_name: brandResult[0]?.name, // Add the brand data as a separate object
+            warehouses: warehouseResults,
+          }, // Include full product data
+        });
+      }
+    }
+
+    return cartWithProductData;
+  }
 
   async addToCart(productId: number, quantity: number): Promise<Cart> {
     const customerId = this.request['user'].id;

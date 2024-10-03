@@ -88,12 +88,17 @@ export class ProductsController {
       },
     },
   })
-  async findAll(): Promise<{
+  async findAll(@Query() queryParams: any): Promise<{
     message: string;
     status: string;
     // data: ProductsDto[];
   }> {
-    const results = await this.productService.findAll();
+    const page = queryParams.page || 1;
+    const perPage = queryParams.perPage || 10;
+    const results = await this.productService.findAll({
+      page,
+      perPage,
+    });
     if (results === undefined || results === null) {
       throw new NotFoundException(`No product has found`);
     }
