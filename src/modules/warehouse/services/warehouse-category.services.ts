@@ -196,8 +196,16 @@ export class WarehouseCategoryService {
     ]);
 
     const warehousesQuery = `
-        SELECT w.id, w.name, COUNT(DISTINCT pw.product_id) as product_counts
+        SELECT w.id, w.name, w.abn_number, w.active, COUNT(DISTINCT pw.product_id) as product_counts,
+        b.id as branch_id,
+        b.name as branch_name,
+        b.branch_type,
+        b.address as branch_address,
+        b.latitude as branch_latitude,
+        b.longitude as branch_longitude,
+        b.active as branch_active
         FROM warehouses w
+        INNER JOIN warehouse_branches b ON w.id = b.warehouse_id
         INNER JOIN product_warehouse_branch pw ON w.id = pw.warehouse_id
         INNER JOIN category_product cp ON pw.product_id = cp.product_id
         WHERE cp.category_id = ?
@@ -263,6 +271,17 @@ export class WarehouseCategoryService {
           logo_url,
           thumbnail_url,
           avg_rating,
+          branch_info: {
+            id: warehouse.branch_id,
+            name: warehouse.branch_name,
+            branch_type: warehouse.branch_type,
+            address: warehouse.branch_address,
+            latitude: warehouse.branch_latitude,
+            longitude: warehouse.branch_longitude,
+            active: warehouse.branch_active,
+            created_at: warehouse.branch_created_at,
+            updated_at: warehouse.branch_updated_at,
+          },
         };
       }),
     );

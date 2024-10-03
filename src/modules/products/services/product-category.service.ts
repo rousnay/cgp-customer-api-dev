@@ -344,8 +344,10 @@ export class ProductCategoryService {
       // Fetching warehouse data
       const warehousesQuery = `
             SELECT
-                pw.warehouse_id,
-                w.name AS warehouse_name
+                pw.warehouse_id AS id,
+                w.name AS name,
+                w.abn_number AS abn_number,
+                w.active AS active
             FROM
                 product_warehouse_branch pw
             INNER JOIN
