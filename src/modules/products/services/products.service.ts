@@ -24,9 +24,9 @@ export class ProductsService {
 
   async findAll(params?: any): Promise<any> {
     let productsQuery = '';
-    const forHome = params.forHome || false;
-    const page = Number(params.page) || 1;
-    const perPage = Number(params.perPage) || 10;
+    const forHome = params?.forHome || false;
+    const page = Number(params?.page) || 1;
+    const perPage = Number(params?.perPage) || 10;
 
     if (forHome) {
       productsQuery = `

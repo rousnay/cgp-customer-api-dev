@@ -84,7 +84,7 @@ export class SearchController {
   @ApiOperation({
     summary: 'Search warehouses by name, category, or product.',
   })
-  @ApiQuery({ name: 'query', type: String, required: false })
+  @ApiQuery({ name: 'query', type: String, required: true })
   @ApiQuery({ name: 'page', type: Number, required: false })
   @ApiQuery({ name: 'perPage', type: Number, required: false })
   async searchWarehouses(
@@ -93,7 +93,8 @@ export class SearchController {
     @Query('perPage') perPage: number,
   ) {
     page = page || 1;
-    perPage = perPage || 10;
+    perPage = perPage || 20;
+    console.log(query, page, perPage);
     const results =
       await this.searchWarehouseBranchesService.searchWarehouseBranchesPage(
         query,
