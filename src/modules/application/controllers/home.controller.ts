@@ -56,8 +56,10 @@ export class HomeController {
     products: ProductsDto[];
   }> {
     const categories = await this.categoryService.findAllWithProductCount();
-    const warehouseBranches =
-      await this.warehouseBranchService.findAllWithOutPage();
+    const warehouseBranches = await this.warehouseBranchService.findAll({
+      page: 1,
+      perPage: 10,
+    });
     const products = await this.productService.findAll();
     return {
       message: 'Home data fetched successfully',

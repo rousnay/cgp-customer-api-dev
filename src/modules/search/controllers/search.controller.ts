@@ -94,7 +94,7 @@ export class SearchController {
   ) {
     page = page || 1;
     perPage = perPage || 20;
-    console.log(query, page, perPage);
+
     const results =
       await this.searchWarehouseBranchesService.searchWarehouseBranchesPage(
         query,
