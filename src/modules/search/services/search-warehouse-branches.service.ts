@@ -157,7 +157,7 @@ export class SearchWarehouseBranchesService {
     page = Number(page);
     perPage = Number(perPage);
     const warehousesQuery = `
-    SELECT
+     SELECT
       w.id as id,
       w.name as name,
       w.abn_number as abn_number,
@@ -189,7 +189,7 @@ export class SearchWarehouseBranchesService {
       OR UPPER(w.name) LIKE ?
       OR UPPER(c.name) LIKE ?)
     ORDER BY
-      relevance, w.name, c.name, p.name LIMIT ? OFFSET ?`;
+      relevance, w.name, c.name, p.name LIMIT 20 OFFSET 0`;
 
     const parameters = [
       `%${query.toUpperCase()}%`, // For sorting by warehouse
@@ -197,8 +197,6 @@ export class SearchWarehouseBranchesService {
       `%${query.toUpperCase()}%`, // For filtering by product name
       `%${query.toUpperCase()}%`, // For filtering by warehouse name
       `%${query.toUpperCase()}%`, // For filtering by category name
-      perPage,
-      perPage * (page - 1),
     ];
 
     const warehousesResults = await this.entityManager.query(

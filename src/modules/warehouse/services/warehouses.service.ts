@@ -192,6 +192,7 @@ export class WarehousesService {
 
     return {
       data: warehousesWithDetails,
+      total: total[0].count,
       per_page,
       current_page,
       last_page,
