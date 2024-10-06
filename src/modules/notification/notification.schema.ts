@@ -43,7 +43,7 @@ export interface BaseNotification extends Document {
 
 // Notification schema and interface
 export const NotificationSchema = new Schema({
-  deviceTokens: { type: [String], required: true },
+  deviceTokens: { type: [String], required: false },
 });
 NotificationSchema.add(BaseNotificationSchema);
 
@@ -53,7 +53,7 @@ export interface Notification extends BaseNotification {
 
 // DeliveryRequestNotification schema and interface
 export const DeliveryRequestNotificationSchema = new Schema({
-  deviceToken: { type: String, required: true },
+  deviceToken: { type: String, required: false },
 });
 DeliveryRequestNotificationSchema.add(BaseNotificationSchema);
 

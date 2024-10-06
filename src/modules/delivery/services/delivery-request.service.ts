@@ -284,6 +284,10 @@ export class DeliveryRequestService {
     console.log('getRidersDeviceTokens called!');
     console.log('riderIds', riderIds);
 
+    if (riderIds.length === 0) {
+      return [];
+    }
+
     const userIdQuery = `
       SELECT id AS riderId, user_id AS userId
       FROM riders
@@ -424,7 +428,8 @@ export class DeliveryRequestService {
     };
 
     for (const rider of nearRidersDeviceTokens) {
-      console.log('rider', rider);
+      console.log('rider:', rider);
+      console.log('###rider.deviceTokens:', rider.deviceTokens);
       for (const deviceToken of rider.deviceTokens) {
         await this.notificationService.sendAndStoreDeliveryRequestNotification(
           rider.userId,
