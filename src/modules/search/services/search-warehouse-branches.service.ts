@@ -157,39 +157,43 @@ export class SearchWarehouseBranchesService {
     page = Number(page);
     perPage = Number(perPage);
     const warehousesQuery = `
-     SELECT
-      w.id as id,
-      w.name as name,
-      w.abn_number as abn_number,
-      w.active as active,
-      b.id as branch_id,
-      b.name as branch_name,
-      b.branch_type,
-      b.address as branch_address,
-      b.latitude as branch_latitude,
-      b.longitude as branch_longitude,
-      b.active as branch_active,
-      CASE
-        WHEN UPPER(w.name) LIKE ? THEN 1
-        WHEN UPPER(c.name) LIKE ? THEN 2
-        ELSE 3
-      END as relevance
-    FROM
-      warehouses w
-    LEFT JOIN
-      warehouse_branches b ON w.id = b.warehouse_id
-    LEFT JOIN
-      product_warehouse_branch pw ON w.id = pw.warehouse_id
-    LEFT JOIN
-      products p ON pw.product_id = p.id
-    LEFT JOIN
-      categories c ON p.category_id = c.id
-    WHERE
-      (UPPER(p.name) LIKE ?
-      OR UPPER(w.name) LIKE ?
-      OR UPPER(c.name) LIKE ?)
-    ORDER BY
-      relevance, w.name, c.name, p.name LIMIT 20 OFFSET 0`;
+       SELECT
+          w.id AS id,
+          w.name AS name,
+          w.abn_number AS abn_number,
+          w.active AS active,
+          b.id AS branch_id,
+          b.name AS branch_name,
+          b.branch_type,
+          b.address AS branch_address,
+          b.latitude AS branch_latitude,
+          b.longitude AS branch_longitude,
+          b.active AS branch_active,
+          CASE
+            WHEN UPPER(w.name) LIKE ? THEN 1
+            WHEN UPPER(c.name) LIKE ? THEN 2
+            ELSE 3
+          END AS relevance
+        FROM
+          warehouses w
+        LEFT JOIN
+          warehouse_branches b ON w.id = b.warehouse_id
+        LEFT JOIN
+          product_warehouse_branch pw ON w.id = pw.warehouse_id
+        LEFT JOIN
+          products p ON pw.product_id = p.id
+        LEFT JOIN
+          categories c ON p.category_id = c.id
+        WHERE
+          (UPPER(p.name) LIKE ?
+          OR UPPER(w.name) LIKE ?
+          OR UPPER(c.name) LIKE ?)
+          AND w.id IS NOT NULL
+        GROUP BY
+          w.id, w.name, w.abn_number, w.active, b.id, b.name, b.branch_type, b.address, b.latitude, b.longitude, b.active
+        ORDER BY
+          relevance, w.name, c.name, p.name
+        LIMIT ? OFFSET ?;`;
 
     const parameters = [
       `%${query.toUpperCase()}%`, // For sorting by warehouse
@@ -197,6 +201,8 @@ export class SearchWarehouseBranchesService {
       `%${query.toUpperCase()}%`, // For filtering by product name
       `%${query.toUpperCase()}%`, // For filtering by warehouse name
       `%${query.toUpperCase()}%`, // For filtering by category name
+      perPage, // Limit
+      (page - 1) * perPage, // Offset
     ];
 
     const warehousesResults = await this.entityManager.query(
@@ -206,13 +212,25 @@ export class SearchWarehouseBranchesService {
 
     // for pagination
     const total = await this.entityManager.query(
-      `SELECT
-      COUNT(w.id) as count,
+      `SELECT COUNT(*) AS count
+FROM (
+    SELECT
+      w.id AS id,
+      w.name AS name,
+      w.abn_number AS abn_number,
+      w.active AS active,
+      b.id AS branch_id,
+      b.name AS branch_name,
+      b.branch_type,
+      b.address AS branch_address,
+      b.latitude AS branch_latitude,
+      b.longitude AS branch_longitude,
+      b.active AS branch_active,
       CASE
         WHEN UPPER(w.name) LIKE ? THEN 1
         WHEN UPPER(c.name) LIKE ? THEN 2
         ELSE 3
-      END as relevance
+      END AS relevance
     FROM
       warehouses w
     LEFT JOIN
@@ -227,10 +245,15 @@ export class SearchWarehouseBranchesService {
       (UPPER(p.name) LIKE ?
       OR UPPER(w.name) LIKE ?
       OR UPPER(c.name) LIKE ?)
-    ORDER BY
-      relevance, w.name, c.name, p.name`,
+      AND w.id IS NOT NULL
+    GROUP BY
+      w.id, w.name, w.abn_number, w.active, b.id, b.name, b.branch_type, b.address, b.latitude, b.longitude, b.active
+) AS subquery;
+`,
       parameters,
     );
+
+    // for pagination
     const per_page = perPage;
     const current_page = page;
     const last_page = Number(Math.ceil(total[0].count / per_page));
@@ -317,7 +340,6 @@ export class SearchWarehouseBranchesService {
         };
       }),
     );
-
     // Filter out null values resulting from duplicate checks
     const filteredResults = warehousesWithDetails.filter(
       (item) => item !== null,
