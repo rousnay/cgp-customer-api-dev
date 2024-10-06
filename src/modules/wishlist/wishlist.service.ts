@@ -107,6 +107,9 @@ export class WishListService {
     page: number;
     perPage: number;
   }): Promise<any[]> {
+    page = Number(page);
+    perPage = Number(perPage);
+
     const customerId = this.request['user'].id;
     const wishListItems = await this.wishListRepository.find({
       where: { customer_id: customerId },

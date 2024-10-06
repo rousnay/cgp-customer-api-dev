@@ -29,7 +29,8 @@ export class WarehousesService {
   }: any): Promise<any> {
     // Fetch all warehouses with unique categories and brands
     let warehousesQuery = '';
-
+    page = Number(page);
+    perPage = Number(perPage);
     const offset = (page - 1) * perPage;
 
     if (forHome) {

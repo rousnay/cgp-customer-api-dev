@@ -22,7 +22,10 @@ export class ProductWarehouseService {
     warehouseId: number,
     paginationQuery?: any,
   ): Promise<any> {
-    const { page = 1, perPage = 10 } = paginationQuery;
+    let page = paginationQuery.page || 1;
+    let perPage = paginationQuery.perPage || 10;
+    page = Number(page);
+    perPage = Number(perPage);
     // Fetch warehouse data
     const warehouseQuery = `
             SELECT
@@ -138,7 +141,7 @@ SELECT
 
     const productResults = await this.entityManager.query(productsQuery, [
       Number(warehouseId),
-      perPage,
+      Number(perPage),
       Number(perPage) * (Number(page) - 1),
     ]);
 

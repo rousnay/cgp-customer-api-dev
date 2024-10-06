@@ -236,6 +236,8 @@ export class ProductCategoryService {
     perPage: number,
   ): Promise<any> {
     // Query to fetch category object
+    page = Number(page);
+    perPage = Number(perPage);
     const categoryQuery = `
         SELECT c.*
         FROM categories c
