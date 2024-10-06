@@ -186,7 +186,10 @@ export class ProductWarehouseBranchService {
     branchId: number,
     paginationQuery?: any,
   ): Promise<any> {
-    const { page = 1, perPage = 10 } = paginationQuery;
+    let page = paginationQuery.page || 1;
+    let perPage = paginationQuery.perPage || 10;
+    page = Number(page);
+    perPage = Number(perPage);
     // Fetch branch and associated warehouse data
     const branchQuery = `
         SELECT
