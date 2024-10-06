@@ -19,6 +19,8 @@ export class WarehouseBranchService {
   }
 
   async findAll({ page = 1, perPage = 20 }: any): Promise<any> {
+    page = Number(page);
+    perPage = Number(perPage);
     const query = `
     SELECT
       w.id as id,
