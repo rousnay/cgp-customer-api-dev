@@ -212,13 +212,25 @@ export class SearchWarehouseBranchesService {
 
     // for pagination
     const total = await this.entityManager.query(
-      `SELECT
-      COUNT(w.id) as count,
+      `SELECT COUNT(*) AS count
+FROM (
+    SELECT
+      w.id AS id,
+      w.name AS name,
+      w.abn_number AS abn_number,
+      w.active AS active,
+      b.id AS branch_id,
+      b.name AS branch_name,
+      b.branch_type,
+      b.address AS branch_address,
+      b.latitude AS branch_latitude,
+      b.longitude AS branch_longitude,
+      b.active AS branch_active,
       CASE
         WHEN UPPER(w.name) LIKE ? THEN 1
         WHEN UPPER(c.name) LIKE ? THEN 2
         ELSE 3
-      END as relevance
+      END AS relevance
     FROM
       warehouses w
     LEFT JOIN
@@ -233,11 +245,15 @@ export class SearchWarehouseBranchesService {
       (UPPER(p.name) LIKE ?
       OR UPPER(w.name) LIKE ?
       OR UPPER(c.name) LIKE ?)
-    ORDER BY
-      relevance, w.name, c.name, p.name`,
+      AND w.id IS NOT NULL
+    GROUP BY
+      w.id, w.name, w.abn_number, w.active, b.id, b.name, b.branch_type, b.address, b.latitude, b.longitude, b.active
+) AS subquery;
+`,
       parameters,
     );
 
+    // for pagination
     const per_page = perPage;
     const current_page = page;
     const last_page = Number(Math.ceil(total[0].count / per_page));
