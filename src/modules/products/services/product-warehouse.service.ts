@@ -259,7 +259,10 @@ SELECT
     categoryId: number,
     paginationQuery?: any,
   ): Promise<any> {
-    const { page = 1, perPage = 10 } = paginationQuery;
+    let page = paginationQuery?.page || 1;
+    let perPage = paginationQuery?.perPage || 10;
+    page = Number(page);
+    perPage = Number(perPage);
     const warehousesQuery = `
       SELECT
         w.id as warehouse_id,
