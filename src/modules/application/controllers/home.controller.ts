@@ -60,13 +60,14 @@ export class HomeController {
       page: 1,
       perPage: 10,
     });
-    const products = await this.productService.findAll();
+    // const products = await this.productService.findAll();
+    const products = [];
     return {
       message: 'Home data fetched successfully',
       status: 'success',
       categories,
       warehouseBranches: warehouseBranches.data,
-      products: products.data,
+      products: [],
     };
   }
 
