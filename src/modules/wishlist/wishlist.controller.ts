@@ -58,12 +58,17 @@ export class WishListController {
     message: string;
     data: WishList[];
   }> {
-    page = page || 1;
-    perPage = perPage || 10;
-    const results = await this.wishListService.getWishNewList({
-      page,
-      perPage,
-    });
+    let results = null;
+    if (!page) {
+      results = await this.wishListService.getWishList();
+    } else {
+      page = page || 1;
+      perPage = perPage || 10;
+      results = await this.wishListService.getWishNewList({
+        page,
+        perPage,
+      });
+    }
     return {
       status: 'success',
       message: 'Wish list fetched successfully',
