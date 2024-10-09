@@ -32,12 +32,27 @@ export class WishListController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access_token')
   @ApiOperation({ summary: 'Get wish list of the current customer' })
-  async getWishList(): Promise<{
+  @ApiQuery({ name: 'page', type: Number, required: false })
+  @ApiQuery({ name: 'perPage', type: Number, required: false })
+  async getWishList(
+    @Query('page') page: number,
+    @Query('perPage') perPage: number,
+  ): Promise<{
     status: string;
     message: string;
     data: WishList[];
   }> {
-    const results = await this.wishListService.getWishList();
+    let results = null;
+    if (!page) {
+      results = await this.wishListService.getWishList();
+    } else {
+      page = page || 1;
+      perPage = perPage || 10;
+      results = await this.wishListService.getWishNewList({
+        page,
+        perPage,
+      });
+    }
     return {
       status: 'success',
       message: 'Wish list fetched successfully',
