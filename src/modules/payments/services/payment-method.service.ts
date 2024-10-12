@@ -47,6 +47,7 @@ export class PaymentMethodService {
       [email],
     );
     try {
+      // Check if customer details are present
       if (!customerDetails.length) {
         return {
           status: 'error',
@@ -57,54 +58,130 @@ export class PaymentMethodService {
 
       const { stripe_id: customerStripeId } = customerDetails[0];
 
+      // If Stripe ID is not available, create a new customer
       if (!customerStripeId) {
-        const customer = await this.createCustomer(email, name);
-        newCustomerId = customer.id;
-        await this.updateUserStipeId(email, customer.id);
-        const _resultData = await this.attachAndSetDefaultPaymentMethod(
-          pmID,
-          customer.id,
-          isDefault,
-        );
+        try {
+          const customer = await this.createCustomer(email, name);
+          newCustomerId = customer.id;
+
+          await this.updateUserStipeId(email, customer.id);
+
+          const _resultData = await this.attachAndSetDefaultPaymentMethod(
+            pmID,
+            customer.id,
+            isDefault,
+          );
+          return {
+            status: 'success',
+            message: 'Payment method attached successfully',
+            data: _resultData,
+          };
+        } catch (createCustomerError) {
+          console.error('Error creating customer:', createCustomerError);
+          return {
+            status: 'error',
+            message: 'Failed to create a customer and attach payment method.',
+            data: {
+              paymentMethodList: {
+                object: 'list',
+                data: [],
+                has_more: false,
+              },
+              customer: null,
+            },
+          };
+        }
+      }
+
+      // Retrieve customer data from Stripe
+      let customer;
+      try {
+        customer = await this.stripe.customers.retrieve(customerStripeId);
+      } catch (retrieveError) {
+        console.error('Error retrieving customer from Stripe:', retrieveError);
         return {
-          status: 'success',
-          message: 'Payment method attached successfully',
-          data: _resultData,
+          status: 'error',
+          message: 'Failed to retrieve customer from Stripe.',
+          data: {
+            paymentMethodList: {
+              object: 'list',
+              data: [],
+              has_more: false,
+            },
+            customer: null,
+          },
         };
       }
 
-      const customer = await this.stripe.customers.retrieve(customerStripeId);
-
+      // Handle deleted customer case
       if (customer.deleted) {
-        const customer = await this.createCustomer(email, name);
-        newCustomerId = customer.id;
+        try {
+          const newCustomer = await this.createCustomer(email, name);
+          newCustomerId = newCustomer.id;
+
+          const _resultData = await this.attachAndSetDefaultPaymentMethod(
+            pmID,
+            newCustomer.id,
+            isDefault,
+          );
+          await this.updateUserStipeId(email, newCustomer.id);
+
+          return {
+            status: 'success',
+            message: 'Payment method attached successfully to new customer',
+            data: _resultData,
+          };
+        } catch (deletedCustomerError) {
+          console.error(
+            'Error creating customer for deleted account:',
+            deletedCustomerError,
+          );
+          return {
+            status: 'error',
+            message: 'Failed to recreate customer and attach payment method.',
+            data: {
+              paymentMethodList: {
+                object: 'list',
+                data: [],
+                has_more: false,
+              },
+              customer: null,
+            },
+          };
+        }
+      }
+
+      // Attach payment method to existing customer
+      try {
         const _resultData = await this.attachAndSetDefaultPaymentMethod(
           pmID,
-          customer.id,
+          customerStripeId,
           isDefault,
         );
-
-        await this.updateUserStipeId(email, customer.id);
-
         return {
           status: 'success',
           message: 'Payment method attached successfully',
           data: _resultData,
         };
+      } catch (attachMethodError) {
+        console.error('Error attaching payment method:', attachMethodError);
+        return {
+          status: 'error',
+          message: 'Failed to attach payment method to customer.',
+          data: {
+            paymentMethodList: {
+              object: 'list',
+              data: [],
+              has_more: false,
+            },
+            customer: null,
+          },
+        };
       }
+    } catch (generalError) {
+      console.error('General error in attaching payment method:', generalError);
 
-      const _resultData = await this.attachAndSetDefaultPaymentMethod(
-        pmID,
-        customerStripeId,
-        isDefault,
-      );
-
-      return {
-        status: 'success',
-        message: 'Payment method attached successfully',
-        data: _resultData,
-      };
-    } catch (e) {
+      // If a new customer was created but error occurred, delete it
       if (newCustomerId) {
         await this.stripe.customers.del(newCustomerId);
       }
@@ -112,8 +189,15 @@ export class PaymentMethodService {
       return {
         status: 'error',
         message:
-          'Payment method attach failed, You can not add this payment method.',
-        data: null,
+          'Payment method attach failed. Unable to add this payment method.',
+        data: {
+          paymentMethodList: {
+            object: 'list',
+            data: [],
+            has_more: false,
+          },
+          customer: null,
+        },
       };
     }
   }
@@ -262,20 +346,30 @@ export class PaymentMethodService {
         status: 'success',
         message: 'Customer not found',
         data: {
-          paymentMethodList: [],
+          paymentMethodList: {
+            object: 'list',
+            data: [],
+            has_more: false,
+          },
           customer: null,
         },
       };
     }
+    console.log(customerStripeId);
     // find this customer
     try {
       const customer = await this.stripe.customers.retrieve(customerStripeId);
+
       if (customer.deleted) {
         return {
           status: 'success',
           message: 'Customer not found',
           data: {
-            paymentMethodList: [],
+            paymentMethodList: {
+              object: 'list',
+              data: [],
+              has_more: false,
+            },
             customer: null,
           },
         };
@@ -295,11 +389,16 @@ export class PaymentMethodService {
         };
       }
     } catch (e) {
+      console.log(e);
       return {
         status: 'success',
-        message: 'Can not get any payment methods',
+        message: 'Customer not found',
         data: {
-          paymentMethodList: [],
+          paymentMethodList: {
+            object: 'list',
+            data: [],
+            has_more: false,
+          },
           customer: null,
         },
       };
