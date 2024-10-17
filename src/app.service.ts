@@ -37,19 +37,19 @@ export class AppService {
 
   async appVersion(): Promise<any> {
     return {
-      current: '1.0.0',
-      version: '1.0.0',
-      android_test_version: null,
-      ios_version: null,
-      ios_test_version: null,
+      current: 'V_1',
+      version: '1.0.4',
+      android_test_version: '1.0.5',
+      ios_version: '1.0.7',
+      ios_test_version: '1.0.8',
       enable: false,
       majorMsg: {
         title: 'Update App',
         msg: 'New Version Available. Please Update.',
         button: 'Download',
         url: {
-          apk: 'https://play.google.com/store/apps/details?id=com.themallbd.mobileapp&hl=en-GB',
-          ios: 'https://apps.apple.com/us/app/themallbd-com/id1548101376',
+          apk: 'https://play.google.com/store/apps/details?id=com.tradebar.customer',
+          ios: 'https://apps.apple.com/gb/app/tradebar-customer/id6730116636',
         },
       },
       minorMsg: {
