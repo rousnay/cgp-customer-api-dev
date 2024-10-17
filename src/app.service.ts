@@ -39,6 +39,7 @@ export class AppService {
     return {
       current: 'V_1',
       version: '1.0.4',
+      android_version: '1.0.4',
       android_test_version: '1.0.5',
       ios_version: '1.0.7',
       ios_test_version: '1.0.8',
