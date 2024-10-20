@@ -26,6 +26,8 @@ import { AppController } from './app.controller';
 import { ReviewModule } from '@modules/review/review.module';
 import { VariablesService } from '@common/utils/variables.service';
 import { setVariablesService } from '@common/utils/variables';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AppVersion, AppVersionSchema } from './app-version.schema';
 
 @Module({
   imports: [
@@ -52,6 +54,9 @@ import { setVariablesService } from '@common/utils/variables';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
+    MongooseModule.forFeature([
+      { name: AppVersion.name, schema: AppVersionSchema },
+    ]),
   ],
   providers: [AppService, VariablesService],
   controllers: [AppController],
