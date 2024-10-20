@@ -1,12 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
 import { AppVariables } from '@common/utils/variables';
+import { AppVersion } from './app-version.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class AppService {
   constructor(
     @InjectEntityManager() private readonly entityManager: EntityManager,
+    @InjectModel(AppVersion.name) private appVersionModel: Model<AppVersion>,
   ) {}
   getHello(): string {
     return 'Hello World!';
@@ -60,5 +68,36 @@ export class AppService {
         url: null,
       },
     };
+  }
+
+  // Fetch the app version from the database
+  // Fetch the app version by app_name (which is inside the data object)
+  async getAppVersion(): Promise<AppVersion> {
+    const appVersion = await this.appVersionModel.findOne({
+      'data.app_name': 'Tradebar Customer',
+    });
+    if (!appVersion) {
+      throw new NotFoundException(
+        `App version with app_name 'Tradebar Customer' not found`,
+      );
+    }
+    return appVersion;
+  }
+
+  async updateAppVersion(updateData: any): Promise<AppVersion> {
+    // Check if app_name is present in the update data
+    if (!updateData.app_name) {
+      throw new BadRequestException(
+        'app_name property is required in updateData',
+      );
+    }
+
+    const updatedAppVersion = await this.appVersionModel.findOneAndUpdate(
+      { 'data.app_name': 'Tradebar Customer' }, // Query to find the app version
+      { $set: { data: updateData } }, // Update operation
+      { new: true, upsert: true }, // Return the updated document and create if not found
+    );
+
+    return updatedAppVersion;
   }
 }
